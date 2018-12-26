@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>tinymce用于生产</title>
+    <script src="src/js/rely/tinymce/js/tinymce/tinymce.min.js"></script>
+<script>
+window.onload = function(){
+
+
+tinymce.PluginManager.add('test', function(editor){
+    console.log(editor)
+});
+
+
+tinymce.init({
+
+    selector: '#tinymac',
+    language:'zh_CN',
+    plugins: [
+        'advlist autolink lists link image preview textcolor autosave table'
+    ],
+    image_advtab: true,
+    toolbar: ' bold italic strikethrough forecolor backcolor | link | formatselect | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat | restoredraft',
+    table_toolbar: "tableprops tabledelete | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol",
+    branding: false,
+
+});
+
+    // console.log( tinymce.activeEditor.getContent() )
+
+
+document.getElementById('btn').onclick = function(){
+
+    var str = tinymce.activeEditor.save();
+    // 将字符转成ASCII码，防止乱码
+    var codeStr = encodeURI(str);
+    // 将codeStr写成JSON数据里data的属性值，再将JSON转成JSON格式的字符串
+    var jsonStr = JSON.stringify( { data:codeStr } );
+
+
+    // 新建一个ajax实例
+    var xhr = new XMLHttpRequest() || new ActiveXObject('Microsoft.XMLHTTP');
+
+    // 提交地址
+    var url = 'index.php';
+
+    // 初始化提交
+    xhr.open('post',url,true);
+    // 采用application/json作为传输头，因为在获取富文本编辑区的内容时，空格字符是作为转义字符存在的(&nbsp)，而传统用application/x-www-form-urlencoded作为传输头会导致&符号被识别为分隔符，即&符号后面的内容会被视为一个新的属性存在,所以改传输头
+    xhr.setRequestHeader('content-type','application/json');
+    // 提交
+    xhr.send(jsonStr);
+
+
+    // 对返回的状态码作判断
+    xhr.onreadystatechange = function(){
+
+        if( xhr.readyState == 4 ){
+
+            if( xhr.status === 200 ){
+                console.log(xhr.responseText);
+            }else if( xhr.status === 404 ){
+                console.log('出错了');
+            }
+
+        }
+
+    }
+
+
+}
+
+
+
+
+}
+
+
+
+</script>
+</head>
+<body>
+
+
+<textarea id="tinymac"></textarea>
+
+<input type="button" value="保存" id="btn" >
+
+</body>
+</html>
