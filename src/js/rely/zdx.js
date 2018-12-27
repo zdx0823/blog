@@ -1,3 +1,17 @@
+/**
+ * 获取当前网站的cookie
+ * @return {[对象]} [键值对的cookie]
+ */
+function getCookie(){
+
+    var str = document.cookie;
+    var arr = str.split('; ');
+    var obj = {};
+    arr.forEach(function(item){
+        obj[ item.split('=')[0] ] = item.split('=')[1];
+    });
+    return obj;
+}
 
 /**
  * 根据参数新建一个ajax实例
@@ -18,7 +32,7 @@ function ajax(obj,requestHeader){
 
 
     // 默认为get方式
-    var method = 'get',
+    var method = obj.method || 'get',
         data = obj.data || '',
         url = obj.url,
         success = obj.success;
@@ -30,7 +44,7 @@ function ajax(obj,requestHeader){
 
         // 如果是get方式将data数据用?与url连接起来
         url += '?' + data;
-
+        console.log(432345432);
     }
 
     // 打开ajax通道，传入参数：请求方式，地址，是否异步
@@ -46,7 +60,9 @@ function ajax(obj,requestHeader){
     if( method == 'get' ){
         xhr.send();
     }else{
+        // 设置请求头数据类型
         xhr.setRequestHeader('content-type',requestHeader);
+        // 发送数据
         xhr.send(data);
     }
 

@@ -1,88 +1,119 @@
 window.onload = function(){
-var zdx = {};
-zdx.tevent = function(){
 
-    var addArticle = $('#addArticle');
-    var articles = $('#articles');
-    var oContent = $('#content');
+var z = {
+    plugVessel : $('#tinymce'),
+    editorBtn : $('#editorBtn'),
+    contentTitle : $('#contentTitle'),
+    fnbar : $('.fnbar'),
+    showcase : $('#showcase'),
+    editorCon : $('#editorCon'),
+    saveChange : $('#saveChange'),
+    resetChange : $('#resetChange'),
 
-    addArticle.onclick = function(){
+    userStatus : getCookie().userStatus || 'admin',
 
-        articles.remove();
-        ajax({
+    init : function(){
+        showcase.style.display = 'block';
+        z.event();
 
-            method:'get',
-            url:'php/index.php',
-            success: function(data){
-                var html = decodeURI(JSON.parse(data).addArticle);
-                console.log(html);
-                oContent.innerHTML = html;
-                initTinymce();
-                // console.log();
-            }
+    },
+    event : function(){
 
-        },'json');
+        z.editorBtn.onclick = function(){
 
-    };
+            contentTitle.innerHTML = this.innerHTML;
+            showcase.style.display = 'none';
+            editorCon.style.display = 'block';
 
+            z.tinymce = initTinymce();
+            location.hash = 'editor';
+
+        }
+
+        z.saveChange.onclick = function(){
+
+            tinymce.activeEditor.save();
+            var con = tinymce.activeEditor.getContent();
+            // 把数据用URI编码一下再做成json格式的字符
+            var conEncode = encodeURI(con);
+            var conJsonStr = '{"data":"'+ conEncode +'"}';
+
+            ajax({
+
+                method:'post',
+                data:conJsonStr,
+                // 注意这里的路径问题，main.js是在index.html里执行的，所以要以index.html的视角去写路径
+                url:'php/index.php',
+                success:function(data){
+                    console.log(data);
+                }
+
+            },'json');
+
+        }
+
+    },
 
 }
-function init(){
-
-    zdx.tevent();
-
-}
-
-init();
 
 
+z.init();
 
+console.log(z.userStatus);
 
-
-
-
-
-/**
- * ==========
- * 添加文章
- * ==========
- */
 function initTinymce(){
 
-    var obj = $('#editorTinymce');
-    var height = 400;
+    var obj = z.plugVessel;
+    var vi = 72 + 38 + 52 + 60;
+    var height = client(window).h - vi;
 
-    tinymce.init({
+    return tinymce.init({
 
         target: obj,
         language:'zh_CN',
+        min_height : height,
         plugins: [
-            'advlist autolink lists link image preview textcolor autosave autoresize table'
+            'advlist autolink lists link image preview autosave textcolor table codesample'
         ],
-        elementpath: false,
+        toolbar:
+            /*工具栏显示*/
+            // 预览
+            'preview |' +
+            // 粗体 斜体 删除线 下划线
+            ' bold italic strikethrough underline |'+
+            // 字体颜色  字体背景色
+            ' forecolor backcolor |'+
+            // 下标  上标  字体大小  预览
+            ' subscript | superscript | fontsizeselect |'+
+            // 链接  代码高亮
+            ' link | codesample |'+
+            // 左对齐  居中对齐  右对齐  两端对齐
+            ' alignleft aligncenter alignright alignjustify |'+
+            // 有序列表  符号列表
+            ' numlist bullist |'+
+            // 减少缩进  增加缩进
+            ' outdent indent |'+
+            // 表格
+            ' table |'+
+            // 清除格式
+            ' removeformat',
+        branding: false,    // 隐藏tinymce商标
+        elementpath: false, // 隐藏编辑路径
         image_advtab: true,
-        autoresize_min_height: height,
-        toolbar: ' bold italic strikethrough forecolor backcolor | link | formatselect | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat | restoredraft',
-        table_toolbar: "tableprops tabledelete | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol",
-        branding: false,
+        menubar: false,
+
+        fontsize_formats: '8pt 10pt 12pt 14pt 18pt 24pt 36pt 72pt',  // 设置可选字体大小
+
+
+        // 定义tinymce渲染完成的回调函数，用于修改部分样式
         init_instance_callback: function(){
 
-            var save = '<a href="javascript:;" id="editorSave">保存</a>';
-            var saveBtn = createNode('a'),
-                saveTxt = createTextNode('保存');
-            saveBtn.appendChild(saveTxt);
-            saveBtn.setAttribute('href','javascript:;');
-            saveBtn.setAttribute('id','editorSave');
-
-            var mceu_37 = $('#mceu_37');
-            mceu_37.appendChild(saveBtn);
 
         }
 
     });
 
 }
-
 
 }
 

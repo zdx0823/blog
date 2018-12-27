@@ -16,7 +16,7 @@
     height: 100%;
     border-right: 1px solid #ddd;
     background: #fff;
-    position: absolute;
+    position: fixed;
     z-index: 9;
 }
 #leftNav nav{
@@ -73,15 +73,16 @@
 
 
 
-
-#content{
-    width: 100%;
+.contentwrap{
     height: 100%;
     padding-left: 3.20rem;
     box-sizing: border-box;
     position: relative;
 }
-#content .content-title{
+#content{
+    height: 100%;
+}
+#contentTitle{
     text-align: center;
     font-size: .28rem;
     padding: 20px 0;
@@ -89,13 +90,23 @@
     color: #5f5f5f;
     border-bottom: 1px solid #ddd;
 }
-#showcase{
-
+.fnbar{
+    width: 100%;
+    height: 100%;
+    position: relative;
+    top: -.73rem;
+    padding-top: .73rem;
+    box-sizing: border-box;
 }
+.fnbar-bar{
+    display: none;
+}
+/*#showcase{}*/
 /*#showcase h2{}*/
-#showcase .bar-wrap{
+#showcase{
     width: 9.9rem;
-    margin: .1rem auto;
+    padding: .1rem 0;
+    margin: 0 auto;
 }
 
 
@@ -164,4 +175,46 @@
 }
 #showcase .bar-info-r-thumb i{
     transform: scale(1.1,1);
+}
+
+
+
+#editorCon{
+    height: 100%;
+}
+
+#editorCon > div{
+    border-width: 0 !important;
+}
+
+.editorCon-btns{
+    text-align: center;
+    margin-top: .26rem;
+}
+
+#saveChange,#resetChange{
+    display: inline-block;
+    width: 110px;
+    height: 40px;
+    color: #fff;
+    text-align: center;
+    line-height: 40px;
+    font-size: 0.16rem;
+    border-radius: 5px;
+    transition: background .3s;
+}
+
+#saveChange{
+    background: #2196F3;
+}
+#saveChange:hover{
+    background: hsl(207, 90%, 40%);
+}
+
+#resetChange{
+    margin-left: 60px;
+    background: #607d8b;
+}
+#resetChange:hover{
+    background: hsl(200, 18%, 38%);
 }
