@@ -1,16 +1,14 @@
 <?php
-
+date_default_timezone_set('Asia/Shanghai');
+header('content-type:text/html;charset=utf-8');
+require('init.php');
+require('function.php');
+$link = dbConnect();
 
 if( getallheaders()['content-type'] === 'application/json' ){
 
-    // 生成唯一的文件名
-    $uuid = md5( uniqid( microtime().mt_rand() ) );
-    $fileName = '../data/articles/' . $uuid;
-    // 将json数据写入文件
-    $data = file_get_contents('php://input')
-    file_put_contents($fileName,);
-
-
+    responseAddEvent($link);
 
 }
+
 

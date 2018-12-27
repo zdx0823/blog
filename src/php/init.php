@@ -7,6 +7,6 @@ return [
         'pass'=>'root',
         'dbname'=>'blog',
         'port'=>'3306'
-    ];
+    ],
     'DB_CHARSET'=>'utf8'
 ];
