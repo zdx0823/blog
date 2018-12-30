@@ -9,13 +9,14 @@ var z = {
     editorCon : $('#editorCon'),
     saveChange : $('#saveChange'),
     resetChange : $('#resetChange'),
+    saveAndClose : $('#saveAndClose'),
+    resetChange : $('#resetChange'),
 
-    userStatus : getCookie().userStatus || 'admin',
+    userStatus : null,
 
     init : function(){
         showcase.style.display = 'block';
         z.event();
-
     },
     event : function(){
 
@@ -30,27 +31,35 @@ var z = {
 
         }
 
-        z.saveChange.onclick = function(){
-
-            tinymce.activeEditor.save();
-            var con = tinymce.activeEditor.getContent();
-            // 把数据用URI编码一下再做成json格式的字符
-            var conEncode = encodeURI(con);
-            var conJsonStr = '{"data":"'+ conEncode +'"}';
-
+        // 保存按钮
+        z.saveChange.onclick = send_saveRequest
+        
+        // 重置按钮
+        z.resetChange.onclick = function(){
+            var tinymceBody = tinymce.activeEditor.getBody();
+            tinymceBody.innerHTML = '';
             ajax({
-
                 method:'post',
-                data:conJsonStr,
-                // 注意这里的路径问题，main.js是在index.html里执行的，所以要以index.html的视角去写路径
                 url:'php/index.php',
+                data:'action=resetChange',
                 success:function(data){
                     console.log(data);
                 }
+            });
+        };
 
-            },'json');
-
-        }
+        // 保存并关闭按钮
+        z.saveAndClose.onclick = function(){
+            send_saveRequest();
+            ajax({
+                method:'post',
+                url:'php/index.php',
+                data:'action=saveAndClose',
+                success:function(data){
+                    console.log(data);
+                }
+            });
+        };
 
     },
 
@@ -59,7 +68,28 @@ var z = {
 
 z.init();
 
-console.log(z.userStatus);
+
+
+function send_saveRequest(){
+
+    tinymce.activeEditor.save();
+    var con = tinymce.activeEditor.getContent();
+    // 把数据用URI编码一下再做成json格式的字符
+    var conEncode = encodeURI(con);
+    var conJsonStr = '{"data":"'+ conEncode +'"}';
+
+    ajax({
+        method:'post',
+        data:conJsonStr,
+        // 注意这里的路径问题，main.js是在index.html里执行的，所以要以index.html的视角去写路径
+        url:'php/index.php',
+        success:function(data){
+            console.log(data);
+        }
+    },'json');
+
+}
+
 
 function initTinymce(){
 

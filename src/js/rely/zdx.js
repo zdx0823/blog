@@ -2,7 +2,7 @@
  * 获取当前网站的cookie
  * @return {[对象]} [键值对的cookie]
  */
-function getCookie(){
+function getCookie(cookieName){
 
     var str = document.cookie;
     var arr = str.split('; ');
@@ -10,8 +10,29 @@ function getCookie(){
     arr.forEach(function(item){
         obj[ item.split('=')[0] ] = item.split('=')[1];
     });
-    return obj;
+
+    var res = cookieName ? obj[cookieName] : obj;
+    return res;
 }
+
+
+/**
+ * 设置cookie
+ * @param {[字符串]} cookieName [cookie的名字]
+ * @param {[字符串]} val        [cookie的值]
+ */
+function setCookie(cookieName,val){
+
+	document.cookie = cookieName + '=' + val;
+
+}
+
+
+function delCookie(cookieName){
+	console.log(653434);
+	document.cookie = name + '=;  expires=Thu, 01 Jan 1970 00:00:01 GMT;'
+}
+
 
 /**
  * 根据参数新建一个ajax实例

@@ -192,7 +192,7 @@
     margin-top: .26rem;
 }
 
-#saveChange,#resetChange{
+#saveChange,#resetChange,#saveAndClose{
     display: inline-block;
     width: 110px;
     height: 40px;
@@ -217,4 +217,13 @@
 }
 #resetChange:hover{
     background: hsl(200, 18%, 38%);
+}
+
+#saveAndClose{
+    background: #009688;
+    margin-left: 60px;
+}
+
+#saveAndClose:hover{
+    background: hsl(174, 100%, 20%)
 }
