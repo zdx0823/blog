@@ -83,6 +83,8 @@
     height: 100%;
 }
 #contentTitle{
+    position: relative;
+    z-index: 9;
     text-align: center;
     font-size: .28rem;
     padding: 20px 0;
@@ -107,6 +109,7 @@
     width: 9.9rem;
     padding: .1rem 0;
     margin: 0 auto;
+    /*display: none !important;*/
 }
 
 
@@ -181,6 +184,7 @@
 
 #editorCon{
     height: 100%;
+    /* display: none !important; */
 }
 
 #editorCon > div{
@@ -190,6 +194,15 @@
 .editorCon-btns{
     text-align: center;
     margin-top: .26rem;
+}
+
+#ediTit{
+    width: 100%;
+    padding: 0;
+    text-align: center;
+    font-weight: bold;
+    border: none;
+    outline: none;
 }
 
 #saveChange,#resetChange,#saveAndClose{

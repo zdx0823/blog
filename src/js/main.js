@@ -16,52 +16,9 @@ var z = {
 
     init : function(){
         showcase.style.display = 'block';
-        z.event();
+        event();
     },
-    event : function(){
 
-        z.editorBtn.onclick = function(){
-
-            contentTitle.innerHTML = this.innerHTML;
-            showcase.style.display = 'none';
-            editorCon.style.display = 'block';
-
-            z.tinymce = initTinymce();
-            location.hash = 'editor';
-
-        }
-
-        // 保存按钮
-        z.saveChange.onclick = send_saveRequest
-        
-        // 重置按钮
-        z.resetChange.onclick = function(){
-            var tinymceBody = tinymce.activeEditor.getBody();
-            tinymceBody.innerHTML = '';
-            ajax({
-                method:'post',
-                url:'php/index.php',
-                data:'action=resetChange',
-                success:function(data){
-                    console.log(data);
-                }
-            });
-        };
-
-        // 保存并关闭按钮
-        z.saveAndClose.onclick = function(){
-            send_saveRequest();
-            ajax({
-                method:'post',
-                url:'php/index.php',
-                data:'action=saveAndClose',
-                success:function(data){
-                    console.log(data);
-                }
-            });
-        };
-
-    },
 
 }
 
@@ -70,13 +27,109 @@ z.init();
 
 
 
-function send_saveRequest(){
+
+function event(){
+
+    z.editorBtn.onclick = function(){
+
+        var eInput = '<input type="text" id="ediTit" placeholder="点击此处修改标题" />'
+        contentTitle.innerHTML = eInput;
+        z.ediTit = $('#ediTit');      
+
+        showcase.style.display = 'none';
+        editorCon.style.display = 'block';
+
+        z.tinymce = initTinymce();
+        
+        location.hash = 'editor';
+
+    }
+
+
+    // 保存按钮
+    z.saveChange.onclick = function(){
+        send_saveRequest();
+    };
+    
+    // 重置按钮
+    z.resetChange.onclick = function(){
+        var tinymceBody = tinymce.activeEditor.getBody();
+        tinymceBody.innerHTML = '';
+        ajax({
+            method:'post',
+            url:'php/index.php',
+            data:'action=resetChange',
+            success:function(data){
+                console.log(data);
+            }
+        });
+    };
+
+    // 保存并关闭按钮
+    z.saveAndClose.onclick = function(){
+        send_saveRequest('saveAndClose');
+        ajax({
+            method:'post',
+            url:'php/index.php',
+            data:'action=saveAndClose',
+            success:function(data){
+                console.log(data);
+            }
+        });
+
+    };
+
+}
+
+
+
+
+/**
+ * 使用html2canvas插件生成编辑器的截图，转换成base64编码，再发起请求发送给index.php保存截图
+ * @return {[type]} [description]
+ */
+function saveSnapshoot(){
+
+    var res = function(str){
+        return str;
+    };
+    html2canvas($('#mceu_39')).then(function(canvas) {
+        // 使用canvasAPI的toDataURL将canvas画布内的图像转换成base64编码
+        var snapshootBase64 = canvas.toDataURL();
+
+        // 由于toDataURL函数生成的编码会带一个base64的头，需要去掉才能给php的base64_decode函数解析
+        snapshootBase64 = snapshootBase64.split(',')[1];
+        res(snapshootBase64);
+
+    });
+
+
+    return res;
+
+}
+
+
+
+/**
+ * 用于发送ajax请求去保存数据
+ * @return {[无]} [无]
+ */
+function send_saveRequest(action){
+
+    var action = action || 'save';
 
     tinymce.activeEditor.save();
     var con = tinymce.activeEditor.getContent();
     // 把数据用URI编码一下再做成json格式的字符
     var conEncode = encodeURI(con);
-    var conJsonStr = '{"data":"'+ conEncode +'"}';
+    var saveSnapshootStr = saveSnapshoot();
+    console.log( saveSnapshootStr );
+    var conJsonStr = '{"tinymce":"'+ conEncode +'","title":"'+ z.ediTit.value +'"}';
+
+    if( action == 'saveAndClose' ){
+        conJsonStr = '{ "tinymce":"'+ conEncode +'","title":"'+ z.ediTit.value +'","snapshootBase64":"'+ saveSnapshootStr +'" }';
+    }
+
 
     ajax({
         method:'post',
@@ -138,6 +191,19 @@ function initTinymce(){
         // 定义tinymce渲染完成的回调函数，用于修改部分样式
         init_instance_callback: function(){
 
+            document.body.onresize = function(){
+                var vi = 72 + 38 + 52 + 60 +　20;
+                var height = client(window).h - vi;
+
+                if( height > 200 ){
+                    z.tinymce_ifr.style.height = height + 'px';
+                }
+                
+            }
+
+
+            // 获取iframe标签
+            z.tinymce_ifr = $('#tinymce_ifr');
 
         }
 

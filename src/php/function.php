@@ -1,4 +1,11 @@
 <?php
+
+function uniqidFileName($len=32){
+    $uuid = md5( uniqid( microtime().mt_rand() ) );
+    return substr($uuid,0,$len);
+}
+
+
 /**
  * 从init.php文件获取配置并根据参数返回对于的配置参数
  * @param  [字符串] $name [参数名]
@@ -102,58 +109,16 @@ function isUserExist($link,$userID){
  * @param [type] $userID    [description]
  * @param [type] $articleID [description]
  */
-function addArticle($link,$userID,$articleID){
+function addArticle($link,$userID,$articleID,$imgId){
 
-    $sql = "INSERT articles(`userID`,`articleID`,`updateDate`) VALUES
-    (".$userID.",'".$articleID."','".date('Y-m-d H:i:s')."')";
+    if( !isLogin($link) ){
+        return 0;
+    }
+    $sql = "INSERT articles(`userID`,`articleID`,`articleSnapshoot`,`updateDate`) VALUES
+    (".$userID.",'".$articleID."','".$imgId."','".date('Y-m-d H:i:s')."')";
     return dbQuery($link,$sql);
 
 }
-
-
-/**
- * 覆盖已有文件的内容
- * @param  [字符串] $fileName [文件名]
- * @param  [字符串] $data     [json数据]
- * @return [无]           [无]
- */
-function ediFile($fileName,$data){
-
-    // 写入方式打开，并将文件清空为零
-    $handle = fopen($fileName,'wb');
-    fwrite($handle, $data);
-    fclose($handle);
-
-}
-
-
-/**
- * 响应添加文章的操作
- * @param  [对象] $link [数据库标识符]
- * @return [无]       [无]
- */
-/*function responseAddEvent($link){
-
-    $userID = isLogin($link);
-    if(!$userID) return;
-
-    // 将json数据写入一个字符串内
-    $data = file_get_contents('php://input');
-
-    static $fileName = null;
-
-    if( !isset($fileName) ){
-
-        // 生成唯一的文件名
-        $uuid = md5( uniqid( microtime().mt_rand() ) );
-        $fileName = ('../data/articles/'.$uuid);
-        // 调用函数
-        file_put_contents($fileName,$data);
-        addArticle($link,$userID,$uuid);
-
-    }
-
-}*/
 
 
 
@@ -164,9 +129,11 @@ function ediFile($fileName,$data){
  */
 function edi_save($link){
 
+    if( !isLogin($link) ){
+        return 0;
+    }
     // 将json数据写入一个字符串内
     $data = file_get_contents('php://input');
-
     $_SESSION['ediData'] = $data;
 
 }
@@ -176,8 +143,11 @@ function edi_save($link){
  * 用于重置按钮，将SESSION中ediData的数据清空
  * @return [无] [无]
  */
-function edi_reset(){
+function edi_reset($link){
 
+    if( !isLogin($link) ){
+        return 0;
+    }
     $_SESSION['ediData'] = '';
 
 }
@@ -193,13 +163,29 @@ function edi_saveAndclose($link){
 
     $userID = isLogin($link);
     // 生成唯一的文件名
-    $uuid = md5( uniqid( microtime().mt_rand() ) );
+    $uuid = uniqidFileName();
     $fileName = ('../data/articles/'.$uuid);
     // 调用函数
     file_put_contents($fileName,$_SESSION['ediData']);
-    addArticle($link,$userID,$uuid);
+    $imgId = edi_save_snapShoot($base64Str);
+    return addArticle($link,$userID,$uuid,$imgId);
 
 }
 
+
+
+/**
+ * 保存文章快照
+ * @param  [字符串] $base64Str [图片的base64编码]
+ * @return [type]            [description]
+ */
+function edi_save_snapShoot($base64Str){
+
+    $dataImg = base64_decode($base64Str);
+    $uuid = uniqidFileName() . 'img.png';
+    $fileName = ('../data/snapshoot/'.$uuid);
+    file_put_contents($fileName,$dataImg);
+    return $uuid;
+}
 
 
