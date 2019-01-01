@@ -109,7 +109,7 @@ function isUserExist($link,$userID){
  * @param [type] $userID    [description]
  * @param [type] $articleID [description]
  */
-function addArticle($link,$userID,$articleID,$imgId){
+function addArticle($link,$userID,$articleID,$articleTit,$imgId){
 
     if( !isLogin($link) ){
         return 0;
@@ -139,7 +139,7 @@ function edi_save($link){
     if( isset( $json -> tinymce_txt ) ) $_SESSION['tinymce_txt'] = $json -> tinymce_txt;
     if( isset( $json -> tinymce_base64 ) ) $_SESSION['tinymce_base64'] = $json -> tinymce_base64;
 
-    return 'ok';
+    return 1;
 }
 
 
@@ -154,7 +154,7 @@ function edi_reset($link){
     }
     $_SESSION['tinymce_tit'] = '';
     $_SESSION['tinymce_txt'] = '';
-
+    return 1;
 }
 
 
@@ -166,22 +166,38 @@ function edi_reset($link){
  */
 function edi_saveAndclose($link){
 
-    $userID = isLogin($link);
-    // 生成唯一的文件名
-    $uuid = uniqidFileName();
-    $fileName = ('../data/articles/'.$uuid);
-    // 将标题保存在数据库
-    $aritcleTit = $_SESSION['tinymce_tit']
-    // 将正文写入文件
-    file_put_contents($fileName,$_SESSION['tinymce_txt']);
-    // 生成截图文件名 = 正文文件名.png
-    $imgId = ('../data/snapshoot/'.$uuid.'png');
-    // base64解编码
-    $dataImg = base64_decode($base64Str);
-    // 写入文件
-    file_put_contents($fileName,$dataImg);
-    // 记录
-    return addArticle($link,$userID,$aritcleTit,$uuid,$imgId);
+    $userID = isLogin($link);   // 判断是否登录，如果已登陆isLogin返回用户id
+    if( !$userID ) return 0;    // 如果未登录直接return
+
+    $uuid = uniqidFileName();   // 生成唯一的文件名
+    $imgId = ($uuid.'.png');    // 生成截图文件名，正文文件名.png
+    $fileName = ('../data/articles/'.$uuid);                // 正文内容文件路径
+    $imgFileName = ('../data/snapshoot/'.$uuid.'.png');     // 生成截图的路径
+
+    $tit = $_SESSION['tinymce_tit'];        // 标题
+    $txt = $_SESSION['tinymce_txt'];        // 正文
+    $base64 = $_SESSION['tinymce_base64'];  // 图片base64编码
+
+    $dataImg = base64_decode($base64);                      // base64解编码
+
+    file_put_contents($fileName,$_SESSION['tinymce_txt']);  // 将正文写入文件
+    file_put_contents($imgFileName,$dataImg);               // 将图片写入文件
+
+    addArticle($link,$userID,$uuid,$tit,$imgId);     // 记录数据库
+    return 1;
+}
+
+
+
+function readUserData($link){
+
+    $userID = isLogin($link);   // 判断是否登录，如果已登陆isLogin返回用户id
+    if( !$userID ) return 0;    // 如果未登录直接return
+
+    $sql = "SELECT * FROM `articles` WHERE `userID` = " . (int)$userID;
+    $res = dbQuery($link,$sql);
+    // return mysql_fetch_array($res);
+    return $res;
 
 }
 

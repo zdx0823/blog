@@ -1,22 +1,22 @@
 <?php
 date_default_timezone_set('Asia/Shanghai');
 header('content-type:text/html;charset=utf-8');
-
-session_start();
-
 require('init.php');
 require('function.php');
+
+session_start();
 $link = dbConnect();
 $res = null;
-
+/*
 $TIPS = [
-	0 => '用户未登录'
+	0 => '用户未登录',
+    1 => '操作成功'
 ];
 
 
 if( getallheaders()['content-type'] === 'application/json' ){
 
-	edi_save($link);
+	$val = edi_save($link);
 
 }else{
 
@@ -24,17 +24,18 @@ if( getallheaders()['content-type'] === 'application/json' ){
 	switch( $actions['action'] ){
 
 		case 'saveAndClose':
-			$res = edi_saveAndclose($link);
+			$val = edi_saveAndclose($link);
 			break;
 		case 'resetChange':
-			$res = edi_reset($link);
+			$val = edi_reset($link);
 			break;
 
 	}
-		
-	$res = $TIPS[$res];
-	echo $res;
 
 }
 
+echo $TIPS[$val];
 
+*/
+
+var_dump( readUserData($link) );

@@ -10,7 +10,6 @@ var z = {
     saveChange : $('#saveChange'),
     resetChange : $('#resetChange'),
     saveAndClose : $('#saveAndClose'),
-    resetChange : $('#resetChange'),
 
     userStatus : null,
 
@@ -27,6 +26,13 @@ z.init();
 
 
 
+function drawing(){
+
+
+
+}
+
+
 
 function event(){
 
@@ -34,13 +40,13 @@ function event(){
 
         var eInput = '<input type="text" id="ediTit" placeholder="点击此处修改标题" />'
         contentTitle.innerHTML = eInput;
-        z.ediTit = $('#ediTit');      
+        z.ediTit = $('#ediTit');
 
         showcase.style.display = 'none';
         editorCon.style.display = 'block';
 
         z.tinymce = initTinymce();
-        
+
         location.hash = 'editor';
 
     }
@@ -50,7 +56,7 @@ function event(){
     z.saveChange.onclick = function(){
         console.log( save.doSave() );
     };
-    
+
     // 重置按钮
     z.resetChange.onclick = function(){
         var tinymceBody = tinymce.activeEditor.getBody();
@@ -70,6 +76,7 @@ function event(){
     };
 
 }
+
 
 
 
@@ -106,7 +113,13 @@ save.html2canvas = function(){
     // 使用html2canvas插件实现网页截图功能
     // 使用canvasAPI的toDataURL将canvas画布内的图像转换成base64编码
     // 由于toDataURL函数生成的编码会带一个base64的头，需要去掉才能给php的base64_decode函数解析
-    html2canvas($('#mceu_39')).then(function(canvas) {
+    html2canvas(
+
+        $('#mceu_39'),
+        {logging:false,width:500,height:500}
+
+    ).then(function(canvas) {
+        document.body.appendChild(canvas);
         var snapshootBase64 = canvas.toDataURL();
         snapshootBase64 = snapshootBase64.split(',')[1];
         var obj = {
@@ -155,7 +168,7 @@ save.doSave = function(){
 save.upload = function(){
 
     var val = save.doSave();
-    var res = false;
+    var res = val;
     if( val == 'ok' ){
         save.html2canvas();
         res = val;
@@ -229,7 +242,7 @@ function initTinymce(){
                 if( height > 200 ){
                     z.tinymce_ifr.style.height = height + 'px';
                 }
-                
+
             }
 
 
