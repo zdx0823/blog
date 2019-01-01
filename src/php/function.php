@@ -114,8 +114,8 @@ function addArticle($link,$userID,$articleID,$imgId){
     if( !isLogin($link) ){
         return 0;
     }
-    $sql = "INSERT articles(`userID`,`articleID`,`articleSnapshoot`,`updateDate`) VALUES
-    (".$userID.",'".$articleID."','".$imgId."','".date('Y-m-d H:i:s')."')";
+    $sql = "INSERT articles(`userID`,`articleID`,`articleTit`,`articleSnapshoot`,`updateDate`) VALUES
+    (".$userID.",'".$articleID."','".$articleTit."','".$imgId."','".date('Y-m-d H:i:s')."')";
     return dbQuery($link,$sql);
 
 }
@@ -134,8 +134,12 @@ function edi_save($link){
     }
     // 将json数据写入一个字符串内
     $data = file_get_contents('php://input');
-    $_SESSION['ediData'] = $data;
+    $json = json_decode($data);
+    if( isset( $json -> tinymce_tit ) ) $_SESSION['tinymce_tit'] = $json -> tinymce_tit;
+    if( isset( $json -> tinymce_txt ) ) $_SESSION['tinymce_txt'] = $json -> tinymce_txt;
+    if( isset( $json -> tinymce_base64 ) ) $_SESSION['tinymce_base64'] = $json -> tinymce_base64;
 
+    return 'ok';
 }
 
 
@@ -148,7 +152,8 @@ function edi_reset($link){
     if( !isLogin($link) ){
         return 0;
     }
-    $_SESSION['ediData'] = '';
+    $_SESSION['tinymce_tit'] = '';
+    $_SESSION['tinymce_txt'] = '';
 
 }
 
@@ -165,27 +170,18 @@ function edi_saveAndclose($link){
     // 生成唯一的文件名
     $uuid = uniqidFileName();
     $fileName = ('../data/articles/'.$uuid);
-    // 调用函数
-    file_put_contents($fileName,$_SESSION['ediData']);
-    $imgId = edi_save_snapShoot($base64Str);
-    return addArticle($link,$userID,$uuid,$imgId);
-
-}
-
-
-
-/**
- * 保存文章快照
- * @param  [字符串] $base64Str [图片的base64编码]
- * @return [type]            [description]
- */
-function edi_save_snapShoot($base64Str){
-
+    // 将标题保存在数据库
+    $aritcleTit = $_SESSION['tinymce_tit']
+    // 将正文写入文件
+    file_put_contents($fileName,$_SESSION['tinymce_txt']);
+    // 生成截图文件名 = 正文文件名.png
+    $imgId = ('../data/snapshoot/'.$uuid.'png');
+    // base64解编码
     $dataImg = base64_decode($base64Str);
-    $uuid = uniqidFileName() . 'img.png';
-    $fileName = ('../data/snapshoot/'.$uuid);
+    // 写入文件
     file_put_contents($fileName,$dataImg);
-    return $uuid;
-}
+    // 记录
+    return addArticle($link,$userID,$aritcleTit,$uuid,$imgId);
 
+}
 

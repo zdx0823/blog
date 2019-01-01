@@ -48,7 +48,7 @@ function event(){
 
     // 保存按钮
     z.saveChange.onclick = function(){
-        send_saveRequest();
+        console.log( save.doSave() );
     };
     
     // 重置按钮
@@ -58,24 +58,14 @@ function event(){
         ajax({
             method:'post',
             url:'php/index.php',
-            data:'action=resetChange',
-            success:function(data){
-                console.log(data);
-            }
+            data:'action=resetChange'
         });
     };
 
-    // 保存并关闭按钮
+    // 发布按钮
     z.saveAndClose.onclick = function(){
-        send_saveRequest('saveAndClose');
-        ajax({
-            method:'post',
-            url:'php/index.php',
-            data:'action=saveAndClose',
-            success:function(data){
-                console.log(data);
-            }
-        });
+
+        console.log(save.upload());
 
     };
 
@@ -83,67 +73,108 @@ function event(){
 
 
 
-
 /**
- * 使用html2canvas插件生成编辑器的截图，转换成base64编码，再发起请求发送给index.php保存截图
- * @return {[type]} [description]
+ * 改函数下有四个方法，用于响应保存，发布功能，在php里，都将数据先存储到SESSION里
+ * 当按保存的时候其实只是将页面的内容暂时保存在SESSION里，此时发送一个content-type为json的请求，内容为标题和正文的内容
+ * 当按发布的时候，先调用按保存时的函数，若返回值正常则调用save.html2canvas函数执行截图，共发送两次请求，保存标题和正文一次，保存截图的base64编码一次
+ * @return {[无]} [无]
  */
-function saveSnapshoot(){
+function save(){}
+// 提示
+save.tips = {
+    ok:'ok',
+    no_tit:'请输入标题',
+    no_txt:'正文不能为空'
+};
+// 用于获取编辑器正文内容和标题
+save.getTinymceData = function(){
+    var con = tinymce.activeEditor.getContent();
+    var conEncode = encodeURI(con); // 把数据用URI编码一下再做成json格式的字符
+    return {
+        tit:z.ediTit.value,
+        txt:conEncode
+    }
+}
+// 将格式好的JSON对象转换成字符串形式
+save.toJsonStr = function(obj){
+    var jsonStr = JSON.stringify(obj);
+    return jsonStr;
+};
+// 截屏并保存
+save.html2canvas = function(){
 
-    var res = function(str){
-        return str;
-    };
+    // 使用html2canvas插件实现网页截图功能
+    // 使用canvasAPI的toDataURL将canvas画布内的图像转换成base64编码
+    // 由于toDataURL函数生成的编码会带一个base64的头，需要去掉才能给php的base64_decode函数解析
     html2canvas($('#mceu_39')).then(function(canvas) {
-        // 使用canvasAPI的toDataURL将canvas画布内的图像转换成base64编码
         var snapshootBase64 = canvas.toDataURL();
-
-        // 由于toDataURL函数生成的编码会带一个base64的头，需要去掉才能给php的base64_decode函数解析
         snapshootBase64 = snapshootBase64.split(',')[1];
-        res(snapshootBase64);
+        var obj = {
+            "tinymce_base64":snapshootBase64
+        };
+        var jsonStr = save.toJsonStr(obj);
+        save.send(jsonStr);
 
     });
 
+};
+// 发送ajax请求
+save.send = function(conJsonStr){
 
+    var tips = save.tips;
+    var res = ajax({
+        method:'post',
+        data:conJsonStr,
+        url:'php/index.php',
+        success:function(data){
+            console.log(data)
+        }
+    },'json');
+
+};
+// 保存
+save.doSave = function(){
+
+    var tips = save.tips;
+    tinymce.activeEditor.save();
+    var data = save.getTinymceData();
+
+    if(!data.tit) return tips.no_tit;
+    if(!data.txt) return tips.no_txt;
+
+    var obj = {
+        "tinymce_tit":data.tit,
+        "tinymce_txt":data.txt
+    };
+    var jsonStr = save.toJsonStr(obj);
+    save.send(jsonStr);
+
+    return tips.ok;
+};
+// 发布
+save.upload = function(){
+
+    var val = save.doSave();
+    var res = false;
+    if( val == 'ok' ){
+        save.html2canvas();
+        res = val;
+    }
+    ajax({
+        method:'post',
+        data:'action=saveAndClose',
+        url:'php/index.php'
+    });
     return res;
+};
 
-}
 
 
 
 /**
- * 用于发送ajax请求去保存数据
+ * 初始化编辑器
  * @return {[无]} [无]
  */
-function send_saveRequest(action){
-
-    var action = action || 'save';
-
-    tinymce.activeEditor.save();
-    var con = tinymce.activeEditor.getContent();
-    // 把数据用URI编码一下再做成json格式的字符
-    var conEncode = encodeURI(con);
-    var saveSnapshootStr = saveSnapshoot();
-    console.log( saveSnapshootStr );
-    var conJsonStr = '{"tinymce":"'+ conEncode +'","title":"'+ z.ediTit.value +'"}';
-
-    if( action == 'saveAndClose' ){
-        conJsonStr = '{ "tinymce":"'+ conEncode +'","title":"'+ z.ediTit.value +'","snapshootBase64":"'+ saveSnapshootStr +'" }';
-    }
-
-
-    ajax({
-        method:'post',
-        data:conJsonStr,
-        // 注意这里的路径问题，main.js是在index.html里执行的，所以要以index.html的视角去写路径
-        url:'php/index.php',
-        success:function(data){
-            console.log(data);
-        }
-    },'json');
-
-}
-
-
 function initTinymce(){
 
     var obj = z.plugVessel;
