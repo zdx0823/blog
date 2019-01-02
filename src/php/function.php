@@ -115,7 +115,7 @@ function addArticle($link,$userID,$articleID,$articleTit,$imgId){
         return 0;
     }
     $sql = "INSERT articles(`userID`,`articleID`,`articleTit`,`articleSnapshoot`,`updateDate`) VALUES
-    (".$userID.",'".$articleID."','".$articleTit."','".$imgId."','".date('Y-m-d H:i:s')."')";
+    (".$userID.",'".$articleID."','".$articleTit."','".$imgId."','".(time()*1000)."')";
     return dbQuery($link,$sql);
 
 }
@@ -180,11 +180,12 @@ function edi_saveAndclose($link){
 
     $dataImg = base64_decode($base64);                      // base64解编码
 
-    file_put_contents($fileName,$_SESSION['tinymce_txt']);  // 将正文写入文件
+    file_put_contents($fileName,$txt);  // 将正文写入文件
     file_put_contents($imgFileName,$dataImg);               // 将图片写入文件
 
     addArticle($link,$userID,$uuid,$tit,$imgId);     // 记录数据库
-    return 1;
+    return $_SESSION['tinymce_base64'];
+    // return 1;
 }
 
 
@@ -196,8 +197,13 @@ function readUserData($link){
 
     $sql = "SELECT * FROM `articles` WHERE `userID` = " . (int)$userID;
     $res = dbQuery($link,$sql);
-    // return mysql_fetch_array($res);
-    return $res;
+    $arr = [];
 
+    foreach ($res as $key => $value) {
+        $arr['k'.$key] = json_encode($value);
+    }
+
+    $jsonStr = json_encode($arr);
+    return $jsonStr;
 }
 

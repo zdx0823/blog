@@ -1,4 +1,41 @@
 /**
+ * 根据时间戳格式化时间
+ * @param  {[混合]} timestamp [字符串或数字]
+ * @param  {[字符串]} format    [日期格式，只接受三种格式]
+ * @return {[字符串]}           [返回格式化后的时间]
+ */
+function fTime(timestamp,format){
+    // console.log(Number(timestamp));
+    var timestamp = parseInt(timestamp);
+    var format = format || 'Y-M-D h:m:s';
+    var now = new Date(timestamp);
+    var Y = now.getFullYear(),
+        M = now.getMonth() + 1,
+        D = now.getDate(),
+        h = now.getHours(),
+        m = now.getMinutes(),
+        s = now.getSeconds();
+    var res = null;
+
+    switch(format){
+
+        case 'Y-M-D h:m:s':
+            res = Y +'-'+ M +'-'+ D +' '+ h +':'+ m +':'+s;
+            break;
+        case 'Y-M-D':
+            res = Y +'-'+ M +'-'+ D;
+            break;
+        case 'h:m:s':
+            res = h +':'+ m +':'+ s;
+            break;
+
+    }
+
+    return res;
+}
+
+
+/**
  * 获取当前网站的cookie
  * @return {[对象]} [键值对的cookie]
  */

@@ -7,35 +7,41 @@ require('function.php');
 session_start();
 $link = dbConnect();
 $res = null;
-/*
+
 $TIPS = [
-	0 => '用户未登录',
+    0 => '用户未登录',
     1 => '操作成功'
 ];
 
 
-if( getallheaders()['content-type'] === 'application/json' ){
+if( getallheaders()['Content-Type'] ){
 
-	$val = edi_save($link);
+    $val = edi_save($link);
 
 }else{
 
-	$actions = $_POST;
-	switch( $actions['action'] ){
+    switch( $_POST['action'] ){
 
-		case 'saveAndClose':
-			$val = edi_saveAndclose($link);
-			break;
-		case 'resetChange':
-			$val = edi_reset($link);
-			break;
+        case 'saveAndClose':
+            edi_saveAndclose($link);
+            $val = 233;
+            break;
+        case 'resetChange':
+            $val = edi_reset($link);
+            break;
+        case 'draw':
+            $val = readUserData($link);
+            break;
 
-	}
+    }
 
 }
 
-echo $TIPS[$val];
 
-*/
 
-var_dump( readUserData($link) );
+// echo readUserData($link);
+
+// print_r( $TIPS[$val] );
+print_r( $val );
+
+
