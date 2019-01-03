@@ -127,17 +127,13 @@ function addArticle($link,$userID,$articleID,$articleTit,$imgId){
  * @param  [对象] $link [数据库标识符]
  * @return [无]       [无]
  */
-function edi_save($link){
+function edi_save($link,$json){
 
     if( !isLogin($link) ){
         return 0;
     }
-    // 将json数据写入一个字符串内
-    $data = file_get_contents('php://input');
-    $json = json_decode($data);
     if( isset( $json -> tinymce_tit ) ) $_SESSION['tinymce_tit'] = $json -> tinymce_tit;
     if( isset( $json -> tinymce_txt ) ) $_SESSION['tinymce_txt'] = $json -> tinymce_txt;
-    if( isset( $json -> tinymce_base64 ) ) $_SESSION['tinymce_base64'] = $json -> tinymce_base64;
 
     return 1;
 }
@@ -164,7 +160,7 @@ function edi_reset($link){
  * @param  [对象] $link [数据库标识符]
  * @return [无]       [无]
  */
-function edi_saveAndclose($link){
+function edi_upload($link,$json){
 
     $userID = isLogin($link);   // 判断是否登录，如果已登陆isLogin返回用户id
     if( !$userID ) return 0;    // 如果未登录直接return
@@ -174,9 +170,10 @@ function edi_saveAndclose($link){
     $fileName = ('../data/articles/'.$uuid);                // 正文内容文件路径
     $imgFileName = ('../data/snapshoot/'.$uuid.'.png');     // 生成截图的路径
 
-    $tit = $_SESSION['tinymce_tit'];        // 标题
-    $txt = $_SESSION['tinymce_txt'];        // 正文
-    $base64 = $_SESSION['tinymce_base64'];  // 图片base64编码
+    if( isset( $json -> tinymce_tit ) ) $tit = $json -> tinymce_tit;        // 标题
+    if( isset( $json -> tinymce_txt ) ) $txt = $json -> tinymce_txt;        // 正文
+    if( isset( $json -> tinymce_base64 ) ) $base64 = $json -> tinymce_base64;  // 图片base64编码
+
 
     $dataImg = base64_decode($base64);                      // base64解编码
 
@@ -184,8 +181,7 @@ function edi_saveAndclose($link){
     file_put_contents($imgFileName,$dataImg);               // 将图片写入文件
 
     addArticle($link,$userID,$uuid,$tit,$imgId);     // 记录数据库
-    return $_SESSION['tinymce_base64'];
-    // return 1;
+
 }
 
 

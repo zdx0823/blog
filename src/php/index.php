@@ -8,40 +8,24 @@ session_start();
 $link = dbConnect();
 $res = null;
 
-$TIPS = [
-    0 => '用户未登录',
-    1 => '操作成功'
-];
 
 
-if( getallheaders()['Content-Type'] ){
+if( apache_request_headers()['Content-Type'] == 'application/json' ){
 
-    $val = edi_save($link);
+    $str = file_get_contents('php://input');
+    $json = json_decode($str);
+    $action = $json -> extra;
 
-}else{
-
-    switch( $_POST['action'] ){
-
-        case 'saveAndClose':
-            edi_saveAndclose($link);
-            $val = 233;
-            break;
-        case 'resetChange':
-            $val = edi_reset($link);
-            break;
-        case 'draw':
-            $val = readUserData($link);
-            break;
-
+    if( $action == 'save' ){
+        edi_save($link,$json);
+    }else if( $action == 'upload' ){
+        edi_upload($link,$json);
+    }else if( $action == 'reset' ){
+        edi_reset($link);
     }
 
+
+}else if( apache_request_headers() == 'application/x-www-form-urlencoded' ){
 }
-
-
-
-// echo readUserData($link);
-
-// print_r( $TIPS[$val] );
-print_r( $val );
 
 

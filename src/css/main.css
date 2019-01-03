@@ -91,6 +91,13 @@
     background: #fff;
     color: #5f5f5f;
     border-bottom: 1px solid #ddd;
+    display: none;
+}
+#indexTit{
+    display: block;
+}
+#ediTit{
+    display: none;
 }
 .fnbar{
     width: 100%;
@@ -248,3 +255,144 @@
 #saveAndClose:hover{
     background: hsl(174, 100%, 20%)
 }
+
+
+
+
+#reading{
+    background: #fff;
+}
+
+.reading_head{
+    position: relative;
+    z-index: 9;
+}
+.author_pro,.author_name,#authorName,#follow,.tarticle,.tarticle li{
+    float: left;
+}
+.reading_side{
+    position: absolute;
+    top: 2px;
+    right: 0px;
+    height: 38px;
+    width: 380px;
+    padding: 14px 10px;
+    border-left: 1px solid #ebebeb;
+    transition: background .3s;
+}
+.reading_side:hover{
+    background: #333;
+}
+.reading_side:hover #authorName{
+    color: #fff;
+}
+.reading_side:hover .tarticle li{
+    color: #fff;
+}
+#readingTit{
+    float: left;
+    position: relative;
+    left: 0;
+    width: 6.4rem;
+    padding: .2rem 0;
+    text-align: left;
+    text-indent: .2rem;
+    font-size: .28rem;
+    color: #111;
+    background: #fff;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    transition: text-indent .3s;
+}
+#readingTit:hover{
+    text-indent: .4rem;
+}
+#readingTit:before{
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 10px;
+    width: .06rem;
+    height: 46%;
+    background: #111;
+    /*opacity: 0;*/
+}
+.author_pro{
+    width: 38px;
+    height: 38px;
+    overflow: hidden;
+    border-radius: 50px;
+    margin-right: 16px;
+}
+#authorImg{
+    width: 38px;
+}
+.author_name{
+    padding: 4px 0;
+}
+#authorName{
+    font-size: .14rem;
+    color: #101517;
+    font-weight: normal;
+    margin-right: 18px;
+}
+#follow{
+    padding: 2px 8px 2px 6px;
+    text-align: center;
+    background: #f69481;
+    color: #fff;
+    border-radius: 10px;
+}
+
+.tarticle{}
+.tarticle li{
+    margin-right: 10px;
+    color: #999;
+}
+.tarticle span{}
+#tarticleTime{}
+#tarticleNum{}
+#tarticleRead{}
+#tarticleView{}
+#tarticleLike{}
+
+.reading_content_wrap{
+    padding: 30px;
+}
+#readingContent{}
+
+.comment{
+    height: 1.1rem;
+    padding: 0 30px;
+}
+.comment_w,.comment_w_user,.comment_w_textarea{ height: 100%; }
+.comment_w{}
+.comment_w_user{
+    float: left;
+    width: 5%;
+    text-align: center;
+}
+.comment_user_avatar{
+    display: inline-block;
+    width: 38px;
+    height: 38px;
+    margin-top: 10px;
+    border-radius: 50px;
+    overflow: hidden;
+}
+#avatar{
+    width: 38px;
+}
+.comment_w_textarea{
+    float: right;
+    padding: 10px;
+    width: 94%;
+    font-size: .14rem;
+    color: #111;
+    outline: none;
+    box-sizing: border-box;
+    border-radius: 5px;
+    resize: none;
+}
+.comment_c{}

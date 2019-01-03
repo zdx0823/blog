@@ -96,7 +96,7 @@ function ajax(obj,requestHeader){
         success = obj.success;
 
     // 如果type有值就使用type
-    ( obj.type ) && ( method = obj.type );
+    // ( obj.type ) && ( method = obj.type );
 
     if(method == 'get' && data){
 
@@ -109,10 +109,12 @@ function ajax(obj,requestHeader){
     xhr.open(method,url,true);
 
     if( requestHeader === 'json' ){
+        console.log('application/json');
         requestHeader = 'application/json';
     }else{
         requestHeader = 'application/x-www-form-urlencoded';
     }
+
 
     // 如果是get方式直接发送，如果是post方式要声明数据类型
     if( method == 'get' ){

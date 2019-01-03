@@ -9,7 +9,8 @@
     <!-- 规定布局视口的布局应该理想视口与的一致，后面用媒体查询写出相应的布局。然后规定默认缩放比例为1 -->
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <link rel="stylesheet" type="text/css" href="css/normalize.css">
-    <link rel="stylesheet" type="text/css" href="css/rely/font-awesome/css/font-awesome.min.css">
+    <!-- <link rel="stylesheet" type="text/css" href="css/rely/font-awesome/css/font-awesome.min.css"> -->
+    <link rel="stylesheet" type="text/css" href="css/rely/fontawesome-free-5.6.3-web/fontawesome-free-5.6.3-web/css/all.css">
     <link rel="stylesheet" type="text/css" href="css/init.css">
     <link rel="stylesheet" type="text/css" href="css/main.css">
     <script src="js/rely/tinymce/js/tinymce/tinymce.min.js"></script>
@@ -48,10 +49,10 @@ id命名方式用驼峰命名法
         <nav>
             <a href="#" title="回到主页" id="home"></a>
             <a href="#" title="个人信息" id="info">
-                <i class="fa fa-user-o" aria-hidden="true"></i>
+                <i class="fas fa-user"></i>
             </a>
             <a href="#" title="文件管理" id="folder">
-                <i class="fa fa-folder-open-o" aria-hidden="true"></i>
+                <i class="fas fa-folder-open"></i>
             </a>
         </nav>
         <h1 id="logo"><img src="img/logo.png" alt="蜜蜂老牛黄瓜"></h1>
@@ -64,12 +65,12 @@ id命名方式用驼峰命名法
 
     <div class="contentwrap">
         <div id="content">
-            <h2 id="contentTitle">文章</h2>
+            <h2 id="contentTitle">
+                <span id="indexTit">文章</span>
+                <input type="text" id="ediTit" autocomplete="off" placeholder="点击此处修改标题" />
+            </h2>
             <div class="fnbar">
                 <section id="showcase" class="fnbar-bar clearfix">
-
-
-
 
                     <div class="bar">
                         <div class="bar-img">
@@ -92,12 +93,6 @@ id命名方式用驼峰命名法
                         </div>
                     </div>
 
-
-
-
-
-
-
                 </section>
                 <section id="editorCon" class="fnbar-bar">
                     <div id="tinymce"></div>
@@ -105,6 +100,77 @@ id命名方式用驼峰命名法
                         <a href="javascript:;" id="saveChange">保存草稿</a>
                         <a href="javascript:;" id="resetChange">重置</a>
                         <a href="javascript:;" id="saveAndClose">发布</a>
+                    </div>
+                </section>
+                <section id="reading" class="clearfix">
+                    <div class="reading_head clearfix">
+                        <h2 id="readingTit">清平调</h2>
+                        <div class="reading_side">
+                            <a href="javascript:;" class="author_pro"><img id="authorImg" src="../src/img/profile/test.jpg"></a>
+                            <div class="author_name">
+                                <strong id="authorName">蜜蜂老牛黄瓜</strong>
+                                <a href="javascript:;" id="follow" >+关注</a>
+                            </div>
+                            <ul class="tarticle">
+                                <li>时间<span id="tarticleTime">2018-10-10</span></li>
+                                <li>字数<span id="tarticleNum">1000</span></li>
+                                <li>阅读<span id="tarticleRead">1435</span></li>
+                                <li>评论<span id="tarticleView">18</span></li>
+                                <li>喜欢<span id="tarticleLike">41</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="reading_content_wrap">
+                        <div id="readingContent">
+                            清平调·其二
+唐代：李白
+
+一枝红艳露凝香，云雨巫山枉断肠。
+借问汉宫谁得似，可怜飞燕倚新妆。
+复制下一首赞 321
+唐诗三百首，乐府，女子
+译文及注释
+
+译文
+贵妃真是一枝带露牡丹，艳丽凝香，楚王神女巫山相会，枉然悲伤断肠。请问汉宫得宠妃嫔，谁能和她相像？可爱无比的赵飞燕，还得依仗新妆！
+
+注释
+飞燕：赵飞燕，西汉皇后
+妆：修饰打扮
+
+有用(165)没用(35)
+本节内容整理自网络（或由匿名网友上传），原作者已无法考证，版权归原作者所有。本站免费发布仅供学习参考，其观点不代表本站立场。站务邮箱：service@gushiwen.org
+
+鉴赏
+这一首，写贵妃的受宠幸。首句写花受香露，衬托贵妃君王宠幸；二句写楚王遇神女的虚妄，衬托贵妃之沐实惠；三、四句写赵飞燕堪称绝代佳人，却靠新妆专宠，衬托贵妃的天然国色。诗人用抑扬法，抑神女与飞燕，以扬杨贵妃的花容月貌。
+有用(128)没用(44)
+本节内容整理自网络（或由匿名网友上传），原作者已无法考证，版权归原作者所有。本站免费发布仅供学习参考，其观点不代表本站立场。站务邮箱：service@gushiwen.org
+
+创作背景
+　　这首诗是李白在长安为翰林时所作。有一次，唐明皇与杨贵妃在沉香亭观赏牡丹，因命李白作新乐章，李白奉旨作了这章。
+有用(75)没用(33)
+本节内容整理自网络（或由匿名网友上传），原作者已无法考证，版权归原作者所有。本站免费发布仅供学习参考，其观点不代表本站立场。站务邮箱：service@gushiwen.org
+
+
+李白（701年－762年），字太白，号青莲居士，唐朝浪漫主义诗人，被后人誉为“诗仙”。祖籍陇西成纪(待考)，出生于西域碎叶城，4岁再随父迁至剑南道绵州。李白存世诗文千余篇，有《李太白集》传世。762年病逝，享年61岁。其墓在今安徽当涂，四川江油、湖北安陆有纪念馆。https://so.gushiwen.org/authorv_b90660e3e492.aspx
+ 李白
+李白
+李白（701年－762年），字太白，号青莲居士，唐朝浪漫主义诗人，被后人誉为“诗仙”。祖籍陇西成纪(待考)，出生于西域碎叶城，4岁再随父迁至剑南道绵州。李白存世诗文千余篇，有《李太白集》传世。762年病逝，享年61岁。其墓在今安徽当涂，四川江油、湖北安陆有纪念馆。► 1180篇诗文
+
+复制赞 6706
+
+                        </div>
+                    </div>
+                    <div class="comment">
+                        <div class="comment_w">
+                            <div class="comment_w_user">
+                                <a href="javascript:;" class="comment_user_avatar">
+                                    <img src="img/profile/test.jpg" id="avatar">
+                                </a>
+                            </div>
+                            <textarea spellcheck="false" class="comment_w_textarea"></textarea>
+                        </div>
+                        <div class="comment_c"></div>
                     </div>
                 </section>
             </div>

@@ -1,5 +1,5 @@
 window.onload = function(){
-
+ASDFADSF;
 var z = {
     plugVessel : $('#tinymce'),
     editorBtn : $('#editorBtn'),
@@ -10,21 +10,72 @@ var z = {
     saveChange : $('#saveChange'),
     resetChange : $('#resetChange'),
     saveAndClose : $('#saveAndClose'),
-
-    userStatus : null,
-
-    init : function(){
-        showcase.style.display = 'block';
-        // draw();
-        event();
+    indexTit : $('#indexTit'),
+    ediTit : $('#ediTit'),
+    mceu_39 : null, // 异步获取本实例中的编辑区iframe标签
+    tinymce : null, // 异步获取
+    page:{
+        index:'load',
+        editor:'unload'
     },
 
+
+    init : function(){
+        hashchange();
+        route();
+        // draw();
+        console.log( z.page );
+        console.log(z.page);
+        event();
+    },
+}
+z.init();
+
+
+
+function hashchange(){
+    window.addEventListener('hashchange',function(){
+        route();
+    });
+}
+
+
+
+function route(){
+
+    var hash = document.location.hash;
+    hash = hash.substr(1,hash.length-1);
+    console.log(hash);
+    if( !hash ){
+        page_index();
+    }else if( hash == 'editor' ){
+        page_editor();
+
+    }
 
 }
 
 
-z.init();
 
+function page_index(){
+    showcase.style.display = 'block';
+    editorCon.style.display = 'none';
+    z.ediTit.style.display = 'none';
+    z.indexTit.style.display = 'block';
+}
+
+
+
+function page_editor(){
+
+    showcase.style.display = 'none';
+    editorCon.style.display = 'block';
+    z.indexTit.style.display = 'none';
+    z.ediTit.style.display = 'block';
+
+    z.tinymce = initTinymce();
+
+}
 
 
 
@@ -32,15 +83,7 @@ function event(){
 
     z.editorBtn.onclick = function(){
 
-        var eInput = '<input type="text" id="ediTit" placeholder="点击此处修改标题" />'
-        contentTitle.innerHTML = eInput;
-        z.ediTit = $('#ediTit');
-
-        showcase.style.display = 'none';
-        editorCon.style.display = 'block';
-
-        z.tinymce = initTinymce();
-
+        page_editor();
         location.hash = 'editor';
 
     }
@@ -48,24 +91,18 @@ function event(){
 
     // 保存按钮
     z.saveChange.onclick = function(){
-        console.log( save.doSave() );
+        console.log( edi.doSave() );
     };
 
     // 重置按钮
     z.resetChange.onclick = function(){
-        var tinymceBody = tinymce.activeEditor.getBody();
-        tinymceBody.innerHTML = '';
-        ajax({
-            method:'post',
-            url:'php/index.php',
-            data:'action=resetChange'
-        });
+        edi.reset();
     };
 
     // 发布按钮
     z.saveAndClose.onclick = function(){
 
-        console.log(save.upload());
+        edi.upload();
 
     };
 
@@ -206,15 +243,15 @@ function howLong(timestamp){
  * 当按发布的时候，先调用按保存时的函数，若返回值正常则调用save.html2canvas函数执行截图，共发送两次请求，保存标题和正文一次，保存截图的base64编码一次
  * @return {[无]} [无]
  */
-function save(){}
+function edi(){}
 // 提示
-save.tips = {
+edi.tips = {
     ok:'ok',
     no_tit:'请输入标题',
     no_txt:'正文不能为空'
 };
 // 用于获取编辑器正文内容和标题
-save.getTinymceData = function(){
+edi.getTinymceData = function(){
     var con = tinymce.activeEditor.getContent();
     var conEncode = encodeURI(con); // 把数据用URI编码一下再做成json格式的字符
     return {
@@ -223,88 +260,130 @@ save.getTinymceData = function(){
     }
 }
 // 将格式好的JSON对象转换成字符串形式
-save.toJsonStr = function(obj){
+edi.toJsonStr = function(obj){
     var jsonStr = JSON.stringify(obj);
     return jsonStr;
 };
 // 截屏并保存
-save.html2canvas = function(){
+edi.html2canvas = function(){
 
     // 使用html2canvas插件实现网页截图功能
     // 使用canvasAPI的toDataURL将canvas画布内的图像转换成base64编码
     // 由于toDataURL函数生成的编码会带一个base64的头，需要去掉才能给php的base64_decode函数解析
-/*    html2canvas(
+    html2canvas(
 
-        $('#mceu_39'),
-        {logging:false,width:500,height:500}
+        z.mceu_39,
+        {logging:false,width:500,height:500,async:false},
+
 
     ).then(function(canvas) {
-        document.body.appendChild(canvas);
-        var snapshootBase64 = canvas.toDataURL();
-        snapshootBase64 = snapshootBase64.split(',')[1];
-        var obj = {
-            "tinymce_base64":snapshootBase64
-        };
-        var jsonStr = save.toJsonStr(obj);
-        save.send(jsonStr);
-
-    });*/
-
-    html2canvas($('#mceu_39')).then(function(canvas){
+        canvas.style.position = 'absolute';
+        canvas.style.top = '-9999px';
+        canvas.style.left = '-9999px';
+        canvas.setAttribute('id','snapshoot');
         document.body.appendChild(canvas);
     });
 
+
 };
 // 发送ajax请求
-save.send = function(conJsonStr){
-    var tips = save.tips;
-    var res = ajax({
+edi.send = function(conJsonStr){
+    var tips = edi.tips;
+    ajax({
         method:'post',
         data:conJsonStr,
         url:'php/index.php',
         success:function(data){
+            // document.body.innerHTML = data;
             console.log(data);
         }
     },'json');
 
 };
 // 保存
-save.doSave = function(){
+edi.doSave = function(){
 
-    var tips = save.tips;
+    var tips = edi.tips;
     tinymce.activeEditor.save();
-    var data = save.getTinymceData();
+    var data = edi.getTinymceData();
 
     if(!data.tit) return tips.no_tit;
     if(!data.txt) return tips.no_txt;
 
     var obj = {
+        "extra":'save',
         "tinymce_tit":data.tit,
         "tinymce_txt":data.txt
     };
-    var jsonStr = save.toJsonStr(obj);
-    save.send(jsonStr);
+    var jsonStr = edi.toJsonStr(obj);
+    edi.send(jsonStr);
 
-    return tips.ok;
+};
+// 重置
+edi.reset = function(){
+    var obj = {
+        'extra':'reset'
+    }
+    var jsonStr = edi.toJsonStr(obj);
+    edi.send(jsonStr);
+    // 清空标题和内容区
+    z.ediTit.value = '';
+    tinymce.activeEditor.setContent('');
+    // 使编辑器为干净状态(刷新的时候不会弹窗提示)
+    tinymce.activeEditor.save();
 };
 // 发布
-save.upload = function(){
+edi.upload = function(){
 
-    var val = save.doSave();
-    var res = val;
-    if( val == 'ok' ){
-        save.html2canvas();
-        res = val;
-    }
-    ajax({
-        method:'post',
-        data:'action=saveAndClose',
-        url:'php/index.php',
-        success:function(data){
-            // document.body.innerHTML = data;
-        }
+    var tips = edi.tips;
+    tinymce.activeEditor.save();
+    var data = edi.getTinymceData();
+
+    if(!data.tit) return tips.no_tit;
+    if(!data.txt) return tips.no_txt;
+
+    var obj = {
+        "extra":'upload',
+        "tinymce_tit":data.tit,
+        "tinymce_txt":data.txt
+    };
+
+
+    html2canvas(
+
+        z.mceu_39,
+        {logging:false,width:500,height:500},
+
+    ).then(function(canvas) {
+        canvas.style = 'position:absolute;top:-9999px;left:-9999px;';
+        canvas.setAttribute('id','snapshoot');
+        document.body.appendChild(canvas);
+        var canvas = $('#snapshoot');
+        data.base64 = canvas.toDataURL();
+        data.base64 = data.base64.split(',')[1];
+        canvas.remove();
     });
-    return res;
+    var st = +new Date();
+    var timer = setInterval(function(){
+
+        var now = +new Date();
+        var diff = now - st;
+
+        if( diff <= 1000 ){
+            if(data.base64){
+                obj["tinymce_base64"] = data.base64;
+                clearInterval(timer);
+                var jsonStr = edi.toJsonStr(obj);
+                edi.send(jsonStr);
+            }
+        }else{
+            var jsonStr = edi.toJsonStr(obj);
+            edi.send(jsonStr);
+            clearInterval(timer);
+        }
+
+    },100);
+
 };
 
 
@@ -360,7 +439,7 @@ function initTinymce(){
 
         // 定义tinymce渲染完成的回调函数，用于修改部分样式
         init_instance_callback: function(){
-
+            z.mceu_39 = $('#mceu_39');
             document.body.onresize = function(){
                 var vi = 72 + 38 + 52 + 60 +　20;
                 var height = client(window).h - vi;
@@ -371,9 +450,9 @@ function initTinymce(){
 
             }
 
-
             // 获取iframe标签
             z.tinymce_ifr = $('#tinymce_ifr');
+            z.tinymce = $('#tinymce');
 
         }
 
