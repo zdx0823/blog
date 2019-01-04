@@ -1,5 +1,4 @@
 window.onload = function(){
-ASDFADSF;
 var z = {
     plugVessel : $('#tinymce'),
     editorBtn : $('#editorBtn'),
@@ -14,15 +13,21 @@ var z = {
     ediTit : $('#ediTit'),
     mceu_39 : null, // 异步获取本实例中的编辑区iframe标签
     tinymce : null, // 异步获取
+    initTinymce:initTinymce,
+    edi:edi,
+    appShade:$('#appShade'),
+    ediPop:$('#ediPop'),
+    ediPopTrue:$('#ediPopTrue'),
+    ediPopFalse:$('#ediPopFalse'),
     page:{
         index:'load',
         editor:'unload'
     },
+    route:null,
 
 
     init : function(){
-        hashchange();
-        route();
+        z.route = new Route(z);
         // draw();
         console.log( z.page );
         console.log(z.page);
@@ -32,15 +37,8 @@ var z = {
 z.init();
 
 
-
-function hashchange(){
-    window.addEventListener('hashchange',function(){
-        route();
-    });
-}
-
-
-
+/*// reading/userID/articleID
+// reading/100/48ab184901f1aa6a0242466a1eb9aa29
 function route(){
 
     var hash = document.location.hash;
@@ -54,28 +52,9 @@ function route(){
     }
 
 }
+*/
 
 
-
-function page_index(){
-    showcase.style.display = 'block';
-    editorCon.style.display = 'none';
-    z.ediTit.style.display = 'none';
-    z.indexTit.style.display = 'block';
-}
-
-
-
-function page_editor(){
-
-    showcase.style.display = 'none';
-    editorCon.style.display = 'block';
-    z.indexTit.style.display = 'none';
-    z.ediTit.style.display = 'block';
-
-    z.tinymce = initTinymce();
-
-}
 
 
 
@@ -83,7 +62,7 @@ function event(){
 
     z.editorBtn.onclick = function(){
 
-        page_editor();
+        z.route.page_editor();
         location.hash = 'editor';
 
     }
@@ -289,6 +268,7 @@ edi.html2canvas = function(){
 // 发送ajax请求
 edi.send = function(conJsonStr){
     var tips = edi.tips;
+    console.log(conJsonStr);
     ajax({
         method:'post',
         data:conJsonStr,
@@ -398,7 +378,7 @@ function initTinymce(){
     var obj = z.plugVessel;
     var vi = 72 + 38 + 52 + 60;
     var height = client(window).h - vi;
-
+    z.tinymce = tinymce;
     return tinymce.init({
 
         target: obj,
@@ -452,7 +432,6 @@ function initTinymce(){
 
             // 获取iframe标签
             z.tinymce_ifr = $('#tinymce_ifr');
-            z.tinymce = $('#tinymce');
 
         }
 

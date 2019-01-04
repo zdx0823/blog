@@ -17,6 +17,7 @@
     <script src="js/rely/html2canvas.min.js"></script>
     <script src="js/rely/zdx.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/route.js"></script>
 </head>
 <body>
 <!-- IE的条件选择的代码，叫IE条件注释，当满足条件的时候才会执行中间的代码 -->
@@ -101,7 +102,16 @@ id命名方式用驼峰命名法
                         <a href="javascript:;" id="resetChange">重置</a>
                         <a href="javascript:;" id="saveAndClose">发布</a>
                     </div>
+                    <div id="ediPop">
+                        <h3 class="ediPop_tit"><span>提示</span><i></i></h3>
+                        <p class="ediPop_tip">您所做的修改还未保存</p>
+                        <div class="ediPop_confirm">
+                            <a href="javascript:;" id="ediPopTrue">保存草稿</a>
+                            <a href="javascript:;" id="ediPopFalse">丢弃</a>
+                        </div>
+                    </div>
                 </section>
+                <!--
                 <section id="reading" class="clearfix">
                     <div class="reading_head clearfix">
                         <h2 id="readingTit">清平调</h2>
@@ -173,10 +183,11 @@ id命名方式用驼峰命名法
                         <div class="comment_c"></div>
                     </div>
                 </section>
+            -->
             </div>
         </div>
     </div>
-
+    <div id="appShade"></div>
 </div>
 
 
