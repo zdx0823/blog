@@ -67,12 +67,15 @@ function pack_ediTit(){
     oInput.onfocus = function(){
         oInput.val = oInput.value;
     }
-    oInput.onblur = function(){
-        if(oInput.value != oInput.val){
+
+    // compositionend事件在Opera还未实现
+    oInput.addEventListener('compositionend', function(){
+
+        if( oInput.value != oInput.val ){
             z.ediIsDirty = true;
-            console.log(z.ediIsDirty);
         }
-    }
+
+    })
 }
 
 

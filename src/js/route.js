@@ -42,8 +42,8 @@ Route.prototype = {
         var z = this.z;
         var _this = this;
         window.addEventListener('hashchange',function(){
-            console.log( z.ediIsDirty );
-            if( z.ediIsDirty ){
+            if( z.ediIsDirty === true ){
+                console.log( z.ediIsDirty );
                 // z.ediIsDirty = false;
                 _this.setEdiPop();
             }else{
@@ -72,7 +72,7 @@ Route.prototype = {
      * 在编辑区有内容的时候执行此方法
      */
     setEdiPop:function(){
-
+        console.log(76543);
         var z = this.z;
         var _this = this;
         var res = null;
