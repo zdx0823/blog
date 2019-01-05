@@ -20,6 +20,75 @@
     left: 0;
     display: none;
 }
+.loadTips{
+    padding: 100px 0;
+    text-align: center;
+}
+
+
+/**
+ * loading图标
+ */
+.spinner {
+  margin: 100px auto;
+  width: 50px;
+  height: 60px;
+  text-align: center;
+  font-size: 10px;
+}
+
+.spinner > div {
+  background-color: #999;
+  height: 100%;
+  width: 6px;
+  display: inline-block;
+
+  -webkit-animation: stretchdelay 1.2s infinite ease-in-out;
+  animation: stretchdelay 1.2s infinite ease-in-out;
+}
+
+.spinner .rect2 {
+  -webkit-animation-delay: -1.1s;
+  animation-delay: -1.1s;
+}
+
+.spinner .rect3 {
+  -webkit-animation-delay: -1.0s;
+  animation-delay: -1.0s;
+}
+
+.spinner .rect4 {
+  -webkit-animation-delay: -0.9s;
+  animation-delay: -0.9s;
+}
+
+.spinner .rect5 {
+  -webkit-animation-delay: -0.8s;
+  animation-delay: -0.8s;
+}
+
+@-webkit-keyframes stretchdelay {
+  0%, 40%, 100% { -webkit-transform: scaleY(0.4) }
+  20% { -webkit-transform: scaleY(1.0) }
+}
+
+@keyframes stretchdelay {
+  0%, 40%, 100% {
+    transform: scaleY(0.4);
+    -webkit-transform: scaleY(0.4);
+  }  20% {
+    transform: scaleY(1.0);
+    -webkit-transform: scaleY(1.0);
+
+  }
+}
+/*load图标*/
+
+
+
+.loadTips_empty{
+    display: none;
+}
 #leftNav{
     width: 3.19rem;
     height: 100%;
@@ -126,8 +195,10 @@
     margin: 0 auto;
     /*display: none !important;*/
 }
-
-
+#showcaseTip p{
+    font-size: .18rem;
+    color: #999;
+}
 #showcase .bar{
     float: left;
     width: 3rem;
@@ -229,11 +300,9 @@
 }
 
 #ediPop{
-    width: 400px;
-    height: 150px;
+    width: 300px;
+    height: 132px;
     position: absolute;
-    top: 102px;
-    left: 48px;
     z-index: 10;
     background: #fff;
     border-radius: 10px;
@@ -245,8 +314,7 @@
     line-height: 40px;
     font-size: .16rem;
     text-align: center;
-    background: #f25e40;
-    color: #fff;
+    color: #555;
 }
 .ediPop_tit span{}
 .ediPop_tit i{}
@@ -258,7 +326,7 @@
 
 .ediPop_confirm{
     position: absolute;
-    bottom: 0;
+    bottom: 6px;
     left: 0;
     width: 100%;
 }
@@ -269,14 +337,21 @@
     text-align: center;
     line-height: 30px;
     font-size: .14rem;
-    color: #fff;
-    transition: background .3s;
+    color: #a3a3a3;
+    transition: color .2s;
 }
+.ediPop_confirm a:hover{
+    color: #333;
+}
+.ediPop_confirm a i{
+    font-size: .18rem;
+}
+/*
 .ediPop_confirm a:nth-child(1){ background: #2196f3; }
 .ediPop_confirm a:nth-child(1):hover{ background: hsl(207, 90%, 40%); }
 .ediPop_confirm a:nth-child(2){ background: #607d8b; }
 .ediPop_confirm a:nth-child(2):hover{ background: hsl(200, 18%, 38%); }
-
+*/
 #saveChange,#resetChange,#saveAndClose{
     display: inline-block;
     width: 110px;

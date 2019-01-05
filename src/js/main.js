@@ -1,36 +1,38 @@
 window.onload = function(){
 var z = {
-    plugVessel : $('#tinymce'),
-    editorBtn : $('#editorBtn'),
-    contentTitle : $('#contentTitle'),
-    fnbar : $('.fnbar'),
-    showcase : $('#showcase'),
-    editorCon : $('#editorCon'),
-    saveChange : $('#saveChange'),
-    resetChange : $('#resetChange'),
-    saveAndClose : $('#saveAndClose'),
-    indexTit : $('#indexTit'),
-    ediTit : $('#ediTit'),
+    plugVessel : $('#tinymce'),     // 存放tinymce实例的容器
+    editorBtn : $('#editorBtn'),    // 侧边栏“添加文章”按钮
+    contentTitle : $('#contentTitle'),  // 获取公共标题标签h2
+    indexTit : $('#indexTit'),          // 获取公共标题标签里的span标签
+    ediTit : $('#ediTit'),              // 获取公共标题标签里的input标签，编辑的时候显示
+    fnbar : $('.fnbar'),    // 获取功能区标签
+    showcase : $('#showcase'),      // 首页功能区
+    editorCon : $('#editorCon'),    // 编辑功能区
+    saveChange : $('#saveChange'),      // 保存按钮
+    resetChange : $('#resetChange'),    // 重置按钮
+    saveAndClose : $('#saveAndClose'),  // 发布按钮
     mceu_39 : null, // 异步获取本实例中的编辑区iframe标签
     tinymce : null, // 异步获取
-    initTinymce:initTinymce,
-    edi:edi,
-    appShade:$('#appShade'),
-    ediPop:$('#ediPop'),
-    ediPopTrue:$('#ediPopTrue'),
-    ediPopFalse:$('#ediPopFalse'),
-    page:{
-        index:'load',
-        editor:'unload'
+    initTinymce:initTinymce,    // initTinymce函数，用于检测hash值变化的时候执行
+    edi:edi,                    // 编辑区的保存、重置、发布的函数，用于检测hash值变化的时候执行
+    appShade:$('#appShade'),    // 全屏遮罩层，用于高亮弹出框
+    ediPop:$('#ediPop'),        // 编辑区的弹出框
+    ediPopTrue:$('#ediPopTrue'),// 编辑区的确认按钮
+    ediPopFalse:$('#ediPopFalse'),// 编辑区的取消按钮
+    ediIsDirty:false,
+    page:{  // 存储页面状态，参数待定
     },
-    route:null,
+    route:null, // 挂在页面路由对象实例
+    draw:draw,
+    loadTips:{
+        loading:$('.loadTips .spinner'),
+        empty:$('.loadTips_empty')
+    },
 
 
     init : function(){
         z.route = new Route(z);
-        // draw();
-        console.log( z.page );
-        console.log(z.page);
+        pack_ediTit();
         event();
     },
 }
@@ -56,6 +58,23 @@ function route(){
 
 
 
+/**
+ * 给编辑状态的input设置包装一个方法，使它内容改变的时候z.ediIsDirty变为脏
+ * @return {[无]} [无]
+ */
+function pack_ediTit(){
+    var oInput = z.ediTit;
+    oInput.onfocus = function(){
+        oInput.val = oInput.value;
+    }
+    oInput.onblur = function(){
+        if(oInput.value != oInput.val){
+            z.ediIsDirty = true;
+            console.log(z.ediIsDirty);
+        }
+    }
+}
+
 
 
 function event(){
@@ -66,7 +85,6 @@ function event(){
         location.hash = 'editor';
 
     }
-
 
     // 保存按钮
     z.saveChange.onclick = function(){
@@ -97,16 +115,29 @@ function event(){
  */
 function draw(){
 
+    var res = null;
     ajax({
         method:'post',
         data:'action=draw',
         url:'php/index.php',
         success:function(data){
             // document.body.innerHTML = data;
-            var json = JSON.parse(data);
-            draw.success(json);
+            var data = data || '';
+            var json = data && JSON.parse(data);
+            res = draw.success(json);
+
         }
     });
+
+    var timer = setInterval(function(){
+
+        if(!res){
+            z.loadTips.loading.style.display = 'none';
+            z.loadTips.empty.style.display = 'inline-block';
+            clearInterval(timer);
+        }
+
+    },100);
 
 }
 draw.success = function(obj){
@@ -114,6 +145,7 @@ draw.success = function(obj){
     var html = '';
     var showcase = $('#showcase');
 
+    if( !obj ) return false;
 
     for(var attr in obj){
         var json = JSON.parse( obj[attr] );
@@ -276,6 +308,8 @@ edi.send = function(conJsonStr){
         success:function(data){
             // document.body.innerHTML = data;
             console.log(data);
+            z.ediIsSave = false;
+            console.log(z.ediIsSave);
         }
     },'json');
 
@@ -287,8 +321,9 @@ edi.doSave = function(){
     tinymce.activeEditor.save();
     var data = edi.getTinymceData();
 
-    if(!data.tit) return tips.no_tit;
-    if(!data.txt) return tips.no_txt;
+    if(!data.tit && !data.txt) return '请输入内容';
+    data.tit = data.tit || ( '未命名 （'+fTime(+new Date())+'）' );
+    data.txt = data.txt || '';
 
     var obj = {
         "extra":'save',
@@ -433,7 +468,15 @@ function initTinymce(){
             // 获取iframe标签
             z.tinymce_ifr = $('#tinymce_ifr');
 
+        },
+
+
+        init_instance_callback: function (editor) {
+            editor.on('Dirty', function (e) {
+                z.ediIsDirty = true;
+            });
         }
+
 
     });
 
