@@ -1,0 +1,225 @@
+文档声明:
+标识类型
+【未知】：表示这方面未作了解
+【新鲜】：表示该知识点掌握的不牢靠
+
+
+
+nodeType	判断节点类型，返回值为数字，使用方式：ele.nodeType
+	返回值
+	1：元素节点
+	9：documen
+	3：文本节点，包括换行、空格、注释
+	8：注释节点
+	2：属性节点：nodeName找到属性名； nodeValue找到属性值
+
+ele.childNode	返回所有子节点，包括文本节点，注释节点等
+ele.children 	返回所有元素节点
+ele.parentNode 	返回父节点
+
+ele.nextElementSibling 		返回下一个兄弟节点
+ele.previousElementSibling 	返回上一个兄弟节点
+ele.firstElementChild 		返回第一个子元素节点
+ele.lastElementChild 		返回最后一个子元素节点
+ele.tagName 				返回ele的标签名
+
+getComputedStyle(ele)	
+返回一个CSSStyleDeclaration对象，该对象包含了ele所有的样式，以键值对保存，样式值是经过计算后的值
+
+ele.getBoundingClientRect()	返回一个DOMRect对象，返回该元素的top、right、bottom、left、width、height
+ele.getAttribute(key)		返回行间样式值
+ele.setAttribute(key,val)	设置行间样式
+ele.removeAttribute(key)	删除行间样式
+
+ele.offsetParent	返回最近的一个有定位元素祖先节点
+ele.offsetLeft		返回ele的外边框到有定位元素的祖先节点的内边框的距离
+ele.offsetWidth		返回 width+两边的padding+两边的border 之和
+ele.offsetHeight	同理
+
+ele.clientWidth		返回可视区域的宽
+ele.clientHeight	返回可视区域的高
+
+ele.append()和ele.appendChild()的区别
+	ele.append()可传入多个节点或字符串，但兼容性不好
+	ele.appendChild()只能传入一个节点，是标准方法
+
+ele.insertBefore(newEle,curEle)			将newEle节点插入到curEle节点之前
+ele.removeChild(ele_child)				删除ele下的ele_child子节点
+ele.remove()							删除ele节点
+ele_parent.replaceChild(newEle,ele)		将ele_parent节点下的ele节点替换成newEle节点
+ele.cloneNode([true,false])		返回克隆的ele节点，
+								可选参数[true,false],true克隆子节点和事件，false不克隆子节点和事件
+
+
+【新鲜】
+delete ele.attr 	删除ele的attr属性
+ele.classList		返回一个DOMTokenList数组，该数组包含ele节点的每个class值，
+					该数组有一个value属性，该属性值是class的整个字符串
+ele.classList.add(class1,class2,...,classN)		向ele节点添加多个class类名
+ele.classList.contains(class)					返回布尔值，判断指定类名是否存在
+ele.classList.item(index)						根据索引返回类名，超出返回返回null
+ele.classList.remove(class1,class2,...,classN)	移出若干个类名
+toggle(class,[true,false])						自动判断添加或删除类名，存在则删除，不存在则添加
+												第二个参数来强制添加或删除，true添加，false删除
+
+
+
+其他
+return	后面跟什么就返回什么
+arguments	在函数内，这个参数是一个类数组的参数，包含传入进来的实参，
+			若要实现像数组那样访问，可以：var args = [].slice.call(arguments);
+			此法借用了数组的slice方法又将对象用call改为arguments
+try{
+	执行语句
+}catch(e){
+	失败的时候执行
+}
+throw new Error(string);	手动抛出错误，传入一个字符串类型参数
+
+
+数据的提交
+	默认的content-type是'application/x-www-form-urlencoded',以表单的形式提交，
+	提交的数据会以 & 符号分割成键值对的形式，所以若数据里包含 & 将会带来一些麻烦
+	application/json 以json数据格式提交数据，这种格式的数据不受&符号影响
+
+	一个完整的URL格式
+	http://localhost:8080/a/b/c?a=1&b=2#abc
+	http://		协议
+	localhost	主机名
+	:8080		端口号
+	/a/b/c 		路径或虚拟主机
+	?			问号分割参数
+	a=1			以键值对形式写参数
+	&			and符号分割多个参数
+	b=2			另一个参数
+	#			井号后为hash值或锚点
+	abc			hash值或锚点
+
+	ajax提交数据的步骤:
+	1.新建一个ajax实例
+	2.打开一个通道
+	3.发送数据
+	4.接收状态
+	5.执行回调
+
+	get方式极简版：
+	var xhr = new XMLHttpRequest();
+	xhr.open('get','index.php?a=666&b=233',true);
+	xhr.send();
+	xhr.onreadystatechange = function(){
+		if( xhr.readyState == 4 ){
+			console.log( xhr.responseText );
+		}
+	}
+
+	post方式极简版：
+	var xhr = new XMLHttpRequest();
+	xhr.open('post','index.php',true);
+	xhr.setRequestHeader('content-type','application/x-www-form-urlencoded');
+	xhr.send('a=666&b=233');
+	xhr.onreadystatechange = function(){
+		if( xhr.readyState == 4 ){
+			console.log( xhr.responseText );
+		}
+	}
+
+
+JSON
+	JSON.stringify(jsonObj);	把JSON对象转换成JSON格式字符串
+	JSON.parse(jsonStr);		把JSON格式字符串转换成JSON对象
+
+
+JSONP【未知】
+
+
+【新鲜】
+ele.style.cssText = 'key:val;';			获取或设置css样式
+ele.className = 'val';					获取或设置class名
+
+
+与鼠标有关的事件
+ele.onmousedown		鼠标按下
+ele.onmouseup		鼠标抬起
+ele.onclick 		鼠标单击
+ele.ondbclick		鼠标双击
+ele.onmouseover		鼠标移入
+ele.onmouseout		鼠标移出
+ele.onmousemove		鼠标在ele上移动
+ele.onmouseenter 	鼠标进入，此事件不冒泡	【新鲜】
+ele.onmouseleave	鼠标离开，此时机不冒泡	【新鲜】
+
+
+Math对象常用方法
+Math.abs(x);	返回x的绝对值
+Math.ceil(x);	向上舍入
+Math.floor(x); 	向下舍入
+Math.round(x);	四舍五入
+Math.max(x);	最大值
+Math.min(x);	最小值
+Math.random();	返回0~1之间的随机数
+
+
+【新鲜】
+(3.1415926).toFixed(2);		将数字转换为字符串，参数表示保留几位小数，如果数字为正数则在后面补零
+
+
+全局对象下常用的方法
+window.encodeURI(string);	将字符串转换为ascii码表示的字符
+window.decodeURI(asciiStr);	将ascii码解码成字符串
+window.parseInt(string);	提取字符串中的整数部分
+window.parseFloat(string);	提取字符串中的整数小数部分
+
+
+
+
+Date对象
++new Date()					返回毫秒制的时间戳
+new Date().getTime()		返回毫秒制的时间戳
+new Date().getFullYear()	年，返回年份，无参数
+new Date().getMonth()		月，返回月份，从0开始，无参数
+new Date().getDate()		日，返回一个月中的第几天，无参数
+new Date().getHours()		时，返回24小时制的时间，无参数
+new Date().getMinutes()		分，返回分钟数，无参数
+new Date().getSeconds()		秒，返回秒数，无参数
+【新鲜】
+设置日期的两种方式
+new Date("July 21, 1983 01:15:00");
+new Date(1546766803220);
+【新鲜】
+月份单词及其缩写
+	中文		全拼			缩写
+	一月		January		Jan		
+	二月		February	Feb
+	三月		March		Mar
+	四月		April		Apr
+	五月		May			May
+	六月		June		Jun
+	七月		July		Jul
+	八月		August		Aug
+	九月		September	Sep
+	十月 	October		Oct
+	十一月	November	Nov
+	十二月	December	Dec
+
+
+
+String对象常用方法
+	charAt 			charCodeAt 			fromCharCode
+	indexOf 		lastIndexOf 		slice
+	split 			substr  			trim
+
+
+str.charAt(number);				返回指定下标的字符
+str.charCodeAt(number);			返回指定下标的字符的unicode码	【新鲜】
+String.fromCharCode(unicode);	将一个unicode码转换成字符
+str.indexOf('一个字符');			返回指定字符在str中首次出现的位置，如果不存在返回-1，从左向右搜索	
+str.lastIndexOf('一个字符');		返回指定字符在str中首次出现的位置，如果不存在返回-1，从右向左搜索
+【新鲜】
+str.slice(1,5);					返回从下标1到下标4的字符(不包括结尾的字符)
+								-1表示最后一个 str.slice(-3,-1) 表示从倒数第三个数到倒数第二个，共2个字符
+								不管是正数还是负数，截取字符都是从左向右截取
+str.split(分隔符,数组项最大值);	将一个字符串按分隔符处分割成数组，数组最大项数不超过第二个参数指定的(如果有指定)
+str.substr(2,3);				返回从下标2开始向右数3个字符的字符，如果未指定截取长度，则返回剩下的字符
+str.trim();						去除字符串两边的空白		
+str.toUpperCase();				全部转换成大写 
+str.toLowerCase();				全部转换成小写 

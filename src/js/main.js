@@ -69,8 +69,8 @@ function pack_ediTit(){
     }
 
     // compositionend事件在Opera还未实现
-    oInput.addEventListener('compositionend', function(){
-
+    oInput.addEventListener('compositionupdate', function(){
+        console.log(87654);
         if( oInput.value != oInput.val ){
             z.ediIsDirty = true;
         }
