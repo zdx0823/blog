@@ -91,6 +91,7 @@ function ajax(obj,requestHeader){
 
     // 默认为get方式
     var method = obj.method || 'get',
+        async = obj.async || true,
         data = obj.data || '',
         url = obj.url,
         success = obj.success;
@@ -102,11 +103,11 @@ function ajax(obj,requestHeader){
 
         // 如果是get方式将data数据用?与url连接起来
         url += '?' + data;
-        console.log(432345432);
+
     }
 
     // 打开ajax通道，传入参数：请求方式，地址，是否异步
-    xhr.open(method,url,true);
+    xhr.open(method,url,async);
 
     if( requestHeader === 'json' ){
         console.log('application/json');

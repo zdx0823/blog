@@ -186,6 +186,11 @@ function edi_upload($link,$json){
 
 
 
+/**
+ * 根据用户ID返回查询结果
+ * @param  [对象] $link [数据库标识符]
+ * @return [混合]       [如果查询结果有值返回json格式的数据，无数据返回空字符串]
+ */
 function readUserData($link){
 
     $userID = isLogin($link);   // 判断是否登录，如果已登陆isLogin返回用户id
@@ -199,7 +204,13 @@ function readUserData($link){
         $arr['k'.$key] = json_encode($value);
     }
 
-    $jsonStr = json_encode($arr);
+    // empty:空为true，非空为false
+    if( !empty($arr) ){
+        $jsonStr = json_encode($arr);
+    }else{
+        $jsonStr = '';
+    }
+
     return $jsonStr;
 }
 

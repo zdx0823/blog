@@ -25,7 +25,13 @@ if( apache_request_headers()['Content-Type'] == 'application/json' ){
     }
 
 
-}else if( apache_request_headers() == 'application/x-www-form-urlencoded' ){
+}else if( apache_request_headers()['Content-Type'] == 'application/x-www-form-urlencoded' ){
+
+    $post = $_POST['action'];
+    if( $post == 'draw' ){
+        echo readUserData($link);
+    }
+
 }
 
 

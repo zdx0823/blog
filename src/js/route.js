@@ -43,7 +43,6 @@ Route.prototype = {
         var _this = this;
         window.addEventListener('hashchange',function(){
             if( z.ediIsDirty === true ){
-                console.log( z.ediIsDirty );
                 // z.ediIsDirty = false;
                 _this.setEdiPop();
             }else{
@@ -62,6 +61,7 @@ Route.prototype = {
         var z = this.z;
 
         if( !hash[0] ){
+            console.log(7654);
             this.page_index();
         }else if( hash[0] == 'editor' ){
             this.page_editor();
@@ -72,7 +72,6 @@ Route.prototype = {
      * 在编辑区有内容的时候执行此方法
      */
     setEdiPop:function(){
-        console.log(76543);
         var z = this.z;
         var _this = this;
         var res = null;
@@ -85,6 +84,8 @@ Route.prototype = {
 
         z.ediPopTrue.onclick = function(){
             z.edi.doSave();
+            tinymce.activeEditor.setContent('');
+            z.ediTit.value = '';
             res = 'save';
         };
         z.ediPopFalse.onclick = function(){

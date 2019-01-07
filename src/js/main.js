@@ -92,6 +92,7 @@ function event(){
     // 保存按钮
     z.saveChange.onclick = function(){
         console.log( edi.doSave() );
+        z.ediIsDirty = false;
     };
 
     // 重置按钮
@@ -119,31 +120,41 @@ function event(){
 function draw(){
 
     var res = null;
+    var json = '';
     ajax({
         method:'post',
         data:'action=draw',
         url:'php/index.php',
         success:function(data){
+            console.log(data == '');
             // document.body.innerHTML = data;
-            var data = data || '';
-            var json = data && JSON.parse(data);
-            res = draw.success(json);
-
+            if(data == ''){
+                draw.state = 'empty';
+            }else{
+                draw.state = 'accepted';
+                json = JSON.parse(data);
+            }
+            res = draw.callback(json);
         }
     });
 
     var timer = setInterval(function(){
 
-        if(!res){
-            z.loadTips.loading.style.display = 'none';
-            z.loadTips.empty.style.display = 'inline-block';
+        if(draw.state !== undefined){
+            if(draw.state == 'empty'){
+                z.loadTips.loading.style.display = 'none';
+                z.loadTips.empty.style.display = 'inline-block';
+            }else if( draw.state == 'accepted' ){
+
+            }
             clearInterval(timer);
         }
 
     },100);
 
 }
-draw.success = function(obj){
+draw.state = undefined;
+draw.callback = function(obj){
 
     var html = '';
     var showcase = $('#showcase');
@@ -181,6 +192,8 @@ draw.success = function(obj){
     }
 
     showcase.innerHTML = html;
+    draw.state = true;
+
 }
 
 
@@ -279,27 +292,27 @@ edi.toJsonStr = function(obj){
     return jsonStr;
 };
 // 截屏并保存
-edi.html2canvas = function(){
+// edi.html2canvas = function(){
 
-    // 使用html2canvas插件实现网页截图功能
-    // 使用canvasAPI的toDataURL将canvas画布内的图像转换成base64编码
-    // 由于toDataURL函数生成的编码会带一个base64的头，需要去掉才能给php的base64_decode函数解析
-    html2canvas(
+//     // 使用html2canvas插件实现网页截图功能
+//     // 使用canvasAPI的toDataURL将canvas画布内的图像转换成base64编码
+//     // 由于toDataURL函数生成的编码会带一个base64的头，需要去掉才能给php的base64_decode函数解析
+//     html2canvas(
 
-        z.mceu_39,
-        {logging:false,width:500,height:500,async:false},
-
-
-    ).then(function(canvas) {
-        canvas.style.position = 'absolute';
-        canvas.style.top = '-9999px';
-        canvas.style.left = '-9999px';
-        canvas.setAttribute('id','snapshoot');
-        document.body.appendChild(canvas);
-    });
+//         z.mceu_39,
+//         {logging:false,width:500,height:500,async:false},
 
 
-};
+//     ).then(function(canvas) {
+//         canvas.style.position = 'absolute';
+//         canvas.style.top = '-9999px';
+//         canvas.style.left = '-9999px';
+//         canvas.setAttribute('id','snapshoot');
+//         document.body.appendChild(canvas);
+//     });
+
+
+// };
 // 发送ajax请求
 edi.send = function(conJsonStr){
     var tips = edi.tips;
@@ -310,9 +323,7 @@ edi.send = function(conJsonStr){
         url:'php/index.php',
         success:function(data){
             // document.body.innerHTML = data;
-            console.log(data);
             z.ediIsSave = false;
-            console.log(z.ediIsSave);
         }
     },'json');
 
@@ -366,10 +377,9 @@ edi.upload = function(){
         "tinymce_txt":data.txt
     };
 
-
     html2canvas(
 
-        z.mceu_39,
+        $('#mceu_39'),
         {logging:false,width:500,height:500},
 
     ).then(function(canvas) {

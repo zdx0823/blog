@@ -1,0 +1,38 @@
+git config --global user.name "和gitHub一样的用户名"
+git config --global user.email "和gitHub一样的邮箱"
+这两个命令让本机上的git仓库都用这个用户名和邮箱
+
+cd 地址    进入一个目录
+git init  用git初始化这个目录
+git add 文件名  把文件的修改添加到暂存区
+git commit -m "描述" 把暂存区的文件修改推送到git上
+git reset --hard 推送id  回退到指定的版本，--hard 后的参数可以是版本id前几位也可以是，HEAD^,一个^代表向前一步
+git cat 文件名  查看文件的内容
+git log 查看版本库的状态
+git log --pretty=oneline 单行显示版本库的状态
+git reflog  查看历史提交记录
+git status 查看暂存区的状态
+git diff HEAD -- 文件名   查看工作区的指定文件与版本库最新版本里的那个文件之间的区别
+git checkout -- 文件名  撤销工作区的修改至最近一次git add或git commit后的状态
+git reset HEAD 文件名   撤销暂存区的修改
+
+git remote add origin gitHub上的库粘来的ssh地址
+git remote add origin gitHub上的库粘来的https地址
+这两种连接方式，一种不行就用另一种
+
+git push -u origin master  把本地库push到远程库，-u参数是将本地主分支作为远程仓库的主分支(注：最好是远程仓库为空的话才这么做)
+
+ssh-keygen -t rsa -C "youremail@example.com"  生成ssh密钥
+
+git remote -v 查看远程库连接
+git remote rm origin  删除远程库连接
+
+git pull --rebase origin master 从远程拉取数据
+
+
+
+远程库中的文件全部覆盖本地
+git reset --hard
+git pull
+
+

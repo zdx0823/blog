@@ -5,6 +5,8 @@
 
 
 
+document.querySelector([div span|#div|.div|#div span]);
+
 nodeType	判断节点类型，返回值为数字，使用方式：ele.nodeType
 	返回值
 	1：元素节点
@@ -23,7 +25,7 @@ ele.firstElementChild 		返回第一个子元素节点
 ele.lastElementChild 		返回最后一个子元素节点
 ele.tagName 				返回ele的标签名
 
-getComputedStyle(ele)	
+getComputedStyle(ele)
 返回一个CSSStyleDeclaration对象，该对象包含了ele所有的样式，以键值对保存，样式值是经过计算后的值
 
 ele.getBoundingClientRect()	返回一个DOMRect对象，返回该元素的top、right、bottom、left、width、height
@@ -188,7 +190,7 @@ new Date(1546766803220);
 【新鲜】
 月份单词及其缩写
 	中文		全拼			缩写
-	一月		January		Jan		
+	一月		January		Jan
 	二月		February	Feb
 	三月		March		Mar
 	四月		April		Apr
@@ -212,14 +214,33 @@ String对象常用方法
 str.charAt(number);				返回指定下标的字符
 str.charCodeAt(number);			返回指定下标的字符的unicode码	【新鲜】
 String.fromCharCode(unicode);	将一个unicode码转换成字符
-str.indexOf('一个字符');			返回指定字符在str中首次出现的位置，如果不存在返回-1，从左向右搜索	
+str.indexOf('一个字符');			返回指定字符在str中首次出现的位置，如果不存在返回-1，从左向右搜索
 str.lastIndexOf('一个字符');		返回指定字符在str中首次出现的位置，如果不存在返回-1，从右向左搜索
 【新鲜】
 str.slice(1,5);					返回从下标1到下标4的字符(不包括结尾的字符)
 								-1表示最后一个 str.slice(-3,-1) 表示从倒数第三个数到倒数第二个，共2个字符
 								不管是正数还是负数，截取字符都是从左向右截取
 str.split(分隔符,数组项最大值);	将一个字符串按分隔符处分割成数组，数组最大项数不超过第二个参数指定的(如果有指定)
-str.substr(2,3);				返回从下标2开始向右数3个字符的字符，如果未指定截取长度，则返回剩下的字符
-str.trim();						去除字符串两边的空白		
-str.toUpperCase();				全部转换成大写 
-str.toLowerCase();				全部转换成小写 
+str.substr(2,3);				返回从下标2开始向右数3个字符的共3个字符，如果未指定截取长度，则返回剩下的字符
+str.trim();						去除字符串两边的空白
+str.toUpperCase();				全部转换成大写
+str.toLowerCase();				全部转换成小写
+
+
+
+Array对象常用方法
+
+arr.concat(arr2,arr3,...arrN);          合并多个数组
+arr.join(分隔符);                       根据分隔符合并数组，默认以逗号分割
+arr.push(项1,项2,项3,...,项N);          向数组后面推入若干个项
+arr.pop();                              退出数组最后一个项
+arr.unshift(项1,项2,项3,...,项N);        项数组前面推入多个项
+arr.shift();                            退出数组第一个项
+arr.slice(1,4);                         返回由arr的第一项到第四项(不包括结尾)组成的数组
+arr.splice(起始项,删除个数,[插入项1,插入项2,插入项3]);      第三个参数可选
+arr.reverse();                          倒转数组
+arr.sort();                             排序数组
+    arr.sort();                         升序排序字母
+    arr.sort(function(a,b){return a-b});升序排序数字
+    arr.sort(function(a,b){return b-a});降序排序数字
+arr.toString();                         将数组简单的转换成字符串
