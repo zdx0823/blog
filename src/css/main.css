@@ -169,6 +169,7 @@
     background: #fff;
     color: #5f5f5f;
     border-bottom: 1px solid #ddd;
+    display: none;
 }
 #indexTit{
     display: block;

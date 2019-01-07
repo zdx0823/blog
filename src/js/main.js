@@ -23,7 +23,7 @@ var z = {
     page:{  // 存储页面状态，参数待定
     },
     route:null, // 挂在页面路由对象实例
-    draw:draw,
+    draw_catalog:draw_catalog,
     loadTips:{
         loading:$('.loadTips .spinner'),
         empty:$('.loadTips_empty')
@@ -107,9 +107,55 @@ function event(){
 
     };
 
+    z.showcase.addEventListener('click',function(e){
+        var e = e || event;
+        var target = e.target;
+        draw_article(target);
+    });
+
 }
 
 
+
+function draw_article(ele){
+    var articleID = ele.getAttribute('articleid');
+    ajax({
+        method:'post',
+        data:'action=draw_article&articleid='+articleID,
+        url:'php/index.php',
+        success:function(data){
+
+            document.body.innerHTML = data;
+            if(data == ''){
+                draw_article.state = 'empty';
+            }else{
+                draw_article.state = 'accepted';
+                json = JSON.parse(data);
+            }
+            res = draw_article.callback(json);
+
+        }
+    });
+
+    // var timer = setInterval(function(){
+
+    //     if(draw_article.state !== undefined){
+    //         if(draw_article.state == 'empty'){
+    //             z.loadTips.loading.style.display = 'none';
+    //             z.loadTips.empty.style.display = 'inline-block';
+    //         }else if( draw_article.state == 'accepted' ){
+
+    //         }
+    //         clearInterval(timer);
+    //     }
+
+    // },100);
+
+}
+draw_article.state = undefined;
+draw_article.callback = function(){
+
+}
 
 
 /**
@@ -117,34 +163,34 @@ function event(){
  * @param  {[对象]} obj [json数据]
  * @return {[无]}     [无]
  */
-function draw(){
+function draw_catalog(){
 
     var res = null;
     var json = '';
     ajax({
         method:'post',
-        data:'action=draw',
+        data:'action=draw_catalog',
         url:'php/index.php',
         success:function(data){
             console.log(data == '');
             // document.body.innerHTML = data;
             if(data == ''){
-                draw.state = 'empty';
+                draw_catalog.state = 'empty';
             }else{
-                draw.state = 'accepted';
+                draw_catalog.state = 'accepted';
                 json = JSON.parse(data);
             }
-            res = draw.callback(json);
+            res = draw_catalog.callback(json);
         }
     });
 
     var timer = setInterval(function(){
 
-        if(draw.state !== undefined){
-            if(draw.state == 'empty'){
+        if(draw_catalog.state !== undefined){
+            if(draw_catalog.state == 'empty'){
                 z.loadTips.loading.style.display = 'none';
                 z.loadTips.empty.style.display = 'inline-block';
-            }else if( draw.state == 'accepted' ){
+            }else if( draw_catalog.state == 'accepted' ){
 
             }
             clearInterval(timer);
@@ -153,8 +199,8 @@ function draw(){
     },100);
 
 }
-draw.state = undefined;
-draw.callback = function(obj){
+draw_catalog.state = undefined;
+draw_catalog.callback = function(obj){
 
     var html = '';
     var showcase = $('#showcase');
@@ -163,36 +209,36 @@ draw.callback = function(obj){
 
     for(var attr in obj){
         var json = JSON.parse( obj[attr] );
-        var thumb = json['articleSnapshoot'];
-        var thumbPath = 'data/snapshoot/'+thumb;
+        var thumbPath = 'data/snapshoot/'+ json['articleSnapshoot'];
         var tit = json['articleTit'];
-        var data = howLong( json['updateDate'] );
+        var date = howLong( json['updateDate'] );
+        var articleID = json['articleID'];
 
-        var str = ''+
-        '<div class="bar">'+
-            '<div class="bar-img">'+
-                '<a href="#"></a><img src="'+ thumbPath +'">'+
-            '</div>'+
-            '<div class="bar-info">'+
-                '<div class="bar-info-l">'+
-                    '<a href="javascript:;" class="bar-info-l-profile"></a>'+
-                    '<a href="#" class="bar-info-l-tit">'+ tit +'</a>'+
-                '</div>'+
-                '<div class="bar-info-r">'+
-                    '<a href="javascript:;" class="bar-info-r-thumb">'+
-                        '<i class="fa fa-thumbs-o-up" aria-hidden="true"></i>'+
-                        '<span class="c">1000</span>'+
-                    '</a>'+
-                    '<span class="d">'+ data +'</span>'+
-                '</div>'+
-            '</div>'+
-        '</div>';
+        var str = '\
+        <div class="bar">\
+            <div class="bar-img">\
+                <a href="#" articleid="'+ articleID +'"></a><img src="'+ thumbPath +'">\
+            </div>\
+            <div class="bar-info">\
+                <div class="bar-info-l">\
+                    <a href="javascript:;" class="bar-info-l-profile"></a>\
+                    <a href="#" class="bar-info-l-tit">'+ tit +'</a>\
+                </div>\
+                <div class="bar-info-r">\
+                    <a href="javascript:;" class="bar-info-r-thumb">\
+                        <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>\
+                        <span class="c">1000</span>\
+                    </a>\
+                    <span class="d">'+ date +'</span>\
+                </div>\
+            </div>\
+        </div>';
 
         html += str;
     }
 
     showcase.innerHTML = html;
-    draw.state = true;
+    draw_catalog.state = true;
 
 }
 
@@ -291,28 +337,6 @@ edi.toJsonStr = function(obj){
     var jsonStr = JSON.stringify(obj);
     return jsonStr;
 };
-// 截屏并保存
-// edi.html2canvas = function(){
-
-//     // 使用html2canvas插件实现网页截图功能
-//     // 使用canvasAPI的toDataURL将canvas画布内的图像转换成base64编码
-//     // 由于toDataURL函数生成的编码会带一个base64的头，需要去掉才能给php的base64_decode函数解析
-//     html2canvas(
-
-//         z.mceu_39,
-//         {logging:false,width:500,height:500,async:false},
-
-
-//     ).then(function(canvas) {
-//         canvas.style.position = 'absolute';
-//         canvas.style.top = '-9999px';
-//         canvas.style.left = '-9999px';
-//         canvas.setAttribute('id','snapshoot');
-//         document.body.appendChild(canvas);
-//     });
-
-
-// };
 // 发送ajax请求
 edi.send = function(conJsonStr){
     var tips = edi.tips;

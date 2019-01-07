@@ -28,8 +28,10 @@ if( apache_request_headers()['Content-Type'] == 'application/json' ){
 }else if( apache_request_headers()['Content-Type'] == 'application/x-www-form-urlencoded' ){
 
     $post = $_POST['action'];
-    if( $post == 'draw' ){
+    if( $post == 'draw_catalog' ){
         echo readUserData($link);
+    }else if( $post == 'draw_article' ){
+        $artcleID = $_POST['articleid'];
     }
 
 }

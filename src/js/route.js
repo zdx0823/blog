@@ -117,7 +117,7 @@ Route.prototype = {
         z.editorCon.style.display = 'none';
         z.ediTit.style.display = 'none';
         z.indexTit.style.display = 'block';
-        z.draw();
+        z.draw_catalog();
     },
 
     /**
