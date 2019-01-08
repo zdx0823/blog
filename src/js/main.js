@@ -1,64 +1,16 @@
 window.onload = function(){
 var z = {
-    plugVessel : $('#tinymce'),     // 存放tinymce实例的容器
-    editorBtn : $('#editorBtn'),    // 侧边栏“添加文章”按钮
-    contentTitle : $('#contentTitle'),  // 获取公共标题标签h2
-    indexTit : $('#indexTit'),          // 获取公共标题标签里的span标签
-    ediTit : $('#ediTit'),              // 获取公共标题标签里的input标签，编辑的时候显示
     fnbar : $('.fnbar'),    // 获取功能区标签
-    showcase : $('#showcase'),      // 首页功能区
-    editorCon : $('#editorCon'),    // 编辑功能区
-    saveChange : $('#saveChange'),      // 保存按钮
-    resetChange : $('#resetChange'),    // 重置按钮
-    saveAndClose : $('#saveAndClose'),  // 发布按钮
-    mceu_39 : null, // 异步获取本实例中的编辑区iframe标签
-    tinymce : null, // 异步获取
-    initTinymce:initTinymce,    // initTinymce函数，用于检测hash值变化的时候执行
-    edi:edi,                    // 编辑区的保存、重置、发布的函数，用于检测hash值变化的时候执行
-    appShade:$('#appShade'),    // 全屏遮罩层，用于高亮弹出框
-    ediPop:$('#ediPop'),        // 编辑区的弹出框
-    ediPopTrue:$('#ediPopTrue'),// 编辑区的确认按钮
-    ediPopFalse:$('#ediPopFalse'),// 编辑区的取消按钮
-    ediIsDirty:false,
-    page:{  // 存储页面状态，参数待定
-    },
-    draw_catalog:draw_catalog,
-    loadTips:{
-        loading:$('.loadTips .spinner'),
-        empty:$('.loadTips_empty')
-    },
-    reading:$('#reading'),
-    readingTit:$('#readingTit'),
-    readingContent:('#readingContent'),
-    draw_article:draw_article,
-    route:null, // 挂在页面路由对象实例
-
-
+    editorBtn : $('#editorBtn'),
     init : function(){
-        z.route = new Route(z);
-        pack_ediTit();
+        // z.route = new Route(z);
+        // pack_ediTit();
         event();
     },
 }
 z.init();
 
 
-/*// reading/userID/articleID
-// reading/100/48ab184901f1aa6a0242466a1eb9aa29
-function route(){
-
-    var hash = document.location.hash;
-    hash = hash.substr(1,hash.length-1);
-    console.log(hash);
-    if( !hash ){
-        page_index();
-    }else if( hash == 'editor' ){
-        page_editor();
-
-    }
-
-}
-*/
 
 
 
@@ -93,34 +45,34 @@ function event(){
 
     }
 
-    // 保存按钮
-    z.saveChange.onclick = function(){
-        console.log( edi.doSave() );
-        z.ediIsDirty = false;
-    };
+    // // 保存按钮
+    // z.saveChange.onclick = function(){
+    //     console.log( edi.doSave() );
+    //     z.ediIsDirty = false;
+    // };
 
-    // 重置按钮
-    z.resetChange.onclick = function(){
-        edi.reset();
-    };
+    // // 重置按钮
+    // z.resetChange.onclick = function(){
+    //     edi.reset();
+    // };
 
-    // 发布按钮
-    z.saveAndClose.onclick = function(){
+    // // 发布按钮
+    // z.saveAndClose.onclick = function(){
 
-        edi.upload();
+    //     edi.upload();
 
-    };
+    // };
 
-    z.showcase.addEventListener('click',function(e){
-        var e = e || event;
-        var target = e.target;
-        if(target.tagName == 'A'){
-            var arr = target.getAttribute('articleid').split('&');
-            var articleID = arr[0];
-            location.hash = 'article/'+articleID;
-            z.route.page_article(arr);
-        }
-    });
+    // z.showcase.addEventListener('click',function(e){
+    //     var e = e || event;
+    //     var target = e.target;
+    //     if(target.tagName == 'A'){
+    //         var arr = target.getAttribute('articleid').split('&');
+    //         var articleID = arr[0];
+    //         location.hash = 'article/'+articleID;
+    //         z.route.page_article(arr);
+    //     }
+    // });
 
 }
 
@@ -146,19 +98,6 @@ function draw_article(arr){
         }
     });
 
-    // var timer = setInterval(function(){
-
-    //     if(draw_article.state !== undefined){
-    //         if(draw_article.state == 'empty'){
-    //             z.loadTips.loading.style.display = 'none';
-    //             z.loadTips.empty.style.display = 'inline-block';
-    //         }else if( draw_article.state == 'accepted' ){
-
-    //         }
-    //         clearInterval(timer);
-    //     }
-
-    // },100);
 
 }
 draw_article.state = undefined;
@@ -527,6 +466,50 @@ function initTinymce(){
     });
 
 }
+
+
+
+
+
+
+
+
+var html =  '<section id="editorCon" class="fnbar-bar">\
+                <div id="tinymce"></div>\
+                <div class="editorCon-btns clearfix">\
+                    <a href="javascript:;" id="saveChange">保存草稿</a>\
+                    <a href="javascript:;" id="resetChange">重置</a>\
+                    <a href="javascript:;" id="saveAndClose">发布</a>\
+                </div>\
+                <div id="ediPop">\
+                    <h3 class="ediPop_tit"><span>提示</span><i></i></h3>\
+                    <p class="ediPop_tip">您的内容尚未保存，是否保存为草稿？</p>\
+                    <div class="ediPop_confirm">\
+                        <a href="javascript:;" id="ediPopTrue"><i class="fas fa-check" title="保存"></i></a>\
+                        <a href="javascript:;" id="ediPopFalse"><i class="fas fa-times" title="丢弃"></i></a>\
+                    </div>\
+                </div>\
+            </section>';
+
+
+
+
+
+var blogPage = new CreatePage(document.querySelector('.fnbar'));
+
+
+var ressss = blogPage.add({
+
+    html:html
+
+});
+console.log( ressss );
+
+
+
+
+
+
 
 }
 
