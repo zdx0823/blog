@@ -1,60 +1,16 @@
 window.onload = function(){
 var z = {
-    plugVessel : $('#tinymce'),     // 存放tinymce实例的容器
-    editorBtn : $('#editorBtn'),    // 侧边栏“添加文章”按钮
-    contentTitle : $('#contentTitle'),  // 获取公共标题标签h2
-    indexTit : $('#indexTit'),          // 获取公共标题标签里的span标签
-    ediTit : $('#ediTit'),              // 获取公共标题标签里的input标签，编辑的时候显示
     fnbar : $('.fnbar'),    // 获取功能区标签
-    showcase : $('#showcase'),      // 首页功能区
-    editorCon : $('#editorCon'),    // 编辑功能区
-    saveChange : $('#saveChange'),      // 保存按钮
-    resetChange : $('#resetChange'),    // 重置按钮
-    saveAndClose : $('#saveAndClose'),  // 发布按钮
-    mceu_39 : null, // 异步获取本实例中的编辑区iframe标签
-    tinymce : null, // 异步获取
-    initTinymce:initTinymce,    // initTinymce函数，用于检测hash值变化的时候执行
-    edi:edi,                    // 编辑区的保存、重置、发布的函数，用于检测hash值变化的时候执行
-    appShade:$('#appShade'),    // 全屏遮罩层，用于高亮弹出框
-    ediPop:$('#ediPop'),        // 编辑区的弹出框
-    ediPopTrue:$('#ediPopTrue'),// 编辑区的确认按钮
-    ediPopFalse:$('#ediPopFalse'),// 编辑区的取消按钮
-    ediIsDirty:false,
-    page:{  // 存储页面状态，参数待定
-    },
-    route:null, // 挂在页面路由对象实例
-    draw_catalog:draw_catalog,
-    loadTips:{
-        loading:$('.loadTips .spinner'),
-        empty:$('.loadTips_empty')
-    },
-
-
+    editorBtn : $('#editorBtn'),
     init : function(){
-        z.route = new Route(z);
-        pack_ediTit();
+        // z.route = new Route(z);
+        // pack_ediTit();
         event();
     },
 }
 z.init();
 
 
-/*// reading/userID/articleID
-// reading/100/48ab184901f1aa6a0242466a1eb9aa29
-function route(){
-
-    var hash = document.location.hash;
-    hash = hash.substr(1,hash.length-1);
-    console.log(hash);
-    if( !hash ){
-        page_index();
-    }else if( hash == 'editor' ){
-        page_editor();
-
-    }
-
-}
-*/
 
 
 
@@ -89,71 +45,67 @@ function event(){
 
     }
 
-    // 保存按钮
-    z.saveChange.onclick = function(){
-        console.log( edi.doSave() );
-        z.ediIsDirty = false;
-    };
+    // // 保存按钮
+    // z.saveChange.onclick = function(){
+    //     console.log( edi.doSave() );
+    //     z.ediIsDirty = false;
+    // };
 
-    // 重置按钮
-    z.resetChange.onclick = function(){
-        edi.reset();
-    };
+    // // 重置按钮
+    // z.resetChange.onclick = function(){
+    //     edi.reset();
+    // };
 
-    // 发布按钮
-    z.saveAndClose.onclick = function(){
+    // // 发布按钮
+    // z.saveAndClose.onclick = function(){
 
-        edi.upload();
+    //     edi.upload();
 
-    };
+    // };
 
-    z.showcase.addEventListener('click',function(e){
-        var e = e || event;
-        var target = e.target;
-        draw_article(target);
-    });
+    // z.showcase.addEventListener('click',function(e){
+    //     var e = e || event;
+    //     var target = e.target;
+    //     if(target.tagName == 'A'){
+    //         var arr = target.getAttribute('articleid').split('&');
+    //         var articleID = arr[0];
+    //         location.hash = 'article/'+articleID;
+    //         z.route.page_article(arr);
+    //     }
+    // });
 
 }
 
 
 
-function draw_article(ele){
-    var articleID = ele.getAttribute('articleid');
+function draw_article(arr){
+
     ajax({
         method:'post',
-        data:'action=draw_article&articleid='+articleID,
+        data:'action=draw_article&articleid='+arr[0],
         url:'php/index.php',
         success:function(data){
 
-            document.body.innerHTML = data;
+            data = decodeURI(data);
+            // document.body.innerHTML = data;
             if(data == ''){
                 draw_article.state = 'empty';
             }else{
                 draw_article.state = 'accepted';
-                json = JSON.parse(data);
             }
-            res = draw_article.callback(json);
+            res = draw_article.callback(data,arr[1]);
 
         }
     });
 
-    // var timer = setInterval(function(){
-
-    //     if(draw_article.state !== undefined){
-    //         if(draw_article.state == 'empty'){
-    //             z.loadTips.loading.style.display = 'none';
-    //             z.loadTips.empty.style.display = 'inline-block';
-    //         }else if( draw_article.state == 'accepted' ){
-
-    //         }
-    //         clearInterval(timer);
-    //     }
-
-    // },100);
 
 }
 draw_article.state = undefined;
-draw_article.callback = function(){
+draw_article.callback = function(data,tit){
+
+    console.log(data);
+    z.readingTit.innerHTML = tit;
+    readingContent.innerHTML = data;
 
 }
 
@@ -172,7 +124,6 @@ function draw_catalog(){
         data:'action=draw_catalog',
         url:'php/index.php',
         success:function(data){
-            console.log(data == '');
             // document.body.innerHTML = data;
             if(data == ''){
                 draw_catalog.state = 'empty';
@@ -217,7 +168,7 @@ draw_catalog.callback = function(obj){
         var str = '\
         <div class="bar">\
             <div class="bar-img">\
-                <a href="#" articleid="'+ articleID +'"></a><img src="'+ thumbPath +'">\
+                <a href="javascript:;" articleid="'+ articleID +';"></a><img src="'+ thumbPath +'">\
             </div>\
             <div class="bar-info">\
                 <div class="bar-info-l">\
@@ -254,7 +205,6 @@ function howLong(timestamp){
     var timestamp = parseInt(timestamp),
         now = +new Date(),
         diff = parseInt( (now - timestamp)/1000 );
-        console.log(diff);
 
     if( diff<0 ) return res;
 
@@ -265,10 +215,8 @@ function howLong(timestamp){
         M = D*30,
         Y = D*365;
 
-        // console.log(D);
     if( diff >=0 && diff < D ){
 
-        console.log(432343);
         switch(true){
             case ( diff < 5*m ):
                 res = '刚刚';
@@ -518,6 +466,50 @@ function initTinymce(){
     });
 
 }
+
+
+
+
+
+
+
+
+var html =  '<section id="editorCon" class="fnbar-bar">\
+                <div id="tinymce"></div>\
+                <div class="editorCon-btns clearfix">\
+                    <a href="javascript:;" id="saveChange">保存草稿</a>\
+                    <a href="javascript:;" id="resetChange">重置</a>\
+                    <a href="javascript:;" id="saveAndClose">发布</a>\
+                </div>\
+                <div id="ediPop">\
+                    <h3 class="ediPop_tit"><span>提示</span><i></i></h3>\
+                    <p class="ediPop_tip">您的内容尚未保存，是否保存为草稿？</p>\
+                    <div class="ediPop_confirm">\
+                        <a href="javascript:;" id="ediPopTrue"><i class="fas fa-check" title="保存"></i></a>\
+                        <a href="javascript:;" id="ediPopFalse"><i class="fas fa-times" title="丢弃"></i></a>\
+                    </div>\
+                </div>\
+            </section>';
+
+
+
+
+
+var blogPage = new CreatePage(document.querySelector('.fnbar'));
+
+
+var ressss = blogPage.add({
+
+    html:html
+
+});
+console.log( ressss );
+
+
+
+
+
+
 
 }
 

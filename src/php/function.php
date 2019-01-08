@@ -174,7 +174,7 @@ function edi_upload($link,$json){
     if( isset( $json -> tinymce_txt ) ) $txt = $json -> tinymce_txt;        // 正文
     if( isset( $json -> tinymce_base64 ) ) $base64 = $json -> tinymce_base64;  // 图片base64编码
 
-
+    $fileName = $fileName .'&'. $tit;
     $dataImg = base64_decode($base64);                      // base64解编码
 
     file_put_contents($fileName,$txt);  // 将正文写入文件
@@ -214,3 +214,12 @@ function readUserData($link){
     return $jsonStr;
 }
 
+
+
+function getFile($articleID){
+
+    $fileName = '../data/articles/'.$articleID;
+    $str = file_get_contents($fileName);
+    return $str;
+
+}
