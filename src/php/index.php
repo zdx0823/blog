@@ -32,6 +32,7 @@ if( apache_request_headers()['Content-Type'] == 'application/json' ){
         echo readUserData($link);
     }else if( $post == 'draw_article' ){
         $artcleID = $_POST['articleid'];
+        echo getFile($artcleID);
     }
 
 }

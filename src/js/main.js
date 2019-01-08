@@ -22,12 +22,16 @@ var z = {
     ediIsDirty:false,
     page:{  // 存储页面状态，参数待定
     },
-    route:null, // 挂在页面路由对象实例
     draw_catalog:draw_catalog,
     loadTips:{
         loading:$('.loadTips .spinner'),
         empty:$('.loadTips_empty')
     },
+    reading:$('#reading'),
+    readingTit:$('#readingTit'),
+    readingContent:('#readingContent'),
+    draw_article:draw_article,
+    route:null, // 挂在页面路由对象实例
 
 
     init : function(){
@@ -110,29 +114,34 @@ function event(){
     z.showcase.addEventListener('click',function(e){
         var e = e || event;
         var target = e.target;
-        draw_article(target);
+        if(target.tagName == 'A'){
+            var arr = target.getAttribute('articleid').split('&');
+            var articleID = arr[0];
+            location.hash = 'article/'+articleID;
+            z.route.page_article(arr);
+        }
     });
 
 }
 
 
 
-function draw_article(ele){
-    var articleID = ele.getAttribute('articleid');
+function draw_article(arr){
+
     ajax({
         method:'post',
-        data:'action=draw_article&articleid='+articleID,
+        data:'action=draw_article&articleid='+arr[0],
         url:'php/index.php',
         success:function(data){
 
-            document.body.innerHTML = data;
+            data = decodeURI(data);
+            // document.body.innerHTML = data;
             if(data == ''){
                 draw_article.state = 'empty';
             }else{
                 draw_article.state = 'accepted';
-                json = JSON.parse(data);
             }
-            res = draw_article.callback(json);
+            res = draw_article.callback(data,arr[1]);
 
         }
     });
@@ -153,7 +162,11 @@ function draw_article(ele){
 
 }
 draw_article.state = undefined;
-draw_article.callback = function(){
+draw_article.callback = function(data,tit){
+
+    console.log(data);
+    z.readingTit.innerHTML = tit;
+    readingContent.innerHTML = data;
 
 }
 
@@ -172,7 +185,6 @@ function draw_catalog(){
         data:'action=draw_catalog',
         url:'php/index.php',
         success:function(data){
-            console.log(data == '');
             // document.body.innerHTML = data;
             if(data == ''){
                 draw_catalog.state = 'empty';
@@ -217,7 +229,7 @@ draw_catalog.callback = function(obj){
         var str = '\
         <div class="bar">\
             <div class="bar-img">\
-                <a href="#" articleid="'+ articleID +'"></a><img src="'+ thumbPath +'">\
+                <a href="javascript:;" articleid="'+ articleID +';"></a><img src="'+ thumbPath +'">\
             </div>\
             <div class="bar-info">\
                 <div class="bar-info-l">\
@@ -254,7 +266,6 @@ function howLong(timestamp){
     var timestamp = parseInt(timestamp),
         now = +new Date(),
         diff = parseInt( (now - timestamp)/1000 );
-        console.log(diff);
 
     if( diff<0 ) return res;
 
@@ -265,10 +276,8 @@ function howLong(timestamp){
         M = D*30,
         Y = D*365;
 
-        // console.log(D);
     if( diff >=0 && diff < D ){
 
-        console.log(432343);
         switch(true){
             case ( diff < 5*m ):
                 res = '刚刚';

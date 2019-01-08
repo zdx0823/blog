@@ -394,11 +394,13 @@
 
 #reading{
     background: #fff;
+    display: none;
 }
 
 .reading_head{
     position: relative;
     z-index: 9;
+    border-bottom: 1px solid #ddd;
 }
 .author_pro,.author_name,#authorName,#follow,.tarticle,.tarticle li{
     float: left;

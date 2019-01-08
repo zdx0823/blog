@@ -27,7 +27,7 @@ Route.prototype = {
         var hash = document.location.hash;
         hash = hash.substr(1,hash.length-1);
         if( hash.indexOf('/') != -1 ){
-            hash = hash.split(hash,'/')
+            hash = hash.split('/');
         }else{
             hash = [hash];
         }
@@ -43,7 +43,6 @@ Route.prototype = {
         var _this = this;
         window.addEventListener('hashchange',function(){
             if( z.ediIsDirty === true ){
-                // z.ediIsDirty = false;
                 _this.setEdiPop();
             }else{
                 _this.setting();
@@ -59,12 +58,17 @@ Route.prototype = {
     setting:function(){
         var hash = this.hash();
         var z = this.z;
-
         if( !hash[0] ){
-            console.log(7654);
             this.page_index();
         }else if( hash[0] == 'editor' ){
             this.page_editor();
+        }else if( hash[0] == 'article' ){
+            if(!hash[1]){
+                this.page_index();
+                return;
+            }
+            var articleID = hash[1];
+            this.page_article(articleID);
         }
     },
 
@@ -99,8 +103,7 @@ Route.prototype = {
             if(res){
                 _this.setting();
                 clearInterval(timer);
-                z.appShade.style.display = 'none';
-                z.ediPop.style.display = 'none';
+                z.appShade.style.display = z.ediPop.style.display = 'none';
                 z.ediIsDirty = false;
             }
         },200);
@@ -113,10 +116,8 @@ Route.prototype = {
      */
     page_index:function(){
         var z = this.z;
-        z.showcase.style.display = 'block';
-        z.editorCon.style.display = 'none';
-        z.ediTit.style.display = 'none';
-        z.indexTit.style.display = 'block';
+        z.showcase.style.display = z.indexTit.style.display = 'block';
+        z.editorCon.style.display = z.ediTit.style.display ='none';
         z.draw_catalog();
     },
 
@@ -126,15 +127,62 @@ Route.prototype = {
      */
     page_editor:function(){
         var z = this.z;
-        z.showcase.style.display = 'none';
-        z.editorCon.style.display = 'block';
-        z.indexTit.style.display = 'none';
-        z.ediTit.style.display = 'block';
+        z.editorCon.style.display = z.ediTit.style.display = z.contentTitle.style.display = 'block';
+        z.showcase.style.display = z.indexTit.style.display = 'none';
         z.tinymce = z.initTinymce();
+    },
 
 
+    page_article:function(articleID){
+        var z = this.z;
+        z.showcase.style.display = z.contentTitle.style.display = 'none';
+        z.reading.style.display = 'block';
+        z.draw_article(articleID);
     }
 
 
-
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+route({
+    hash:'index,editor,article',
+    fns:index,editor,article
+});
+
+route.add('index',);
+
+*/
+
+
+
+
+
+
+
+
