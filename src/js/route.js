@@ -1,188 +1,49 @@
-// reading/userID/articleID
-// reading/100/48ab184901f1aa6a0242466a1eb9aa29
-
-function Route(z){
-    this.z = z;
-    this.init();
+/**
+ * Route对象
+ * add方法:用来像Route实例对象添加一条路由记录,记录存储在hashFnList对象里
+ *     ：参数1——hash名称，这个名称非常重要，路由函数就根据这个名称找到函数
+ *     ：参数2——hash对应的函数，根据hash来调用对应的函数
+ * hashFnList:是一个对象，键名是hash名即模块名，键值是一个函数
+ * e:为monitor的一个子方法，功能是根据hashSplit函数返回的hash值从hashFnList里找对应的函数执行，可独立调用执行
+ * monitor:用与监控hash的变换
+ *
+ */
+function Route(){
+    this.monitor();
 }
 Route.prototype = {
 
-    /**
-     * 初始化操作
-     * @return {[type]} [description]
-     */
-    init:function(){
-
-        this.hashchange();
-        this.setting();
-        this.z.page.status = 1;
-    },
-
-
-    /**
-     * 获取hash值
-     * @return {[数组]} [返回hash数组]
-     */
-    hash:function(){
-        var hash = document.location.hash;
-        hash = hash.substr(1,hash.length-1);
-        if( hash.indexOf('/') != -1 ){
-            hash = hash.split('/');
-        }else{
-            hash = [hash];
+    hashFnList:{},
+    hashSplit:function(){
+        var hash_arr = document.location.hash.slice(1).split('/');
+        /*-------特殊对待，如果此时的hash_arr[0]为空的话表示首页-------*/
+        hash_arr[0] = (hash_arr[0] === '') ? 'index' : hash_arr;
+        /*----------------------------------------------------------*/
+        var obj = {
+            mod:hash_arr[0] || null,
+            path:hash_arr[1] || null
+        };
+        if(!obj.mod){
+            return false;
         }
-        return hash;
+        return obj;
     },
-
-    /**
-     * 监控hash值变化，默认执行setting函数，如果编辑区有内容执行setEdiPop函数
-     * @return {[无]} [无]
-     */
-    hashchange:function(){
-        var z = this.z;
+    e:function(){
+        var obj = this.hashSplit();
+        if(!obj) return false;
+        var mod = obj.mod;
+        this.hashFnList[mod] && this.hashFnList[mod]();
+    },
+    monitor:function(){
         var _this = this;
         window.addEventListener('hashchange',function(){
-            if( z.ediIsDirty === true ){
-                _this.setEdiPop();
-            }else{
-                _this.setting();
-            }
-
+            _this.e();
         });
     },
-
-    /**
-     * 设置页面，根据hash数组的第一个值调用不同的方法来设置页面显示内容
-     * @return {[type]} [description]
-     */
-    setting:function(){
-        var hash = this.hash();
-        var z = this.z;
-        if( !hash[0] ){
-            this.page_index();
-        }else if( hash[0] == 'editor' ){
-            this.page_editor();
-        }else if( hash[0] == 'article' ){
-            if(!hash[1]){
-                this.page_index();
-                return;
-            }
-            var articleID = hash[1];
-            this.page_article(articleID);
-        }
-    },
-
-    /**
-     * 在编辑区有内容的时候执行此方法
-     */
-    setEdiPop:function(){
-        var z = this.z;
-        var _this = this;
-        var res = null;
-        document.documentElement.style.overflowY = 'hidden';
-
-        z.appShade.style.display = 'block';
-        z.ediPop.style.display = 'block';
-        z.ediPop.style.top = (client(window).h - getStyle(z.ediPop,'height').val)/4 + 'px';
-        z.ediPop.style.left = (client(window).w - getStyle(z.ediPop,'width').val)/2  - 320 + 'px';
-
-        z.ediPopTrue.onclick = function(){
-            z.edi.doSave();
-            tinymce.activeEditor.setContent('');
-            z.ediTit.value = '';
-            res = 'save';
-        };
-        z.ediPopFalse.onclick = function(){
-            z.edi.reset();
-            res = 'reset';
-        };
-
-        // 不停检测用户是否做出操作
-        var timer = setInterval(function(){
-
-            if(res){
-                _this.setting();
-                clearInterval(timer);
-                z.appShade.style.display = z.ediPop.style.display = 'none';
-                z.ediIsDirty = false;
-            }
-        },200);
-        return res;
-    },
-
-    /**
-     * 设置主页
-     * @return {[无]} [无]
-     */
-    page_index:function(){
-        var z = this.z;
-        z.showcase.style.display = z.indexTit.style.display = 'block';
-        z.editorCon.style.display = z.ediTit.style.display ='none';
-        z.draw_catalog();
-    },
-
-    /**
-     * 设置编辑页
-     * @return {[无]} [无s]
-     */
-    page_editor:function(){
-        var z = this.z;
-        z.editorCon.style.display = z.ediTit.style.display = z.contentTitle.style.display = 'block';
-        z.showcase.style.display = z.indexTit.style.display = 'none';
-        z.tinymce = z.initTinymce();
-    },
-
-
-    page_article:function(articleID){
-        var z = this.z;
-        z.showcase.style.display = z.contentTitle.style.display = 'none';
-        z.reading.style.display = 'block';
-        z.draw_article(articleID);
+    add:function(hash,fn){
+        var argu = Array.prototype.slice.call(arguments).slice(2); // 返回传给fn的实参组成的数组
+        this.hashFnList[hash] = fn(argu);
     }
 
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-route({
-    hash:'index,editor,article',
-    fns:index,editor,article
-});
-
-route.add('index',);
-
-*/
-
-
-
-
-
-
-
+};
 
