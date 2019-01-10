@@ -2,7 +2,7 @@
  * Route对象
  * add方法:用来像Route实例对象添加一条路由记录,记录存储在hashFnList对象里
  *     ：参数1——hash名称，这个名称非常重要，路由函数就根据这个名称找到函数
- *     ：参数2——hash对应的函数，根据hash来调用对应的函数
+ *     ：参数2——为一个对象，包含hash要执行的函数以及该函数的参数，和回调函数
  * hashFnList:是一个对象，键名是hash名即模块名，键值是一个函数
  * e:为monitor的一个子方法，功能是根据hashSplit函数返回的hash值从hashFnList里找对应的函数执行，可独立调用执行
  * monitor:用与监控hash的变换
@@ -40,8 +40,9 @@ Route.prototype = {
             _this.e();
         });
     },
-    add:function(hash,fn){
-        var argu = Array.prototype.slice.call(arguments).slice(2); // 返回传给fn的实参组成的数组
+    add:function(hash,obj){
+        var fn = obj.fn;
+        var argu = obj.fnArgus;
         this.hashFnList[hash] = fn(argu);
     }
 

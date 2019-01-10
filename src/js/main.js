@@ -1,32 +1,27 @@
 window.onload = function(){
 var z = {
     fnbar : $('.fnbar'),    // 获取功能区标签
-    editorBtn : $('#editorBtn'),    // 添加文章按钮
-    createPage : new CreatePage($('.fnbar')),
+    editor_btn : $('#editorBtn'),    // 添加文章按钮
+    create_mod : new CreateMod($('.fnbar')),
     route : new Route(),
     init : null,
+    fn_routing_page : fn_routing_page,
 }
 
 
 
-// z.init = function(){
-//     z.route.e();
-// }();
-
-
-
 /**
- * inputMod方法:调用CreatePage实例下的的add方法将模块载入页面，并将add的返回值整合成一个数组返回
+ * inputMod方法:调用CreateMod实例下的的add方法将模块载入页面，并将add的返回值整合成一个数组返回
  * @return {[obj]} [所添加模块中所有拥有id属性的标签]
  */
 z.inputMod = function(){
     var tmp = {};
     // 主页静态内容
-    tmp.showcase = z.createPage.add({
+    tmp.showcase = z.create_mod.add({
         html:'<section id="showcase" class="fnbar-bar clearfix"><h2 class="contentTitle">文章</h2></section>'
     });
     // 编辑页静态内容
-    tmp.editorCon = z.createPage.add({
+    tmp.editor_con = z.create_mod.add({
     html:'<section id="editorCon" class="fnbar-bar">\
                 <h2 class="contentTitle">\
                     <input type="text" id="ediTit" autocomplete="off" placeholder="点击此处修改标题" />\
@@ -48,11 +43,11 @@ z.inputMod = function(){
         </section>'
     });
     // 阅读文章页静态内容
-    tmp.reading = z.createPage.add({
-    html:'<section id="reading" class="clearfix">\
-        <div class="reading_head clearfix">\
-            <h2 id="readingTit">清平调</h2>\
-            <div class="reading_side">\
+    tmp.article_detail = z.create_mod.add({
+    html:'<section id="articleDetail" class="clearfix">\
+        <div class="articleDetail_head clearfix">\
+            <h2 id="articleDetailTit">清平调</h2>\
+            <div class="articleDetail_side">\
                 <a href="javascript:;" class="author_pro"><img id="authorImg" src="../src/img/profile/test.jpg"></a>\
                 <div class="author_name">\
                     <strong id="authorName">蜜蜂老牛黄瓜</strong>\
@@ -67,8 +62,8 @@ z.inputMod = function(){
                 </ul>\
             </div>\
         </div>\
-        <div class="reading_content_wrap">\
-            <div id="readingContent">\
+        <div class="articleDetail_content_wrap">\
+            <div id="articleDetailContent">\
             </div>\
         </div>\
         <div class="comment">\
@@ -84,11 +79,11 @@ z.inputMod = function(){
         </div>\
     </section>'
     });
-    // console.log(reading);
+    // console.log(articleDetail);
     // 默认所以的标签隐藏，该显示显示什么由路由函数决定
     tmp.showcase.wrap.style.display =
-    tmp.editorCon.wrap.style.display =
-    tmp.reading.wrap.style.display = 'none';
+    tmp.editor_con.wrap.style.display =
+    tmp.article_detail.wrap.style.display = 'none';
 
     var res = {};
     for(var attr in tmp){
@@ -101,16 +96,36 @@ z.inputMod = function(){
     return res;
 }();
 
-
-z.routingPage = routingPage;
-z.route.add('index',z.routingPage.index,z.inputMod.showcase);
+// 增加主页路由模块
 
 
+
+z.route.add('index',{
+    fn:z.fn_routing_page.index,
+    fn_argus:[z.inputMod.showcase],
+});
+
+z.route.add('editor',{
+    fn:z.fn_routing_page.editor,
+    fn_argus:[z.inputMod.editorCon],
+});
+
+z.route.add('articleDetail',{
+    fn:z.fn_routing_page.articleDetail,
+    fn_argus:[z.inputMod.articleDetail],
+});
+
+
+
+
+
+
+
+// 载入页面时进行路由选择
 z.route.e();
 
 
-// console.log(z.routingPage);
-// console.log(z.inputMod);
+
 
 
 
@@ -253,8 +268,8 @@ var str = '\
 // draw_article.callback = function(data,tit){
 
 //     console.log(data);
-//     z.readingTit.innerHTML = tit;
-//     readingContent.innerHTML = data;
+//     z.articleDetailTit.innerHTML = tit;
+//     articleDetailContent.innerHTML = data;
 
 // }
 
@@ -644,7 +659,7 @@ var str = '\
 
 
 
-// var blogPage = new CreatePage(document.querySelector('.fnbar'));
+// var blogPage = new Create_mod(document.querySelector('.fnbar'));
 
 
 // var ressss = blogPage.add({

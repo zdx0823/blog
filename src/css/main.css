@@ -386,11 +386,11 @@
 
 
 
-#reading{
+#articleDetail{
     background: #fff;
 }
 
-.reading_head{
+.articleDetail_head{
     position: relative;
     z-index: 9;
     border-bottom: 1px solid #ddd;
@@ -398,7 +398,7 @@
 .author_pro,.author_name,#authorName,#follow,.tarticle,.tarticle li{
     float: left;
 }
-.reading_side{
+.articleDetail_side{
     position: absolute;
     top: 2px;
     right: 0px;
@@ -408,16 +408,16 @@
     border-left: 1px solid #ebebeb;
     transition: background .3s;
 }
-.reading_side:hover{
+.articleDetail_side:hover{
     background: #333;
 }
-.reading_side:hover #authorName{
+.articleDetail_side:hover #authorName{
     color: #fff;
 }
-.reading_side:hover .tarticle li{
+.articleDetail_side:hover .tarticle li{
     color: #fff;
 }
-#readingTit{
+#articleDetailTit{
     float: left;
     position: relative;
     left: 0;
@@ -433,10 +433,10 @@
     text-overflow: ellipsis;
     transition: text-indent .3s;
 }
-#readingTit:hover{
+#articleDetailTit:hover{
     text-indent: .4rem;
 }
-#readingTit:before{
+#articleDetailTit:before{
     content: '';
     position: absolute;
     top: 20px;
@@ -485,10 +485,10 @@
 #tarticleView{}
 #tarticleLike{}
 
-.reading_content_wrap{
+.articleDetail_content_wrap{
     padding: 30px;
 }
-#readingContent{}
+#articleDetailContent{}
 
 .comment{
     height: 1.1rem;

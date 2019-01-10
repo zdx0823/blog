@@ -1,5 +1,5 @@
 /**
- * CreatePage对象:用来向参数指定的父节点插入子模块,只用来载入静态部分的页面
+ * CreateMod对象:用来向参数指定的父节点插入子模块,只用来载入静态部分的页面
  * @param {[节点]} parent [父节点]
  *
  *  add方法:接收一个对象该对象应该包含一个html属性和一个可选的selector字符串
@@ -8,10 +8,10 @@
  *      ：add方法返回所插入节点拥有id值的标签,限于自己技术问题，目前add只能返回有id的节点，且id的格式为id="id"
  *
  */
-function CreatePage(parent){
+function CreateMod(parent){
     this.parent = parent;
 }
-CreatePage.prototype = {
+CreateMod.prototype = {
 
     add:function(obj){
         if( !this.parent ) return false;
