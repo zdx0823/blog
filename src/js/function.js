@@ -61,7 +61,6 @@ Route.prototype = {
      * @param {[对象]} obj  [该对象包含fn属性和fn_argus属性]
      */
     add:function(hash,obj){
-        console.log(obj)
         hash = hash.toLowerCase();  // 将hash值转换成小写
         this.hash_fn_list[hash] = obj;    // obj包含fn属性和fn_argus属性
     }
@@ -88,44 +87,121 @@ function CreateMod(parent){
 CreateMod.prototype = {
 
     add:function(obj){
-        if( !this.parent ) return false;
         if( !obj.html ) return false;
         var html = obj.html;
-        var selector = null;
 
+        var tmp = document.createElement('div');
+            tmp.innerHTML = html;
+
+        var re = /id="[a-z0-9A-Z]*"/g;
+        var arr1 = html.match(re);
+        var nodes = {};
+        nodes.wrap = tmp.firstChild;
+
+        // 如果arr1不为空则进行下一步————分割出id值找到对应的对象并存进nodes对象里
+        if(arr1){
+            var arr2 = [];
+            arr1.forEach(function(item){
+                var re = /"[a-z0-9A-Z]*"/;
+                var str = item.match(re)[0];
+                var res = str.slice(1,str.length-1);
+                arr2.push(res);
+            });
+
+            arr2.forEach(function(item){
+                nodes[item] = tmp.querySelector('#'+item);
+            });
+        }
+
+
+        var selector = null;
         if(obj.selector){
             selector = obj.selector.split(',');
         }else{
             selector = [];
         }
 
-
-        var tmp = document.createElement('div');
-            tmp.innerHTML = html;
-
-        var res = tmp.firstChild;
-        this.parent.appendChild(res);
-
-        var re = /id="[a-z0-9A-Z]*"/g;
-        var arr1 = html.match(re);
-        var arr2 = [];
-        arr1.forEach(function(item){
-            var re = /"[a-z0-9A-Z]*"/;
-            var str = item.match(re)[0];
-            var res = str.slice(1,str.length-1);
-            arr2.push(res);
-        });
-
-        var nodes = {};
-        nodes.wrap = res;
-        arr2.forEach(function(item){
-            nodes[item] = document.getElementById(item);
-        });
-
         selector.forEach(function(item){
-            nodes['class_'+item.slice(1)] = res.querySelector(item);
+            nodes['class_'+item.slice(1)] = tmp.querySelector('.'+item);
         });
+
+        if(this.parent){
+            this.parent.appendChild(nodes.wrap);
+        }
         return nodes;
     }
 
 };
+
+
+
+
+
+
+
+
+
+
+
+
+/*===============工具方法===================*/
+/**
+ * 返回时间戳距离当前时间有多久
+ * @param  {[混合]} timestamp [字符串或数字]
+ * @return {[字符串]}           [距离当前有多久]
+ */
+function howLong(timestamp){
+    var res = false;
+    var timestamp = parseInt(timestamp),
+        now = +new Date(),
+        diff = parseInt( (now - timestamp)/1000 );
+
+    if( diff<0 ) return res;
+
+    var s = 1,
+        m = s*60,
+        h = m*60,
+        D = h*24,
+        M = D*30,
+        Y = D*365;
+
+    if( diff >=0 && diff < D ){
+
+        switch(true){
+            case ( diff < 5*m ):
+                res = '刚刚';
+                break;
+            case ( diff >= 5*m && diff<10*m ):
+                res = '5分钟前';
+                break;
+            case ( diff >= 10*m && diff < 15*m ):
+                res = '10分钟前';
+                break;
+            case ( diff >= 15*m && diff < 20*m ):
+                res = '15分钟前';
+                break;
+            case ( diff >= 20*m && diff < 30*m ):
+                res = '20分钟前';
+                break;
+            case ( diff >= 30*m && diff < 1*h ):
+                res = '30分钟前';
+                break;
+            case ( diff >= 1*h && diff < 2*h ):
+                res = '1小时前';
+                break;
+            default:
+                res = parseInt( diff/h ) + '小时前';
+                break;
+        }
+
+    }else if( diff >= D && diff < M ){
+        res = parseInt( diff / D ) + '天前';
+    }else if( diff >= M && diff < Y ){
+        res = parseInt( diff / M ) + '月前';
+        ( res == 12 ) && (res = '1年前');
+    }else if( diff >= Y ){
+        res = fTime(timestamp,'Y-M-D');
+    }
+
+    return res;
+}

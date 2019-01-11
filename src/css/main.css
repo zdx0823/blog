@@ -178,8 +178,8 @@
     width: 100%;
     height: 100%;
     position: relative;
-    top: -.73rem;
-    padding-top: .73rem;
+    top: 0;
+    left: 0;
     box-sizing: border-box;
 }
 .fnbar-bar{
@@ -241,7 +241,7 @@
 }
 #showcase .bar-info-l-tit{
     float: left;
-    width: 1.10rem;
+    max-width: 1.10rem;
     font-weight: bold;
     font-size: .13rem;
     white-space: nowrap;
@@ -282,7 +282,7 @@
 
 .editorCon-btns{
     text-align: center;
-    margin-top: .26rem;
+    padding: .26rem 0;
 }
 
 #ediTit{

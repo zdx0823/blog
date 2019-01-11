@@ -26,7 +26,6 @@ z.inputMod = function(){
                 <h2 class="contentTitle">\
                     <input type="text" id="ediTit" autocomplete="off" placeholder="点击此处修改标题" />\
                 </h2>\
-                <div id="tinymce"></div>\
                 <div class="editorCon-btns clearfix">\
                     <a href="javascript:;" id="saveChange">保存草稿</a>\
                     <a href="javascript:;" id="resetChange">重置</a>\
@@ -80,7 +79,7 @@ z.inputMod = function(){
     </section>'
     });
     // console.log(articleDetail);
-    // 默认所以的标签隐藏，该显示显示什么由路由函数决定
+    // 默认所有的标签隐藏，该显示显示什么由路由函数决定
     tmp.showcase.wrap.style.display =
     tmp.editor_con.wrap.style.display =
     tmp.article_detail.wrap.style.display = 'none';
@@ -107,14 +106,13 @@ z.route.add('index',{
 
 z.route.add('editor',{
     fn:z.fn_routing_page.editor,
-    fn_argus:[z.inputMod.editorCon],
+    fn_argus:[z.inputMod.editorCon,z.inputMod.tinymce],
 });
 
 z.route.add('articleDetail',{
     fn:z.fn_routing_page.articleDetail,
     fn_argus:[z.inputMod.articleDetail],
 });
-
 
 
 
@@ -130,29 +128,6 @@ z.route.e();
 
 
 
-
-
-
-// bar
-var str = '\
-        <div class="bar">\
-            <div class="bar-img">\
-                <a href="javascript:;" articleid="articleID"></a><img src="thumbPath" />\
-            </div>\
-            <div class="bar-info">\
-                <div class="bar-info-l">\
-                    <a href="javascript:;" class="bar-info-l-profile"></a>\
-                    <a href="#" class="bar-info-l-tit">tit</a>\
-                </div>\
-                <div class="bar-info-r">\
-                    <a href="javascript:;" class="bar-info-r-thumb">\
-                        <i class="fa fa-thumbs-o-up" aria-hidden="true"></i>\
-                        <span class="c">1000</span>\
-                    </a>\
-                    <span class="d">date</span>\
-                </div>\
-            </div>\
-        </div>';
 
 
 

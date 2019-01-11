@@ -244,3 +244,12 @@ arr.sort();                             排序数组
     arr.sort(function(a,b){return a-b});升序排序数字
     arr.sort(function(a,b){return b-a});降序排序数字
 arr.toString();                         将数组简单的转换成字符串
+
+
+
+
+
+
+
+
+
