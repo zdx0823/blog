@@ -127,11 +127,8 @@ fn_routing_page.editor = function(arguArr){
     fn_routing_page.hideOtherEle(editor_con);
     editor_con.style.display = 'block';
 
-    var res = fn_routing_page.editor_tinymce_callback(editor_con);
-    res.timer = setInterval(function(){
-        if(res.stringify != '{}') clearInterval(res.timer);
-    },100);
-    console.log();
+    fn_routing_page.editor_tinymce_callback(editor_con);
+
 };
 
 

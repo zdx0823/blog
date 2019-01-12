@@ -1,14 +1,18 @@
-// function polling(key,val,bool,callback){
-//     var timer = setInterval(function(){
-//         if(bool && key == val){
-//             clearInterval(timer);
-//         }else if(key != val){
+/**
+ * 返回数组的最后一项
+ * @return {[混合]} [混合]
+ */
+Array.prototype.last = function(){
+    return this[this.length-1];
+}
 
-//         }
-//     },100);
-// }
-
-
+/**
+ * 返回数组的第一项
+ * @return {[混合]} [混合]
+ */
+Array.prototype.first = function(){
+    return this[0];
+}
 
 /**
  * 向某节点前插入节点

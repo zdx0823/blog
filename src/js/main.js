@@ -102,6 +102,8 @@ z.inputMod = function(){
 z.route.add('index',{
     fn:z.fn_routing_page.index,
     fn_argus:[z.inputMod.showcase],
+    // fn_choke:,
+    // fn_choke_argus:
 });
 
 z.route.add('editor',{
@@ -113,18 +115,14 @@ z.route.add('articleDetail',{
     fn:z.fn_routing_page.articleDetail,
     fn_argus:[z.inputMod.articleDetail],
 });
+z.route.bindBeforeLeaveEvent('editor',{
+    fn:null,
+    fn_argus:null,
+});
 
 
 
-
-
-
-// 载入页面时进行路由选择
-z.route.e();
-
-
-
-
+z.route.e(); // 载入页面时进行路由选择
 
 
 

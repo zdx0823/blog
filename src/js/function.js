@@ -9,11 +9,71 @@
  *
  */
 function Route(){
+    this.hashHistoryInit();
     this.monitor();
 }
 Route.prototype = {
 
+    hashHistoryInit:function(){
+        this.hashHistory.add();
+    },
+
+    hashHistory:{
+        hash_history_arr:[],
+
+        /**
+         * 返回历史记录的长度
+         * @return {[数值]} [数值]
+         */
+        length:function(){
+            return this.hash_history_arr.length;
+        },
+
+        /**
+         * hashHistory数组实例下的一个方法，用于添加一条新的历史记录
+         * @return {[无]} [无]
+        */
+        add:function(){
+            var hash = document.location.hash.slice(1) || 'index';
+            this.hash_history_arr.push(hash);
+            if(this.hash_history_arr.length > 30){
+                this.hash_history_arr.shift();
+            }
+        },
+
+
+        /**
+         * hashHistory数组实例下的一个方法，用于删除第一项
+         * @return {[无]} [无]
+        */
+        shift:function(){
+            this.hash_history_arr.shift();
+        },
+
+
+        /**
+         * hashHistory数组实例下的一个方法，用于删除最后一项
+         * @return {[无]} [无]
+        */
+        pop:function(){
+            this.hash_history_arr.pop();
+        },
+
+
+        /**
+         * 返回hash_history_arr
+         * @return {[type]} [description]
+         */
+        toValue:function(){
+            return this.hash_history_arr;
+        }
+
+    },
+
+
+
     hash_fn_list:{},
+    hash_before_leave_list:{},
     /**
      * 分割处理hash值，并把模块名和路径名存进对象返回出去
      * @return {[对象]} [包含模块名和路径的对象]
@@ -37,13 +97,25 @@ Route.prototype = {
      * @return {[无]} [无]
      */
     e:function(){
-        var obj = this.hashSplit();
-        if(!obj) return false;
-        var mod = obj.mod;
-        // 如果hash_fn_list对象里存在一条对应该模块的记录，就调用它
-        if(this.hash_fn_list[mod] && this.hash_fn_list[mod].fn){
-            this.hash_fn_list[mod].fn(this.hash_fn_list[mod].fn_argus);
+        var mod_id = this.hashSplit();
+
+        if(!this.hash_fn_list[mod_id.mod]) return false;
+        var obj = this.hash_fn_list[mod_id.mod];
+
+
+        var fn = obj.fn,
+            fn_argus = obj.fn_argus,
+            fn_choke = obj.fn_choke,    // fn_choke默认没有返回值，如果返回false表示阻塞
+            fn_choke_argus = obj.fn_choke_argus;
+
+        var onOff = true;
+        if(fn_choke && (fn_choke(fn_choke_argus) === false)){
+            onOff = false;
         }
+        if(onOff){
+            fn(fn_argus);
+        }
+
     },
     /**
      * 监视hash的变换并调用e方法
@@ -52,18 +124,45 @@ Route.prototype = {
     monitor:function(){
         var _this = this;
         window.addEventListener('hashchange',function(){
+            var h_obj = _this.hashHistory;
+            h_obj.add();
+
+            var pre = h_obj.toValue()[h_obj.length()-2];
             _this.e();
         });
     },
     /**
      * 添加路由记录到hash_fn_list对象里，注：hash只能是小写
+     * obj对象：
+     *     fn:必须
+     *     fn_argu:可选
+     *     fn_choke:用于阻塞fn执行的函数，可选
+     *     fn_choke_arge:fn_choke的参数，可选
      * @param {[字符串]} hash [模块名]
      * @param {[对象]} obj  [该对象包含fn属性和fn_argus属性]
      */
     add:function(hash,obj){
-        hash = hash.toLowerCase();  // 将hash值转换成小写
-        this.hash_fn_list[hash] = obj;    // obj包含fn属性和fn_argus属性
+        var hash = hash.toLowerCase();  // 将hash值转换成小写
+
+        // 给this.hash_fn_list设置默认值，方便bindBeforeLeaveEvent方法使用
+        this.hash_fn_list = this.hash_fn_list || {};
+
+        // 主参数不存在则给该hash值路由记录赋一个null
+        if(obj.fn){
+            this.hash_fn_list[hash] = obj;    // obj包含fn属性和fn_argus属性
+        }else{
+            this.hash_fn_list[hash] = null;
+        }
+
+    },
+    bindBeforeLeaveEvent:function(hash,obj){
+        this.add.apply(this.bindBeforeLeaveEvent,[hash,obj]);
+        this.hash_before_leave_list = this.bindBeforeLeaveEvent.hash_fn_list;
     }
+
+
+
+
 
 };
 
