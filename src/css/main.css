@@ -160,7 +160,7 @@
 #content{
     height: 100%;
 }
-#contentTitle{
+.contentTitle{
     position: relative;
     z-index: 9;
     text-align: center;
@@ -169,31 +169,25 @@
     background: #fff;
     color: #5f5f5f;
     border-bottom: 1px solid #ddd;
-    display: none;
 }
 #indexTit{
     display: block;
 }
-#ediTit{
-    display: none;
-}
+
 .fnbar{
     width: 100%;
     height: 100%;
     position: relative;
-    top: -.73rem;
-    padding-top: .73rem;
+    top: 0;
+    left: 0;
     box-sizing: border-box;
 }
 .fnbar-bar{
-    display: none;
+    /*display: none;*/
 }
 /*#showcase{}*/
 /*#showcase h2{}*/
 #showcase{
-    width: 9.9rem;
-    padding: .1rem 0;
-    margin: 0 auto;
     /*display: none !important;*/
 }
 #showcaseTip p{
@@ -204,7 +198,7 @@
     float: left;
     width: 3rem;
     height: 2.02rem;
-    margin: 0 .14rem .14rem .14rem;
+    margin: .14rem;
     border: 1px solid #ddd;
     border-radius: 10px;
     background: #fff;
@@ -247,7 +241,7 @@
 }
 #showcase .bar-info-l-tit{
     float: left;
-    width: 1.10rem;
+    max-width: 1.10rem;
     font-weight: bold;
     font-size: .13rem;
     white-space: nowrap;
@@ -288,7 +282,7 @@
 
 .editorCon-btns{
     text-align: center;
-    margin-top: .26rem;
+    padding: .26rem 0;
 }
 
 #ediTit{
@@ -392,12 +386,11 @@
 
 
 
-#reading{
-    background: #fff;
-    display: none;
+#articleDetail{
+    background: #fafafa;
 }
 
-.reading_head{
+.articleDetail_head{
     position: relative;
     z-index: 9;
     border-bottom: 1px solid #ddd;
@@ -405,7 +398,7 @@
 .author_pro,.author_name,#authorName,#follow,.tarticle,.tarticle li{
     float: left;
 }
-.reading_side{
+.articleDetail_side{
     position: absolute;
     top: 2px;
     right: 0px;
@@ -415,16 +408,16 @@
     border-left: 1px solid #ebebeb;
     transition: background .3s;
 }
-.reading_side:hover{
+.articleDetail_side:hover{
     background: #333;
 }
-.reading_side:hover #authorName{
+.articleDetail_side:hover #authorName{
     color: #fff;
 }
-.reading_side:hover .tarticle li{
+.articleDetail_side:hover .tarticle li{
     color: #fff;
 }
-#readingTit{
+#articleDetailTit{
     float: left;
     position: relative;
     left: 0;
@@ -440,10 +433,10 @@
     text-overflow: ellipsis;
     transition: text-indent .3s;
 }
-#readingTit:hover{
+#articleDetailTit:hover{
     text-indent: .4rem;
 }
-#readingTit:before{
+#articleDetailTit:before{
     content: '';
     position: absolute;
     top: 20px;
@@ -492,14 +485,23 @@
 #tarticleView{}
 #tarticleLike{}
 
-.reading_content_wrap{
-    padding: 30px;
+.articleDetail_content_wrap,.comment_wrap{
+    padding: 10px;
 }
-#readingContent{}
+#articleDetailContent,.comment{
+    background: #fff;
+    padding: 30px;
+    box-shadow: 2px 2px 2px #a3a3a3;
+    border: 1px solid #dddddd;
+    border-radius: 5px;
+}
+#articleDetailContent{
+    font-size: 14px;    /*让其子标签的相对单位相对于14px计算*/
+}
 
+.comment_wrap{}
 .comment{
     height: 1.1rem;
-    padding: 0 30px;
 }
 .comment_w,.comment_w_user,.comment_w_textarea{ height: 100%; }
 .comment_w{}

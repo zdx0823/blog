@@ -233,9 +233,9 @@ Array对象常用方法
 arr.concat(arr2,arr3,...arrN);          合并多个数组
 arr.join(分隔符);                       根据分隔符合并数组，默认以逗号分割
 arr.push(项1,项2,项3,...,项N);          向数组后面推入若干个项
-arr.pop();                              退出数组最后一个项
+arr.pop();                              推出数组最后一个项
 arr.unshift(项1,项2,项3,...,项N);        项数组前面推入多个项
-arr.shift();                            退出数组第一个项
+arr.shift();                            推出数组第一个项
 arr.slice(1,4);                         返回由arr的第一项到第四项(不包括结尾)组成的数组
 arr.splice(起始项,删除个数,[插入项1,插入项2,插入项3]);      第三个参数可选
 arr.reverse();                          倒转数组
@@ -244,3 +244,12 @@ arr.sort();                             排序数组
     arr.sort(function(a,b){return a-b});升序排序数字
     arr.sort(function(a,b){return b-a});降序排序数字
 arr.toString();                         将数组简单的转换成字符串
+
+
+
+
+
+
+
+
+

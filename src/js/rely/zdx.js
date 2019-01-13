@@ -1,4 +1,52 @@
 /**
+ * 返回数组的最后一项
+ * @return {[混合]} [混合]
+ */
+Array.prototype.last = function(){
+    return this[this.length-1];
+}
+
+/**
+ * 返回数组的第一项
+ * @return {[混合]} [混合]
+ */
+Array.prototype.first = function(){
+    return this[0];
+}
+
+/**
+ * 向某节点前插入节点
+ * @param  {[元素]} newEle    [要插入的节点]
+ * @param  {[元素]} targetEle [目标节点]
+ * @return {[无]}           [无]
+ */
+function insertBefore( newEle , targetEle ){
+    targetEle.parentNode.insertBefore( newEle , targetEle );
+}
+
+
+/**
+ * 向某节点后插入节点
+ * @param  {[元素]} newEle    [要插入的节点]
+ * @param  {[元素]} targetEle [目标节点]
+ * @return {[无]}           [无]
+ */
+function insertAfter( newEle , targetEle ){
+
+    var tNextSibling = targetEle.nextSibling;
+    var targetEleParent = targetEle.parentNode;
+
+    if( tNextSibling ){
+        targetEleParent.insertBefore( newEle , tNextSibling );
+    }else{
+        targetEleParent.appendChild( newEle );
+    }
+
+}
+
+
+
+/**
  * 根据时间戳格式化时间
  * @param  {[混合]} timestamp [字符串或数字]
  * @param  {[字符串]} format    [日期格式，只接受三种格式]
@@ -135,7 +183,7 @@ function ajax(obj,requestHeader){
             if( xhr.status === 200 ){
                 success && success( xhr.responseText );
             }else if( xhr.status === 404 ){
-                alert( '出错了,Err:'+xhr.status );
+                // alert( '出错了,Err:'+xhr.status );
             }
 
         }
@@ -448,6 +496,7 @@ function scroll(ele){
  */
 function client(ele){
 	if(ele === window){
+        // document.documentElement对于chrome、firefox、IE8都适用
 		ele = document.documentElement;
 	}
 	return {
@@ -760,10 +809,12 @@ function getStyle( obj,attr ){
 		outCome = parseFloat(outCome);
 	}
 
-	return {
-		key:attr,
-		val:outCome
-	};
+	// return {
+	// 	key:attr,
+	// 	val:outCome
+	// };
+
+    return outCome;
 }
 
 
