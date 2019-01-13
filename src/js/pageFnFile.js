@@ -1,6 +1,6 @@
 var fn_routing_page = {};
 
-
+/**************工具方法*****************/
 /**
  * 用于检测主模块节点的父节点是否为fnbar如果不是抛出一条错误并返回false
  * @param  {[元素]} ele [主模块节点]
@@ -17,6 +17,30 @@ fn_routing_page.deError = function(ele){
     }
 
 };
+
+/**
+ * 根据参数对象返回静态参数
+ * @param  {[对象]} arguObj [参数对象]
+ * @return {[数组]}         [静态参数数组]
+ */
+fn_routing_page.getStaticArgu = function(arguObj){
+    return arguObj.static_argu;
+}
+
+/**
+ * 根据参数对象返回动态参数
+ * @param  {[对象]} arguObj [参数对象]
+ * @return {[数组]}         [动态参数数组]
+ */
+fn_routing_page.getDynamicArgu = function(arguObj){
+    return arguObj.dynamic_argu;
+}
+
+/**************工具方法*****************/
+
+
+
+
 /**
  * 隐藏所传入的节点的兄弟节点
  * @param  {[type]} ele [description]
@@ -31,11 +55,11 @@ fn_routing_page.hideOtherEle = function(ele){
 }
 /**
  * 主页执行函数
- * @param  {[数组]} arguArr [包含需要的参数]
+ * @param  {[数组]} arguObj [包含需要的参数]
  * @return {[无]}         [无]
  */
-fn_routing_page.index = function(arguArr){
-    var showcase = arguArr[0];
+fn_routing_page.index = function(arguObj){
+    var showcase = fn_routing_page.getStaticArgu(arguObj)[0];
 
     fn_routing_page.hideOtherEle(showcase);     // 隐藏其他标签
     showcase.style.display = 'block';           // 显示本标签
@@ -46,88 +70,96 @@ fn_routing_page.index = function(arguArr){
         html:'<div class="showcase_bar_wrap clearfix"></div>',
         selector:'showcase_bar_wrap'
     });
-    var bar_wrap = res.class_howcase_bar_wrap;
+    var bar_wrap = res.class_showcase_bar_wrap;
+    fn_routing_page.indexAjaxCallback(bar_wrap);
+
+};
+
+/**
+ * 主页路由函数的回调函数，ajax请求动态内容并生成节点载入页面，【暂时】现在只是追加，未做分页或瀑布流效果，也未做其他判断
+ * @param  {[元素]} parent [bar块的父节点]
+ * @param  {[字符串]} data   [字符串格式的json]
+ * @return {[混合]}        [参数不正确时返回false，data为空时返回null]
+ */
+fn_routing_page.indexAjaxCallback = function(parent){
+
     // 查询信息
     ajax({
         method:'post',
         data:'',    // 暂时留空
         url:'index_data.txt',
         success:function(data){
-            fn_routing_page.index_ajax_callback(bar_wrap,data);
+            successFn(parent,data);
         }
     });
 
-};
 
-/**
- * 主页函数内的ajax执行回调，此函数功能，根据返回内容生成bar块，如果data为空对象则返回null，如果parent或data不存在则返回false
- * @param  {[元素]} parent [bar块的父节点]
- * @param  {[字符串]} data   [字符串格式的json]
- * @return {[混合]}        [参数不正确时返回false，data为空时返回null]
- */
-fn_routing_page.index_ajax_callback = function(parent,data){
+    function successFn(parent,data){
 
-    if(parent === undefined) return false;
-    if(data === undefined) return false;
-    if(data == '{}') return null;
+        if(parent === undefined) return false;
+        if(data === undefined) return false;
+        if(data == '{}') return null;
 
-    var json = JSON.parse(data);
-    var createMod_for_bar = new CreateMod(parent);
+        var json = JSON.parse(data);
+        var createMod_for_bar = new CreateMod(parent);
 
-    var json_arr = [];
-    for(var attr in json){
-        json_arr.push(json[attr]);
-    }
+        var json_arr = [];
+        for(var attr in json){
+            json_arr.push(json[attr]);
+        }
 
-    json_arr.forEach(function(item){
+        json_arr.forEach(function(item){
 
-        var article_id         = item.article_id,
-            article_user_id    = item.article_user_id,
-            article_user_name  = item.article_user_name,
-            article_thumb_path = 'data/snapshoot/'+item.article_thumb_id,
-            article_tit        = item.article_tit,
-            article_like_num   = item.article_like_num,
-            article_m_time     = howLong(item.article_m_time);
+            var a_id         = item.a_id,
+                a_path       = item.a_path,
+                a_m_time     = howLong(item.a_m_time),
+                a_like_num   = item.a_like_num,
+                a_thumb_path = item.a_thumb_path,
+                a_tit        = item.a_tit,
+                a_user_id    = item.a_user_id,
+                a_user_name  = item.a_user_name,
+                skip_mod     = item.skip_mod;
 
-        createMod_for_bar.add({
-            html:'<div class="bar">\
-                    <div class="bar-img">\
-                        <a href="javascript:;" articleid="'+article_id+'"></a><img src="'+article_thumb_path+'" />\
-                    </div>\
-                    <div class="bar-info">\
-                        <div class="bar-info-l">\
-                            <a href="javascript:;" class="bar-info-l-profile" user_id='+article_user_id+' title='+article_user_name+'></a>\
-                            <a href="javascript:;" class="bar-info-l-tit">'+article_tit+'</a>\
+            createMod_for_bar.add({
+                html:'<div class="bar">\
+                        <div class="bar-img">\
+                            <a href="javascript:;" a_id="'+a_id+'" a_path="'+a_path+'" skip_mod="'+skip_mod+'"></a><img src="'+a_thumb_path+'" />\
                         </div>\
-                        <div class="bar-info-r">\
-                            <a href="javascript:;" class="bar-info-r-thumb">\
-                                <i class="far fa-thumbs-up"></i>\
-                                <span class="c">'+article_like_num+'</span>\
-                            </a>\
-                            <span class="d">'+article_m_time+'</span>\
+                        <div class="bar-info">\
+                            <div class="bar-info-l">\
+                                <a href="javascript:;" class="bar-info-l-profile" user_id='+a_user_id+' title='+a_user_name+'></a>\
+                                <a href="javascript:;" class="bar-info-l-tit" a_id="'+a_id+'" a_path="'+a_path+'" skip_mod="'+skip_mod+'">'+a_tit+'</a>\
+                            </div>\
+                            <div class="bar-info-r">\
+                                <a href="javascript:;" class="bar-info-r-thumb">\
+                                    <i class="far fa-thumbs-up"></i>\
+                                    <span class="c">'+a_like_num+'</span>\
+                                </a>\
+                                <span class="d">'+a_m_time+'</span>\
+                            </div>\
                         </div>\
-                    </div>\
-            </div>'
+                </div>'
+            });
+
         });
 
-    });
-
+    }
 }
 
 
 
 /**
  * 编辑页函数
- * @param  {[数组]} arguArr [包含需要的参数]
+ * @param  {[数组]} arguObj [包含需要的参数]
  * @return {[无]}         [无]
  */
-fn_routing_page.editor = function(arguArr){
-    var editor_con = arguArr[0];
+fn_routing_page.editor = function(arguObj){
+    var editor_con = fn_routing_page.getStaticArgu(arguObj)[0];
 
     fn_routing_page.hideOtherEle(editor_con);
     editor_con.style.display = 'block';
 
-    fn_routing_page.editor_tinymce_callback(editor_con);
+    fn_routing_page.editorTinymceCallback(editor_con);
 
 };
 
@@ -138,7 +170,7 @@ fn_routing_page.editor = function(arguArr){
  * @param  {[type]} vessel [description]
  * @return {[type]}        [description]
  */
-fn_routing_page.editor_tinymce_callback = function(vessel){
+fn_routing_page.editorTinymceCallback = function(vessel){
 
     if(!vessel) return false;
     var tinymce_instance = new CreateMod().add({html:'<div id="tinymce"></div>'}).tinymce;
@@ -165,9 +197,9 @@ fn_routing_page.editor_tinymce_callback = function(vessel){
         // 定义tinymce渲染完成的回调函数，用于修改部分样式
         init_instance_callback: function(){
 
-            res.mceu_39 = $('#mceu_39');    // 当前实例的编辑区
             res.mceu_23 = $('#mceu_23');    // 当前实例的菜单栏
             res.mceu_40 = $('#mceu_40');    // 当前实例的底栏
+            res.tinymce_ifr = $('#tinymce_ifr');    // 当前实例的iframe标签
 
             // 根据窗口大小调整编辑区高度
             var agio = 2;   // 误差
@@ -180,14 +212,14 @@ fn_routing_page.editor_tinymce_callback = function(vessel){
             var client_height = client(window).h,
                 height = client_height - vi;
 
-            res.mceu_39.style.height = height + 'px';   // 先设置一次
+            res.tinymce_ifr.style.height = height + 'px';   // 先设置一次
 
             // 窗口变化时候再调整编辑区高度
             document.body.onresize = function(){
                 client_height = client(window).h;
                 height = client_height - vi;
                 if( height > 200 ){
-                    res.mceu_39.style.height = height + 'px';
+                    res.tinymce_ifr.style.height = height + 'px';
                 }
             }
             end = true;
@@ -204,12 +236,79 @@ fn_routing_page.editor_tinymce_callback = function(vessel){
 };
 
 
-fn_routing_page.articleDetail = function(arguArr){
-    var article_detail = arguArr[0];
+/**
+ * 文章详情的路由函数，主要就是显示相关页面隐藏其他页面
+ * @param  {[对象]} arguObj [该对象包括两个数组，一个包含静态参数，一个包含动态获取到的参数]
+ * @return {[无]}         [无]
+ */
+fn_routing_page.articleDetail = function(arguObj){
+
+    var static_argu = fn_routing_page.getStaticArgu(arguObj);
+
+    var article_detail = static_argu[0],
+        article_detail_tit = static_argu[1],
+        article_detail_content = static_argu[2];
 
     fn_routing_page.hideOtherEle(article_detail);
     article_detail.style.display = 'block';
+    fn_routing_page.articleDetailCallback(article_detail_tit,article_detail_content);
+};
+/**
+ * 文字详情路由函数的回调函数，用于在静态页面部分加载完成后，ajax请求内容加载动态的内容
+ * @param  {[元素]} tit [标题节点]
+ * @param  {[元素]} con [内容节点]
+ * @return {[无]}     [无]
+ */
+fn_routing_page.articleDetailCallback = function(tit,con){
+
+    var tit_node = tit,
+        con_node = con;
+
+    var hash_obj    = hashSplit(),
+        header      = config.path_header,
+        mod         = hash_obj.mod,
+        path        = hash_obj.path,
+        url         = header+mod+'/'+path;
+        console.log(url);
+    ajax({
+        method:'post',
+        data:'',    // 暂时留空
+        url:'data/articles/b3ce43bee6e76092a0236a36a57da60a',   // 测试地址
+        success:function(data){
+            var data = decodeURI(JSON.parse(data).data);
+            con_node.innerHTML = data;
+        }
+    });
+
+};
+
+
+
+
+
+
+
+
+
+var fn_guide_page = {};
+
+fn_guide_page.index_a = function(target){
+
+    var target = target;
+
+    if(!target) return;
+    if(!target.getAttribute('a_path')) return;
+
+    var a_id = target.getAttribute('a_id'),
+        a_path = target.getAttribute('a_path'),
+        skip_mod = target.getAttribute('skip_mod');
+
+    var hash = skip_mod+'/'+a_id;
+    modifyHash(hash);
+
 }
+
+
 
 
 

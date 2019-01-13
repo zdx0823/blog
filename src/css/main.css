@@ -387,7 +387,7 @@
 
 
 #articleDetail{
-    background: #fff;
+    background: #fafafa;
 }
 
 .articleDetail_head{
@@ -485,14 +485,23 @@
 #tarticleView{}
 #tarticleLike{}
 
-.articleDetail_content_wrap{
-    padding: 30px;
+.articleDetail_content_wrap,.comment_wrap{
+    padding: 10px;
 }
-#articleDetailContent{}
+#articleDetailContent,.comment{
+    background: #fff;
+    padding: 30px;
+    box-shadow: 2px 2px 2px #a3a3a3;
+    border: 1px solid #dddddd;
+    border-radius: 5px;
+}
+#articleDetailContent{
+    font-size: 14px;    /*让其子标签的相对单位相对于14px计算*/
+}
 
+.comment_wrap{}
 .comment{
     height: 1.1rem;
-    padding: 0 30px;
 }
 .comment_w,.comment_w_user,.comment_w_textarea{ height: 100%; }
 .comment_w{}

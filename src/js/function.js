@@ -1,3 +1,27 @@
+/**************工具方法***************/
+function modifyHash(hash){
+    document.location.hash = hash;
+}
+
+function hashSplit(){
+    var hash_arr = document.location.hash.slice(1).split('/');
+    /*-------特殊对待，如果此时的hash_arr[0]为空的话表示首页-------*/
+    hash_arr[0] = (hash_arr[0] === '') ? 'index' : hash_arr[0];
+    /*----------------------------------------------------------*/
+    var obj = {
+        mod:hash_arr[0] || null,
+        path:hash_arr[1] || null
+    };
+
+    return obj;
+}
+
+/**************工具方法***************/
+
+
+
+
+
 /**
  * Route对象
  * add方法:用来像Route实例对象添加一条路由记录,记录存储在hash_fn_list对象里
@@ -97,19 +121,24 @@ Route.prototype = {
      * @return {[无]} [无]
      */
     e:function(){
-        var mod_id = this.hashSplit();
+        var hash_arr = this.hashSplit(),
+            mod_id = hash_arr.mod,
+            path = hash_arr.path;
 
-        if(!this.hash_fn_list[mod_id.mod]) return false;
-        var obj = this.hash_fn_list[mod_id.mod];
+        if(!this.hash_fn_list[mod_id]) return false;
+        var obj = this.hash_fn_list[mod_id];
 
 
         var fn = obj.fn,
-            fn_argus = obj.fn_argus,
+            fn_argus = {
+                static_argu:obj.fn_argus,   // obj.fn_argus在赋值的时候就是一个数组
+                dynamic_argu:[path]         // 统一为数组格式，【暂时】以散列数组存放，后期需要键值对形式在修改
+            },
             fn_choke = obj.fn_choke,    // fn_choke默认没有返回值，如果返回false表示阻塞
             fn_choke_argus = obj.fn_choke_argus;
 
         var onOff = true;
-        if(fn_choke && (fn_choke(fn_choke_argus) === false)){
+        if(fn_choke && (fn_choke(fn_choke_argus) === false)){   // 【暂时】这么写，如果后期需要动态参数在修改
             onOff = false;
         }
         if(onOff){
@@ -124,20 +153,24 @@ Route.prototype = {
     monitor:function(){
         var _this = this;
         window.addEventListener('hashchange',function(){
-            var h_obj = _this.hashHistory;
-            h_obj.add();
 
-            var pre = h_obj.toValue()[h_obj.length()-2];
+            _this.hashHistory.add();    // 增加一条历史记录
+
+            // 执行离开之前的函数
+            _this.doBeforeLeaveEvent();
+
+            // 调用e方法渲染页面
             _this.e();
+
         });
     },
     /**
      * 添加路由记录到hash_fn_list对象里，注：hash只能是小写
      * obj对象：
      *     fn:必须
-     *     fn_argu:可选
-     *     fn_choke:用于阻塞fn执行的函数，可选
-     *     fn_choke_arge:fn_choke的参数，可选
+     *     fn_argu: fn执行的时候的静态参数，           可选
+     *     fn_choke:用于阻塞fn执行的函数，             可选
+     *     fn_choke_arge:fn_choke执行的时候的静态参数，可选
      * @param {[字符串]} hash [模块名]
      * @param {[对象]} obj  [该对象包含fn属性和fn_argus属性]
      */
@@ -155,11 +188,34 @@ Route.prototype = {
         }
 
     },
+
+    /**
+     * 为某个页面离开之前设置执行函数
+     * @param  {[字符串]} hash [hash值]
+     * @param  {[对象]} obj  [该对象包含fn属性和fn_argus属性]
+     * @return {[无]}      [无]
+     */
     bindBeforeLeaveEvent:function(hash,obj){
         this.add.apply(this.bindBeforeLeaveEvent,[hash,obj]);
         this.hash_before_leave_list = this.bindBeforeLeaveEvent.hash_fn_list;
-    }
+    },
 
+    /**
+     * 执行加载新页面前要执行的函数
+     * @return {[无]}      [无]
+     */
+    doBeforeLeaveEvent:function(){
+
+        var h_obj = this.hashHistory;
+
+        var pre = h_obj.toValue()[h_obj.length()-2];
+
+        var fn_obj = this.hash_before_leave_list[pre] || {},
+            fn = fn_obj.fn || null,
+            fn_argus = fn_obj.fn_argus || null;
+
+        fn && fn(fn_argus);
+    }
 
 
 
@@ -191,7 +247,7 @@ CreateMod.prototype = {
 
         var tmp = document.createElement('div');
             tmp.innerHTML = html;
-
+        var tmp_first_child = tmp.firstChild;
         var re = /id="[a-z0-9A-Z]*"/g;
         var arr1 = html.match(re);
         var nodes = {};
@@ -221,7 +277,8 @@ CreateMod.prototype = {
         }
 
         selector.forEach(function(item){
-            nodes['class_'+item.slice(1)] = tmp.querySelector('.'+item);
+            var key = 'class_'+item;
+            nodes[key] = tmp.querySelector('.'+item);
         });
 
         if(this.parent){

@@ -183,8 +183,7 @@ function ajax(obj,requestHeader){
             if( xhr.status === 200 ){
                 success && success( xhr.responseText );
             }else if( xhr.status === 404 ){
-                console.log(url);
-                alert( '出错了,Err:'+xhr.status );
+                // alert( '出错了,Err:'+xhr.status );
             }
 
         }
