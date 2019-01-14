@@ -83,11 +83,12 @@ fn_routing_page.index = function(arguObj){
  */
 fn_routing_page.indexAjaxCallback = function(parent){
 
+    var head = config.host;
     // 查询信息
     ajax({
         method:'post',
-        data:'',    // 暂时留空
-        url:'index_data.txt',
+        data:'mod=article',    // 暂时留空
+        url:head+'php/index.php',
         success:function(data){
             successFn(parent,data);
         }
@@ -103,39 +104,36 @@ fn_routing_page.indexAjaxCallback = function(parent){
         var json = JSON.parse(data);
         var createMod_for_bar = new CreateMod(parent);
 
-        var json_arr = [];
-        for(var attr in json){
-            json_arr.push(json[attr]);
-        }
+        var article_items = json.articles;
 
-        json_arr.forEach(function(item){
+        article_items.forEach(function(item){
 
-            var a_id         = item.a_id,
-                a_path       = item.a_path,
-                a_m_time     = howLong(item.a_m_time),
-                a_like_num   = item.a_like_num,
-                a_thumb_path = item.a_thumb_path,
-                a_tit        = item.a_tit,
-                a_user_id    = item.a_user_id,
-                a_user_name  = item.a_user_name,
-                skip_mod     = item.skip_mod;
+            var alt             = item.alt,
+                author          = item.author,
+                author_intro    = item.author_intro,
+                author_profile  = item.author_profile,
+                id              = item.id,
+                image           = item.image,
+                mdate           = howLong(item.mdate),
+                title           = item.title,
+                like           = item.like;
 
             createMod_for_bar.add({
                 html:'<div class="bar">\
                         <div class="bar-img">\
-                            <a href="javascript:;" a_id="'+a_id+'" a_path="'+a_path+'" skip_mod="'+skip_mod+'"></a><img src="'+a_thumb_path+'" />\
+                            <a href="javascript:;" alt="'+alt+'"></a><img src="'+image+'" />\
                         </div>\
                         <div class="bar-info">\
                             <div class="bar-info-l">\
-                                <a href="javascript:;" class="bar-info-l-profile" user_id='+a_user_id+' title='+a_user_name+'></a>\
-                                <a href="javascript:;" class="bar-info-l-tit" a_id="'+a_id+'" a_path="'+a_path+'" skip_mod="'+skip_mod+'">'+a_tit+'</a>\
+                                <a href="javascript:;" class="bar-info-l-profile" title='+author+'></a>\
+                                <a href="javascript:;" class="bar-info-l-tit" alt="'+alt+'">'+title+'</a>\
                             </div>\
                             <div class="bar-info-r">\
                                 <a href="javascript:;" class="bar-info-r-thumb">\
                                     <i class="far fa-thumbs-up"></i>\
-                                    <span class="c">'+a_like_num+'</span>\
+                                    <span class="c">'+like+'</span>\
                                 </a>\
-                                <span class="d">'+a_m_time+'</span>\
+                                <span class="d">'+mdate+'</span>\
                             </div>\
                         </div>\
                 </div>'
@@ -144,7 +142,23 @@ fn_routing_page.indexAjaxCallback = function(parent){
         });
 
     }
-}
+};
+/**
+ * 主页下的文章条目点击事件函数
+ * @param  {[元素]} target [a节点]
+ * @return {[无]}        [无]
+ */
+fn_routing_page.articlesEventFn = function(target){
+
+    var target = target;
+
+    if(!target) return;
+    if(!target.getAttribute('alt')) return;
+
+    var alt = target.getAttribute('alt');
+    location.href = alt;
+
+};
 
 
 
@@ -254,7 +268,7 @@ fn_routing_page.articleDetail = function(arguObj){
     fn_routing_page.articleDetailCallback(article_detail_tit,article_detail_content);
 };
 /**
- * 文字详情路由函数的回调函数，用于在静态页面部分加载完成后，ajax请求内容加载动态的内容
+ * 文章详情路由函数的回调函数，用于在静态页面部分加载完成后，ajax请求内容加载动态的内容
  * @param  {[元素]} tit [标题节点]
  * @param  {[元素]} con [内容节点]
  * @return {[无]}     [无]
@@ -269,7 +283,7 @@ fn_routing_page.articleDetailCallback = function(tit,con){
         mod         = hash_obj.mod,
         path        = hash_obj.path,
         url         = header+mod+'/'+path;
-        console.log(url);
+
     ajax({
         method:'post',
         data:'',    // 暂时留空
@@ -291,23 +305,6 @@ fn_routing_page.articleDetailCallback = function(tit,con){
 
 
 var fn_guide_page = {};
-
-fn_guide_page.index_a = function(target){
-
-    var target = target;
-
-    if(!target) return;
-    if(!target.getAttribute('a_path')) return;
-
-    var a_id = target.getAttribute('a_id'),
-        a_path = target.getAttribute('a_path'),
-        skip_mod = target.getAttribute('skip_mod');
-
-    var hash = skip_mod+'/'+a_id;
-    modifyHash(hash);
-
-}
-
 
 
 

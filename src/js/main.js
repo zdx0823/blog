@@ -136,9 +136,8 @@ z.event = function(){
     z.inputMod.showcase.addEventListener('click',function(e){
         var e = e || event;
         var target = e.target;
-
         if(target.nodeName === 'A'){
-            z.fn_guide_page.index_a(target);
+            z.fn_routing_page.articlesEventFn(target);
         }
 
     })

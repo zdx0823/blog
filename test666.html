@@ -24,15 +24,21 @@
 <div id="div1"></div>
 
 
-
+<script type="text/javascript" src="src/js/rely/zdx.js"></script>
 <script type="text/javascript">
 
 
-   window.addEventListener('hashchange',function(){
+ajax({
+    method:'post',
+    url:'src/php/index.php',
+    data:'mod=article',
+    success:function(data){
+        document.body.innerHTML = data;
+    }
+});
 
-    console.log(876543);
 
-    });
+
 
 
 // /**
