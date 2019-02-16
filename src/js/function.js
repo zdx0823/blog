@@ -94,8 +94,6 @@ Route.prototype = {
 
     },
 
-
-
     hash_fn_list:{},
     hash_before_leave_list:{},
     /**
@@ -241,50 +239,79 @@ function CreateMod(parent){
 }
 CreateMod.prototype = {
 
-    add:function(obj){
+    add:function(obj,parent){
+        // 设置父级，如果没有设为null
+        this.parent = parent || this.parent || null;
+        // 如果obj对象内没有html字符串则退出
         if( !obj.html ) return false;
-        var html = obj.html;
+        // 存储在对象属性里，方便调用
+        this.html = obj.html;
+        this.selector = obj.selector;
+        // 链式操作，执行创造节点，生成关联对象，将节点加入页面
+        this.structNodes().cAssocList().join();
+        // 返回关联对象
+        return this.nodes;
+    },
 
+    structNodes:function(){
+        // 创建一个临时div用于innerHTML节点
         var tmp = document.createElement('div');
-            tmp.innerHTML = html;
-        var tmp_first_child = tmp.firstChild;
+            tmp.innerHTML = this.html;
+        this.tmp = tmp;
+        return this;
+    },
+
+    cAssocList:function(){
+        var tmp = this.tmp,
+            html = this.html,
+            selector_str = this.selector;
+        // 获取id的正则式
         var re = /id="[a-z0-9A-Z]*"/g;
+        // 从html字符串里获取id
         var arr1 = html.match(re);
+        // nodes用于保存由id或class建立起来的索引
         var nodes = {};
-        nodes.wrap = tmp.firstChild;
 
         // 如果arr1不为空则进行下一步————分割出id值找到对应的对象并存进nodes对象里
         if(arr1){
             var arr2 = [];
+            // 对由第一个正则式分离出来的id在进行一次分离，分离出单独的id名称,并保存在arr2数组里
             arr1.forEach(function(item){
                 var re = /"[a-z0-9A-Z]*"/;
                 var str = item.match(re)[0];
                 var res = str.slice(1,str.length-1);
                 arr2.push(res);
             });
-
+                
+            // 从tmp临时节点中遍历获取所有有id值的节点，并以键值对保存在nodes中
             arr2.forEach(function(item){
+                // querySelector支持从未添加进页面的节点进行遍历获取
                 nodes[item] = tmp.querySelector('#'+item);
             });
         }
 
-
-        var selector = null;
-        if(obj.selector){
-            selector = obj.selector.split(',');
-        }else{
-            selector = [];
+        // selector用于存放class类名，如果无则为空数组
+        var selector = [];
+        if(selector_str){
+            selector = selector_str.split(',');
         }
-
+        // 从tmp临时节点中遍历获取所有有class值的节点，并以键值对保存在nodes中
         selector.forEach(function(item){
             var key = 'class_'+item;
             nodes[key] = tmp.querySelector('.'+item);
         });
+        this.nodes = nodes;
+        return this;
+    },
 
-        if(this.parent){
-            this.parent.appendChild(nodes.wrap);
-        }
-        return nodes;
+    join:function(){
+        var arr = [].slice.call(this.tmp.children);
+        // 如果有传入父节点则插入父节点中
+        if(!this.parent) return false;
+        var _this = this;
+        arr.forEach(function(item){
+            _this.parent.appendChild(item);
+        });
     }
 
 };

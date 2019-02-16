@@ -1,7 +1,7 @@
 window.onload = function(){
 var z = {
     fnbar : $('.fnbar'),    // 获取功能区标签
-    editor_btn : $('#editorBtn'),    // 添加文章按钮
+    // editor_btn : $('#editorBtn'),    // 添加文章按钮
     create_mod : new CreateMod($('.fnbar')),    // 生成页面对象实例
     route : new Route(),    // 路由对象实例
     init : null,
@@ -84,9 +84,9 @@ z.inputMod = function(){
     });
     // console.log(articleDetail);
     // 默认所有的标签隐藏，该显示显示什么由路由函数决定
-    tmp.showcase.wrap.style.display =
-    tmp.editor_con.wrap.style.display =
-    tmp.article_detail.wrap.style.display = 'none';
+    tmp.showcase.showcase.style.display =
+    tmp.editor_con.editorCon.style.display =
+    tmp.article_detail.articleDetail.style.display = 'none';
 
     var res = {};
     for(var attr in tmp){
@@ -124,14 +124,17 @@ z.route.add('articleDetail',{
 z.route.e(); // 载入页面时进行路由选择
 
 
-
+// setCookie('Z','123');
+delCookie('Z');
+var ins_Lag = new Lag($('#leftNav .btns'));
+ins_Lag.execute();
 
 
 z.event = function(){
 
-    z.editor_btn.addEventListener('click',function(){
-        z.modifyHash('editor');
-    })
+    // z.editor_btn.addEventListener('click',function(){
+    //     z.modifyHash('editor');
+    // })
 
     z.inputMod.showcase.addEventListener('click',function(e){
         var e = e || event;

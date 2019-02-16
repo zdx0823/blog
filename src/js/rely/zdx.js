@@ -1,4 +1,34 @@
 /**
+ * 获得精确到毫秒的时间戳
+ * @return {[字符串]} [时间戳字符串]
+ */
+function microtime(){
+	return new Date().getTime()+'';
+}
+/**
+ * 获得精确到秒的时间戳
+ * @return {[字符串]} [时间戳字符串]
+ */
+function time(){
+	return parseInt(new Date().getTime()/1000);
+}
+
+/**
+ * 原型属性拷贝法实现对象继承
+ * @param  {[函数]} Child  [子构造器]
+ * @param  {[函数]} Parent [父构造器]
+ * @return {[无]}        [无]
+ */
+function extend(Child,Parent){
+	var p = Parent.prototype;
+	var c = Child.prototype;
+	for(var i in p){
+		c[i] = p[i];
+	}
+	c.uber = p;
+}
+
+/**
  * 返回数组的最后一项
  * @return {[混合]} [混合]
  */
@@ -112,9 +142,12 @@ function setCookie(cookieName,val){
 
 }
 
-
+/**
+ * 删除cookie
+ * @param  {[字符串]} cookieName [cookie的名称]
+ * @return {[无]}            [无]
+ */
 function delCookie(cookieName){
-	console.log(653434);
 	document.cookie = name + '=;  expires=Thu, 01 Jan 1970 00:00:01 GMT;'
 }
 
@@ -802,17 +835,11 @@ function off(ele,eventName,fn){
  */
 function getStyle( obj,attr ){
 
-
 	var outCome = obj.currentStyle ? obj.currentStyle[attr] : getComputedStyle(obj)[attr];
 
 	if( parseFloat(outCome) || parseFloat(outCome) == 0 ){
 		outCome = parseFloat(outCome);
 	}
-
-	// return {
-	// 	key:attr,
-	// 	val:outCome
-	// };
 
     return outCome;
 }
@@ -846,8 +873,8 @@ function offset(ele,tParent){
 
 	while( (parent = parent.offsetParent) && parent.nodeName != 'BODY' && parent != tParent ){
 
-		top += (parent.offsetTop + getStyle(parent,'borderTopWidth').val);
-		left += (parent.offsetLeft + getStyle(parent,'borderLeftWidth').val);
+		top += (parent.offsetTop + getStyle(parent,'borderTopWidth'));
+		left += (parent.offsetLeft + getStyle(parent,'borderLeftWidth'));
 
 	}
 
@@ -1022,255 +1049,209 @@ function drag(ele,parent,slopOver,magnet,zIndex,callback){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /**
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *	留空作运动方法
- *
- *
- * 	一、弹性公式：
- *
- *	弹性:
- *	速度 += (目标点 - 当前值)/系数;  //6 , 7 , 8
- *	速度 *= 摩擦系数;   // 0.7 0.75
- *
- *	缓冲:
- *	var 速度 = (目标点 - 当前值)/系数;
- *	速度取整
- *
- * 	系数小于1
- *
- *
- * 	二、弹性过界问题
- *  主要体现在IE低版本上，IE8的宽高不允许负值，所以在写弹性功能的时候要判断一下，宽高为小于0则等于0
- *
- *
- *
- *
- *
+ * 时间版运动方法，依赖getStyle方法，microtime方法
+ * @param  {[对象]} argu [包含运动对象、对象的属性、持续时间、运动方式、回调函数]
+ * @return {[无]}      [无]
  */
-
-
-function startMove(obj){
-
-	this.obj = obj;
-
-}
-startMove.prototype = {
-
-
-	do:function(){
-
-		// js数组的slice方法可以用来用于数组和类数组的对象，arguments是个类数组的对象
-		var args = Array.prototype.slice.call(arguments);
-		var initDelay = 400;
-		args.forEach(function(item,i){
-
-			var methodName = item.mode;
-			var json = {};
-			var delay = item.delay || initDelay*i;
-			var fn = item.succeed || null;
-			var _this = this;
-
-			for(var attr in item){
-				if( attr == 'mode' || attr == 'succeed' ){
-					continue;
-				}
-				json[attr] = item[attr];
-			}
-
-
-			setTimeout(function(){
-				_this[methodName](json,fn);
-			},delay);
-
-
-		},this);
-
-	},
-
-
-	normal:function(json,fn,delay){
-
-		clearInterval(this.obj.iTimer);
-
-		var iSpeed = 0;
-		var iCur = 0;
-		var _this = this;
-		var delay = delay || 0;
-
-		this.obj.iTimer = setInterval(function() {
-
-			var tBtn = true;	// 用来判断所有属性是否都运动完成
-
-			// 用for in循环来实现同时运动多项属性的功能，定时器每走一下就要把所有要运动的属性都推进一次
-			for( var attr in json ){
-
-				var iTarget = json[attr];
-
-				/*
-					这里处理一下运动属性的值，
-						若是透明度最后处理成百分制来运算避免出现精度问题，
-						若是宽高，left、top值这些就要去掉单位，因为currentStyle和getComputedStyle都是返回带单位的值
-					**仅仅是对这两项进行判断就足以满足大部分2D运动了
-				*/
-				if( attr == 'opacity' ){
-
-					if( !getStyle( _this.obj , 'opacity' ).val ){
-						_this.obj.style[attr] = 1;
-						// _this.obj.style.filter = 'alpha(opacity = 100)';
-					}
-
-					iCur = Math.round( getStyle( _this.obj , 'opacity' ).val * 100 );
-				}else{
-					iCur = parseInt( getStyle(_this.obj,attr).val );
-				}
-
-
-				// 动态计算速度值:取一部分当前元素距离终点的距离值作为速度，实现缓冲的效果
-				iSpeed = ( iTarget - iCur ) / 8;
-				iSpeed = iSpeed > 0 ? Math.ceil(iSpeed) : Math.floor(iSpeed);
-
-
-				/*
-					iCur表示当前的距离值，cur:current当前的意思
-					如果当前属性还未到达终点则继续执行“累加”的动作，并且tBtn设为false
-					如果当前属性到达终点则，则无动作tBtn为true
-				*/
-				if (iCur != iTarget) {
-					tBtn = false;
-
-					if( attr == 'opacity' ){
-						_this.obj.style.opacity = (iCur + iSpeed) / 100;
-						_this.obj.style.filter = 'alpha(opacity='+ (iCur+iSpeed) +')';
-					}else{
-						_this.obj.style[attr] = iCur + iSpeed + 'px';
-					}
-
-				}
-
-			}
-
-
-			/*
-				若所有属性都到达终点，则上面的if判断不会通过，表示可以结束定时器了，同时判断是否有回调函数
-				通过回调函数实现“链式运动”的效果
-			*/
-			if( tBtn ){
-				clearInterval( _this.obj.iTimer );
-
-				if( fn ){
-					setTimeout(function(){
-						fn.call(_this.obj);
-					},delay);
-				}
-
-			}
-
-
-		}, 30);
-
-	},
-
-
-	elastic:function(json,fn,delay){
-
-		var iSpeed = 0;
-		var _this = this;
-		var delay = delay || 0;
-
-		this.obj.timer = setInterval(function(){
-			for( var attr in json ){
-
-				var iTarget = json[attr];
-
-				var argu = attr;
-				var objArguVal = null;
-
-				if( attr == 'left' ){
-					objArguVal = _this.obj.offsetLeft;
-				}else if( attr = 'top' ){
-					objArguVal = _this.obj.offsetTop;
-				}
-
-
-				iSpeed += ( iTarget - objArguVal ) / 6;
-				iSpeed *= 0.75;
-
-
-				if( Math.abs(iTarget - objArguVal) <= 1 && Math.abs(iSpeed) <= 1 ){
-
-					clearInterval(_this.obj.timer);
-					_this.obj.style[attr] = iTarget + 'px';
-					iSpeed = 0;
-					if(fn){
-
-						setTimeout(function(){
-							fn();
-						},delay);
-
-					}
-
-
-				}else{
-					_this.obj.style[attr] = objArguVal + iSpeed + 'px';
-				}
-
-			}
-
-
-		},30);
-
-
-
-
+function startMove(argu){
+	
+	var obj = argu.obj || false,
+		json = argu.json || false,
+		times = argu.times || 400,
+		fx = argu.fx || 'linear',
+		fn = argu.fn || null;
+	
+	var iCur = {};
+	
+	for(var attr in json){
+		iCur[attr] = 0;	
+		// 透明度换算成整数
+		if( attr == 'opacity' ){
+			iCur[attr] = Math.round(getStyle(obj,attr)*100);
+		}else{
+			// px值取整
+			iCur[attr] = parseInt(getStyle(obj,attr));
+		}		
 	}
+	
+	var startTime = microtime();
+	clearInterval(obj.timer);
+	
+	obj.timer = setInterval(function(){
+		
+		var changeTime = microtime();
+		
+		// 算出已流逝的时间，用开始时候的时间
+		// startTime - changeTime + times可能算出负数值，Math.max取大的那个
+		// times减去Math.max(0,startTime - changeTime + times)得到已流逝的时间
+		var t = times - Math.max(0,startTime - changeTime + times);  //0到2000
 
+		// 逐个执行
+		for(var attr in json){
 
+			// 对每个属性都调用Tween下相关方法
+			// t:当前时间
+			// b:初始值
+			// c:变化量
+			// d:持续时间
+			// 当t==times的时候停止执行
+			var value = Tween[fx](t,iCur[attr],json[attr]-iCur[attr],times);
+			
+			// 如果是透明度需要考虑标准浏览器和ie浏览器的赋值方式
+			if(attr == 'opacity'){
+				obj.style.opacity = value/100;
+				obj.style.filter = 'alpha(opacity='+value+')';
+			}
+			else{
+				// 如果是普通的px则直接赋值
+				obj.style[attr] = value + 'px';
+			}
+			
+		}
+		
+		// 动画停止后执行回调
+		if(t == times){
+			clearInterval(obj.timer);
+			fn && fn.call(obj);
+		}
+		
+	},13);
+	
 }
 
 
-
-
 /**
- *
- *	时间版运动留白
- *
- *	定时器在浏览器中的问题，浏览器为了优化性能，在用户不看某个页面的时候那个页面的定时器会被延迟的非常缓慢
- * 	解决：
- * 		当页面被缩小或被切换的时候可以停掉定时器，切换回来的时候再开启定时器
- * 		用到的方法:
- * 			速度版运动解决方法：
- * 			window.onfocus 和  window.onblur
- *    		时间版运动解决方法：
- *    		什么都不用做，因为时间版运动的位置计算是速度乘以时间计算的，而时间是本地时间，本地时间不会受浏览器影响
- *
- *
- *
- *
- *
- *
- *
+ * Tween算法
+ * @type {Object}
  */
+var Tween = {
+	linear: function (t, b, c, d){  //匀速
+		return c*t/d + b;
+	},
+	easeIn: function(t, b, c, d){  //加速曲线
+		return c*(t/=d)*t + b;
+	},
+	easeOut: function(t, b, c, d){  //减速曲线
+		return -c *(t/=d)*(t-2) + b;
+	},
+	easeBoth: function(t, b, c, d){  //加速减速曲线
+		if ((t/=d/2) < 1) {
+			return c/2*t*t + b;
+		}
+		return -c/2 * ((--t)*(t-2) - 1) + b;
+	},
+	easeInStrong: function(t, b, c, d){  //加加速曲线
+		return c*(t/=d)*t*t*t + b;
+	},
+	easeOutStrong: function(t, b, c, d){  //减减速曲线
+		return -c * ((t=t/d-1)*t*t*t - 1) + b;
+	},
+	easeBothStrong: function(t, b, c, d){  //加加速减减速曲线
+		if ((t/=d/2) < 1) {
+			return c/2*t*t*t*t + b;
+		}
+		return -c/2 * ((t-=2)*t*t*t - 2) + b;
+	},
+	elasticIn: function(t, b, c, d, a, p){  //正弦衰减曲线（弹动渐入）
+		if (t === 0) { 
+			return b; 
+		}
+		if ( (t /= d) == 1 ) {
+			return b+c; 
+		}
+		if (!p) {
+			p=d*0.3; 
+		}
+		if (!a || a < Math.abs(c)) {
+			a = c; 
+			var s = p/4;
+		} else {
+			var s = p/(2*Math.PI) * Math.asin (c/a);
+		}
+		return -(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;
+	},
+	elasticOut: function(t, b, c, d, a, p){    //正弦增强曲线（弹动渐出）
+		if (t === 0) {
+			return b;
+		}
+		if ( (t /= d) == 1 ) {
+			return b+c;
+		}
+		if (!p) {
+			p=d*0.3;
+		}
+		if (!a || a < Math.abs(c)) {
+			a = c;
+			var s = p / 4;
+		} else {
+			var s = p/(2*Math.PI) * Math.asin (c/a);
+		}
+		return a*Math.pow(2,-10*t) * Math.sin( (t*d-s)*(2*Math.PI)/p ) + c + b;
+	},    
+	elasticBoth: function(t, b, c, d, a, p){
+		if (t === 0) {
+			return b;
+		}
+		if ( (t /= d/2) == 2 ) {
+			return b+c;
+		}
+		if (!p) {
+			p = d*(0.3*1.5);
+		}
+		if ( !a || a < Math.abs(c) ) {
+			a = c; 
+			var s = p/4;
+		}
+		else {
+			var s = p/(2*Math.PI) * Math.asin (c/a);
+		}
+		if (t < 1) {
+			return - 0.5*(a*Math.pow(2,10*(t-=1)) * 
+					Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;
+		}
+		return a*Math.pow(2,-10*(t-=1)) * 
+				Math.sin( (t*d-s)*(2*Math.PI)/p )*0.5 + c + b;
+	},
+	backIn: function(t, b, c, d, s){     //回退加速（回退渐入）
+		if (typeof s == 'undefined') {
+		   s = 1.70158;
+		}
+		return c*(t/=d)*t*((s+1)*t - s) + b;
+	},
+	backOut: function(t, b, c, d, s){
+		if (typeof s == 'undefined') {
+			s = 3.70158;  //回缩的距离
+		}
+		return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b;
+	}, 
+	backBoth: function(t, b, c, d, s){
+		if (typeof s == 'undefined') {
+			s = 1.70158; 
+		}
+		if ((t /= d/2 ) < 1) {
+			return c/2*(t*t*(((s*=(1.525))+1)*t - s)) + b;
+		}
+		return c/2*((t-=2)*t*(((s*=(1.525))+1)*t + s) + 2) + b;
+	},
+	bounceIn: function(t, b, c, d){    //弹球减振（弹球渐出）
+		return c - Tween['bounceOut'](d-t, 0, c, d) + b;
+	},       
+	bounceOut: function(t, b, c, d){
+		if ((t/=d) < (1/2.75)) {
+			return c*(7.5625*t*t) + b;
+		} else if (t < (2/2.75)) {
+			return c*(7.5625*(t-=(1.5/2.75))*t + 0.75) + b;
+		} else if (t < (2.5/2.75)) {
+			return c*(7.5625*(t-=(2.25/2.75))*t + 0.9375) + b;
+		}
+		return c*(7.5625*(t-=(2.625/2.75))*t + 0.984375) + b;
+	},      
+	bounceBoth: function(t, b, c, d){
+		if (t < d/2) {
+			return Tween['bounceIn'](t*2, 0, c, d) * 0.5 + b;
+		}
+		return Tween['bounceOut'](t*2-d, 0, c, d) * 0.5 + c*0.5 + b;
+	}
+}
+

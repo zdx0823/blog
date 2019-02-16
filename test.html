@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title></title>
+<script src="src/js/rely/jsrsasign-latest-all-min.js"></script>
+<script src="src/js/rely/zdx.js"></script>
+</head>
+<body>
+
+<script>
+
+
+
+// 公钥
+   let pk="-----BEGIN PUBLIC KEY-----\
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCzBn4Peub+/bnTr8GrPoO1TJ1O\
+xnu3Q1uGhm5pT9ia8KYjY031g6DDmKFdKvMEmpIwzMK6WonNA3XUmnXuUtCEthLt\
+2X0Uw0uwL+5or5q3B3N8UsYZW0gm9pHhjP3bgsWIU3pmqqxrMpJQ7pNzRIBSa+Ga\
+P/tF5HzjZGQC5ca47wIDAQAB\
+-----END PUBLIC KEY-----";
+  // 私钥
+    let priK = "-----BEGIN PRIVATE KEY-----\
+MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBANcP4oLf2c27/dr5\
+LGlLaLKkhYVJ+4f/fnyt3hIV3gKBXeptxWmyoryCGQUmEKyOSyEd56LkfOUWIug5\
+H3Bgx3xIFjdm6N4eHkItng1+q44eVbdeKD4asCkSTeyKz97QpXUlFbUcB7LV0xPm\
+t9zNeDe+luuZNj+kbcXUoMbSDf4NAgMBAAECgYBkv+5PfWrdtMoSAVVK5qbfua9L\
+aANMDOdGpXU5Z8Efz1cd8drfz23pfdEW1mRNUkPj+cyARSY1dA9aVxhhXxVUSd02\
+llnKm5TSxQlBOboeIQl5dXgr8WDAu4VaZGNJS5xSbtBeNCR14BM52R6MFLHIraOU\
+csdv/dfqkJ2KRdE0CQJBAO0uGodYvnp/7Thx7rc2kgSkKb58WIFvjEi0p902ko6/\
+o2kTGsaNHT7g0Ldkf7SNETh/B8lYQi9PHJMUyXUIljMCQQDoIH33ly+4b3fYknHW\
+FnJ+Uo9iMEM9l8d+WplUcwLsc2sl7qY8k0x1gDrG7Yb+sAmpZSrzX0rxNbzpwt1M\
+yFq/AkB1PBas0/bDAjy1a8t9ECI43RQtLbVptUN4JKPcuj7TBHK3W1Qe1F2iWOmR\
+3MEq85eRf2jP4ypDzCzpnpq9mJL1AkEA371ZzYkjTRHcIZreMK3IQ+xOGiVM2pRu\
+jGLFQfntin2hfJlwEBkmbGdhwBZ4tQp29Zj28kgaky7p3SOfbP/9PwJAQI1KGxJL\
+1fb5TwEjBmIBSRgq/sqq2wx0KsfU/CgcKjMW+hZS7ndfGX6pOmi4T41CNmFZoPLw\
+jcgjY1+hTYKIkA==\
+-----END PRIVATE KEY-----";
+ 
+  // 原文
+  var src = "好厉害";
+
+
+
+
+// 加密
+    // 读取解析pem格式的秘钥, 生成秘钥实例 (RSAKey) 
+ //    // var pub = KEYUTIL.getKey(pk);
+    var pub = KEYUTIL.getKey(pk);
+    var enc = KJUR.crypto.Cipher.encrypt(src,pub);
+	   console.log(enc);
+
+   	// // 解密
+    // var prv = KEYUTIL.getKey(priK);
+    // var dec = KJUR.crypto.Cipher.decrypt(enc,prv);
+    // console.log("jsrsasign decrypt: "+dec);
+  
+
+
+// ajax({
+// 	method:'post',
+// 	url:'src/php/user.php',
+// 	success:function(data){
+// 		document.body.innerHTML = data;
+// 	}
+// });
+
+
+</script>
+
+
+
+
+
+</body>
+</html>

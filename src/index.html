@@ -9,16 +9,30 @@
     <!-- 规定布局视口的布局应该理想视口与的一致，后面用媒体查询写出相应的布局。然后规定默认缩放比例为1 -->
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <link rel="stylesheet" type="text/css" href="css/normalize.css">
-    <!-- <link rel="stylesheet" type="text/css" href="css/rely/font-awesome/css/font-awesome.min.css"> -->
+    <!-- iconfont库 -->
     <link rel="stylesheet" type="text/css" href="css/rely/fontawesome-free-5.6.3-web/fontawesome-free-5.6.3-web/css/all.css">
     <link rel="stylesheet" type="text/css" href="css/init.css">
     <link rel="stylesheet" type="text/css" href="css/main.css">
-    <script src="js/rely/tinymce/js/tinymce/tinymce.min.js"></script>
-    <script src="js/rely/html2canvas.min.js"></script>
-    <script src="js/rely/zdx.js"></script>
-    <script src="js/config.js"></script>
+    <!-- 相关依赖 -->
+        <!-- 富文本插件 -->
+        <script src="js/rely/tinymce/js/tinymce/tinymce.min.js"></script>
+        <!-- js截图插件 -->
+        <script src="js/rely/html2canvas.min.js"></script>
+        <!-- 自己写的工具库 -->
+        <script src="js/rely/zdx.js"></script>
+        <!-- RSA加密库 -->
+        <script src="js/rely/jsrsasign-latest-all-min.js"></script>
+        <!-- md5 -->
+        <script src="js/rely/md5.min.js"></script>
+    <!-- 相关依赖end -->
+
+    <!-- 通用功能js -->
     <script src="js/function.js"></script>
+    <!-- 相关页面js -->
     <script src="js/pageFnFile.js"></script>
+    <!-- 用户登录注册js -->
+    <script src="js/logAndReg.js"></script>
+    <!-- 主js -->
     <script src="js/main.js"></script>
 </head>
 <body>
@@ -43,14 +57,13 @@ id命名方式用驼峰命名法
 
  -->
 
-
-
-
 <div id="app">
 
     <div id="leftNav">
         <nav>
-            <a href="#" title="回到主页" id="home"></a>
+            <a href="#" title="回到主页" id="home">
+                <i class="fas fa-home"></i>
+            </a>
             <a href="#" title="个人信息" id="info">
                 <i class="fas fa-user"></i>
             </a>
@@ -58,10 +71,11 @@ id命名方式用驼峰命名法
                 <i class="fas fa-folder-open"></i>
             </a>
         </nav>
-        <h1 id="logo"><img src="img/logo.png" alt="蜜蜂老牛黄瓜"></h1>
+        <!-- <h1 id="logo"><img src="img/logo.png" alt="蜜蜂老牛黄瓜"></h1> -->
+        <h1 id="logo"><i class="fas fa-user"></i></h1>
         <div class="con">
             <div class="btns">
-                <a href="javascript:;" id="editorBtn">添加文章</a>
+                <!-- <a href="javascript:;" id="editorBtn">添加文章</a> -->
             </div>
         </div>
     </div>
