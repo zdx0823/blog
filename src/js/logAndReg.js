@@ -50,7 +50,7 @@ Register.prototype.svg_loading = '\
  * 生成注册表单
  * @return {[无]}        [无]
  */
-Register.prototype.build_form = function(parent){
+Register.prototype.build_reg_form = function(parent){
 	// 如果无父级标签则直接返回false
 	var parent = parent || this.parent;
 	if(!parent) return false;
@@ -60,7 +60,7 @@ Register.prototype.build_form = function(parent){
 
 	var reg_form_str = {
 		html:
-		'<form class="reg_form">\
+		'<form class="lag_form">\
 	        <div class="input_wrap clearfix">\
 		        <label>\
 		            <i class="fas fa-user"></i>\
@@ -89,7 +89,7 @@ Register.prototype.build_form = function(parent){
 		            <input type="text" name="text" id="emailCode" placeholder="请输入验证码">\
 		        </label>\
 	        </div>\
-	        <p class="reg_form_warning">\
+	        <p class="lag_form_warning">\
 	        	<i class=""></i>\
 	        	'+svg_loading+'\
 	        	<span></span>\
@@ -100,9 +100,9 @@ Register.prototype.build_form = function(parent){
 		        <span>作者备注：密钥的请求可能比加密请求要慢，出现错误可能是密钥为就绪</span>\
 	        </div>\
 	    </form>',
-	    selector:'reg_form,email_a,reg_form_warning,svg_loading'	// 额外获取部分带class值的标签，注意：class名作为键会被加上class_前缀
+	    selector:'lag_form,email_a,lag_form_warning,svg_loading'	// 额外获取部分带class值的标签，注意：class名作为键会被加上class_前缀
 	};
-	// 将add返回的节点存放在this.reg_form_nodes里
+	// 将add返回的节点存放在this.lag_form_nodes里
 	this.reg_form_nodes = this.add(reg_form_str,parent);
 }
 
@@ -926,62 +926,35 @@ Register.prototype.sealInfo = function(obj){
  * 已登录的构造器
  */
 function Logged(){}
-Logged.prototype = {
-	logged:function(){
-		this.pullData(this.fillin);
-	},
-	/**
-	 * 拉取数据
-	 * @param  {函数} callback [传入一个回调函数]
-	 * @return {[无]}            [无]
-	 */
-	pullData:function(callback){
-		// 用ajax向后台调用数据
-		ajax({
-			method:'post',
-			url:'php/user.php',
-			data:'action:pullUserInfo',
-			success:function(data){
-				if(data){
-					var obj = JSON.parse(data);
-					// 存储用户名和头像地址在对象里
-					this.username = obj.username;
-					this.profile_path = obj.profile;
-					// 使用回调
-					callback();
-				}
-			}
-		});
-	},
+Logged.prototype.build_log_form = function(parent){
+	var parent = parent || this.parent;
+	if(!parent) return false;
 
-	/**
-	 * 填写相关数据在对应标签里
-	 * @return {[无]} [无]
-	 */
-	fillin:function(){
-		// 调用getOperabilityNode方法，获取可使用的节点
-		this.getOperabilityNode();
-		if(this.logo_i){
-			this.logo_i.remove(); // 移除掉原本的占位i标签
-		}
-		// 显示图片标签加入地址，更改顶部的按钮
-		this.logo_img.src.style.display = 'block';
-		this.logo_img.src = this.profile_path;
-		this.home_btn.background = this.profile_path;
-	},
-
-	/**
-	 * 获取本次操作需要用到的节点
-	 * @return {[type]} [description]
-	 */
-	getOperabilityNode:function(){
-		this.logo = $('#logo');
-		this.logo_i = this.logo.querySelector('i');
-		this.logo_img = this.logo.querySelector('img');
-		this.home_btn = $('#home');
+	var log_form_str = {
+		html:
+		'<form class="lag_form">\
+	        <div class="input_wrap clearfix">\
+		        <label>\
+		            <i class="fas fa-fingerprint"></i>\
+		            <input type="text" name="account" id="account" placeholder="请输入账号">\
+		        </label>\
+		        <label>\
+		            <i class="fas fa-key"></i>\
+		            <input type="password" name="password" id="pass" placeholder="请输入密码">\
+		            <span></span>\
+		        </label>\
+	        </div>\
+	        <div class="lag_wrap">\
+		        <input type="button" name="submit" id="submit" value="登录">\
+	        </div>\
+	    </form>'
 	}
 
+	this.log_form_nodes = this.add(log_form_str,parent);
 }
+
+
+
 
 // 在写属于Lag的方法之前先继承需要用到的对象
 extend(Lag,CreateMod);
@@ -998,6 +971,8 @@ Lag.prototype.is_logged = function(){
 	var Z = getCookie('Z');
 	this.Z = Z ? Z : false;
 }
+
+
 
 /**
  * 执行
@@ -1026,10 +1001,16 @@ Lag.prototype.buildLagBtn = function(){
 	var lag_btns_obj = {
 		html:'\
         <div class="clearfix" id="reg">\
-        	<span class="reg_span">注册</span>\
+        	<a class="reg_a">\
+        		<span class="reg_a_span">注册</span>\
+        		<i class="fas fa-times reg_a_i"></i>\
+        	</a>\
         </div>\
         <div class="clearfix" id="log">\
-        	<span class="log_span">登录</span>\
+        	<a class="log_a">\
+        		<span class="log_a_span">登录</span>\
+        		<i class="fas fa-times log_a_i"></i>\
+        	</a>\
         </div>\
         '
 	};
@@ -1054,38 +1035,100 @@ Lag.prototype.event = function(){
 		var reg = _this.reg = this.lag_nodes['reg'];
 		var log = _this.log = this.lag_nodes['log'];
 
-		reg.addEventListener('click',function(){
+		reg.addEventListener('click',function(e){
+			var e = e || event;
 			if(!this.on_off){
 				this.on_off = true;
-				_this._tmp_reg();
+				_this.click_reg_or_log(this);
+				_this._click_lag_switch(e,log);
 			}
 		});
-		log.addEventListener('click',function(){
-
-		});
+		log.addEventListener('click',function(e){
+			var e = e || event;
+			if(!this.on_off){
+				this.on_off = true;
+				_this.click_reg_or_log(this);
+				_this._click_lag_switch(e,reg);
+			}
+		});	
 	}
 }
 
-Lag.prototype._tmp_reg = function(){
+Lag.prototype.click_reg_or_log = function(ele){
+
 	var _this = this;
+	var ele_id = ele.id;
+		ele_a = ele.querySelector('a'),
+		ele_a_span = ele.querySelector('span'),
+		ele_a_i = ele.querySelector('i');
 
-	var reg_span = _this.reg.querySelector('.reg_span');
+	ele.style = '\
+		background:#3b4c54;\
+		cursor:default;\
+	';
 
-	_this.reg.style.background = '#435c71';
-	_this.reg.style.cursor = 'default';
-	reg_span.style = 'left:-122px; font-size:.14rem; font-weight:bold;';
+	ele_a.style = '\
+		font-size:.14rem;\
+		font-weight:bold;\
+	';
+
+	ele_a_span.style = '\
+		float:left;\
+		margin-left:14px;\
+	';
+
+	ele_a_i.style.display = 'block';
+
+	var w = null,
+		h = null;
+	if(ele_id == 'reg'){
+		w = 306;
+		h = 300;
+	}else if(ele_id == 'log'){
+		w = 306;
+		h = 180;
+	}
 
 	startMove({
-		obj:_this.reg,
+		obj:ele,
 		json:{
-			'width':306,
-			'height':300,
+			'width':w,
+			'height':h,
 			'border-radius':5
 		},
 		times:100,
 		fn:function(){
-			_this.build_form(_this.reg);
-			_this.reg_form_event();
+			if(ele_id == 'reg'){
+				_this.build_reg_form(ele);
+				_this.reg_form_event();
+			}else if(ele_id == 'log'){
+				_this.build_log_form(ele);
+				// _this.log_form_event();
+			}
 		}
 	});
+
+
+	ele_a_i.onclick = function(e){
+		_this._click_lag_switch(e,ele);
+	}
+
+}
+
+Lag.prototype._click_lag_switch = function(e,ele){
+	var e = e || event;
+	var ele_form = ele.querySelector('form');
+	if(!ele_form) return;
+
+	var ele_a = ele.querySelector('a'),
+		ele_a_span = ele.querySelector('span'),
+		ele_a_i = ele.querySelector('i');
+
+	ele_form.remove();
+	ele.style = 
+	ele_a.style = 
+	ele_a_span.style = '';
+	ele_a_i.style.display = 'none';
+	ele.on_off = !ele.on_off;
+	e.stopPropagation();
 }

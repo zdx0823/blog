@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title></title>
+<script src="src/js/rely/zdx.js"></script>
+
+<style type="text/css">
+
+
+</style>
+</head> 
+<body>
+
+
+
+<div class="verify_">
+
+	<div class="canvas_slide">
+		<canvas class="canvas_slide_img"></canvas>
+		<canvas class="canvas_slide_shadow"></canvas>
+	</div>
+	<div class="canvas_bg">
+		<canvas class="canvas_bg_shadow"></canvas>
+		<img src="src/img/ver-2.png">
+	</div>
+	
+</div>
+
+
+
+
+<script type="text/javascript">
+
+var e_wrap = document.querySelector('#wrap');
+var e_canvas_bg = document.querySelector('.canvas_bg_shadow'),
+	e_canvas_slide_img = document.querySelector('.canvas_slide_img'),
+	e_canvas_slide_shadow = document.querySelector('.canvas_slide_shadow');
+
+var ctx = e_canvas_bg.getContext("2d");
+ctx.globalCompositeOperation="xor";
+
+ctx.shadowBlur=10;	// 模糊
+ctx.shadowColor="#fff";	// 投影颜色
+ctx.shadowOffsetX=3;	// 偏移
+ctx.shadowOffsetY=3;	// 偏移
+ctx.fillStyle="rgba(0,0,0,0.7)";	// 填充颜色
+ctx.beginPath();	// 路径开始
+ctx.lineWidth="1";	// 路径宽度
+ctx.strokeStyle="rgba(0,0,0,0)";	// 路径描边
+
+
+var X = 100,
+	Y = 16,
+	d = 16;
+
+ctx.moveTo(X,Y);	// 起始点
+ctx.lineTo(X+d,Y);	// 经过
+ctx.bezierCurveTo(X+d,Y-d,X+2*d,Y-d,X+2*d,Y);	// 曲线
+ctx.lineTo(X+3*d,Y);	// 经过
+ctx.lineTo(X+3*d,Y+d);	// 经过
+ctx.bezierCurveTo(X+2*d,Y+d,X+2*d,Y+2*d,X+3*d,Y+2*d);	// 曲线
+ctx.lineTo(X+3*d,Y+3*d);	// 经过
+ctx.lineTo(X,Y+3*d);		// 经过
+ctx.closePath();	// 结束
+ctx.stroke();	// 上描边色
+ctx.fill();		// 上填充色
+
+
+// 使用两个canvas，一个做拼图图片，另一个做阴影
+var c_l = e_canvas_slide_img;
+var c_s = e_canvas_slide_shadow;
+var ctx_l = c_l.getContext("2d");
+var ctx_s = c_s.getContext("2d");
+
+
+var img=new Image();
+img.src='src/img/ver-2.png';
+img.onload=function(){
+	ctx_l.drawImage(img,0,0,260,116);	// 填充图片在顶层画布上
+}
+
+
+ctx_l.beginPath();
+ctx_l.strokeStyle="rgba(0,0,0,0)";
+ctx_l.moveTo(X,Y);
+ctx_l.lineTo(X+d,Y);
+ctx_l.bezierCurveTo(X+d,Y-d,X+2*d,Y-d,X+2*d,Y);
+ctx_l.lineTo(X+3*d,Y);
+ctx_l.lineTo(X+3*d,Y+d);
+ctx_l.bezierCurveTo(X+2*d,Y+d,X+2*d,Y+2*d,X+3*d,Y+2*d);
+ctx_l.lineTo(X+3*d,Y+3*d);
+ctx_l.lineTo(X,Y+3*d);
+ctx_l.closePath();
+ctx_l.stroke();
+ctx_l.shadowBlur=10;
+ctx_l.shadowColor="black";
+ctx_l.clip();	// 关键：裁剪出上面已经绘画出来的区域，其他部分隐藏
+
+
+// 绘制阴影
+ctx_s.beginPath();
+ctx_s.lineWidth="1";
+ctx_s.strokeStyle="rgba(0,0,0,0)";
+ctx_s.moveTo(X,Y);
+ctx_s.lineTo(X+d,Y);
+ctx_s.bezierCurveTo(X+d,Y-d,X+2*d,Y-d,X+2*d,Y);
+ctx_s.lineTo(X+3*d,Y);
+ctx_s.lineTo(X+3*d,Y+d);
+ctx_s.bezierCurveTo(X+2*d,Y+d,X+2*d,Y+2*d,X+3*d,Y+2*d);
+ctx_s.lineTo(X+3*d,Y+3*d);
+ctx_s.lineTo(X,Y+3*d);
+ctx_s.closePath();
+ctx_s.stroke();
+ctx_s.shadowBlur=20;
+ctx_s.shadowColor="black";
+ctx_s.fill();
+
+
+
+
+
+</script>
+</body>
+</html>

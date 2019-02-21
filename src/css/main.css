@@ -153,29 +153,44 @@
     user-select: none;
     transition:  background .3s, width .2s, height .2s;
 }
-#reg .reg_span,#log .log_span{ 
+#reg .reg_a,#log .log_a{ 
     position: relative;
     display: block;
     text-align: center;
     line-height: 40px;
+    color: #fff;
     transition: top .3s, left .3s;
 }
 /*注册按钮*/
 #reg{ background: #2196f3; }
 #reg:hover{ background: #1880d2; }
+
+.reg_a_i,.log_a_i{ 
+    float:right;
+    display: none; 
+    margin: 12px 18px 0 0;
+    font-size: .18rem;
+    cursor: pointer;
+    transition: transform .2s;
+}
+.reg_a_i:hover,.log_a_i:hover{
+    transform: rotateZ(90deg);
+}
+
+
 /*登录按钮*/
 #log{ background: #4caf50; }
 #log:hover{ background: #409443; }
 
 /*注册表单样式*/
-.reg_form{ width: 90%; margin: 0 auto; }
-.reg_form .input_wrap{
+.lag_form{ width: 90%; margin: 0 auto; }
+.lag_form .input_wrap{
     width: 100%;
     border: 1px solid #626262;
     border-radius: 5px;
     overflow: hidden;
 }
-.reg_form input{
+.lag_form input{
     width: 100%; 
     padding: .05rem .24rem; 
     font-size: .15rem; 
@@ -184,16 +199,16 @@
     outline: none;
     box-sizing: border-box;
 }
-.reg_form .input_wrap label:last-child input{
+.lag_form .input_wrap label:last-child input{
     border: none;
 }
-.reg_form .input_wrap label{
+.lag_form .input_wrap label{
     position: relative;
     float: left;
     width: 100%;
     box-sizing: border-box;
 }
-.reg_form .input_wrap label:nth-of-type(3) span{
+.lag_form .input_wrap label:nth-of-type(3) span{
     position: absolute;
     right: 12px;
     top: 5px;
@@ -212,7 +227,7 @@
 }
 
 
-.reg_form .input_wrap i{ position: absolute; top: 8px; left: 8px; color: #666;}
+.lag_form .input_wrap i{ position: absolute; top: 8px; left: 8px; color: #666;}
 #account{}
 #pass{}
 #confPass{}
@@ -233,7 +248,7 @@
 
 #username{}
 
-.lag_wrap{ 
+.lag_wrap{
     text-align: center;
 }
 #submit,#reset{
@@ -256,7 +271,7 @@
 #reset:hover{ background: #5f5f5f; }
 
 /*警告语*/
-.reg_form_warning{
+.lag_form_warning{
     position: relative;
     min-height: .24rem;
     margin: 5px; 
@@ -264,7 +279,10 @@
     font-size: .14rem; 
     line-height: .24rem;
 }
-.reg_form_warning i{}
+.lag_form_warning i{}
+
+
+
 
 .contentwrap{
     height: 100%;
