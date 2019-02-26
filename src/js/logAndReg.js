@@ -19,30 +19,37 @@ function Register(){}
  * svg旋转加载图标，返回字符串，宽高固定
  * @type {String}
  */
-Register.prototype.svg_loading = '\
- 		<svg \
-			version="1.1" \
-			class="svg_loading" \
-			x="0px" y="0px" \
-			width="20px" height="20px" \
-			viewBox="0 0 50 50" \
-			style="enable-background:new 0 0 50 50;" \
-			xml:space="preserve"\
-		>\
-			<path \
-				fill="#000" \
-				d="M25.251,6.461c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615V6.461z"\
-			>\
-				<animateTransform \
-					attributeType="xml" \
-					attributeName="transform" \
-					type="rotate" \
-					from="0 25 25" to="360 25 25" \
-					dur="0.6s" \
-					repeatCount="indefinite" \
-				/>\
-			</path>\
-		</svg>';
+Register.prototype.svg_loading = function(className,size){
+
+	var className = className ? className+' svg_loading' : 'svg_loading',
+		size = size || 20;
+
+	var html = '\
+	<svg \
+	   version="1.1" \
+	   class="'+className+'" \
+	   x="0px" y="0px" \
+	   width="'+size+'px" height="'+size+'px" \
+	   viewBox="0 0 50 50" \
+	   style="enable-background:new 0 0 50 50;" \
+	   xml:space="preserve"\
+   >\
+	   <path \
+		   fill="#000" \
+		   d="M25.251,6.461c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615V6.461z"\
+	   >\
+		   <animateTransform \
+			   attributeType="xml" \
+			   attributeName="transform" \
+			   type="rotate" \
+			   from="0 25 25" to="360 25 25" \
+			   dur="0.6s" \
+			   repeatCount="indefinite" \
+		   />\
+	   </path>\
+   </svg>';
+   return html;
+};
 
 
 
@@ -56,7 +63,7 @@ Register.prototype.build_reg_form = function(parent){
 	if(!parent) return false;
 
 	// 将旋转svg加载图标存进局部变量，方便使用
- 	var svg_loading = this.svg_loading;
+ 	var svg_loading = this.svg_loading();
 
 	var reg_form_str = {
 		html:
@@ -710,7 +717,7 @@ Register.prototype.testAdorn = function(warningWord,label){
 Register.prototype.testWarning = function(warningWord,word2){
 
 	var nodes = this.reg_form_nodes;	// 方便使用
-
+	console.log(nodes);
 	/**
 	 * 下列变量从上到下分别是
 	 * 表单form
@@ -718,8 +725,7 @@ Register.prototype.testWarning = function(warningWord,word2){
 	 * 提示语p下的icon标签i
 	 * 提示语p下的文字span
 	 */
-	var e_form = nodes['class_reg_form'],
-		p = nodes['class_lag_form_warning'],
+	var p = nodes['class_lag_form_warning'],
 		p_i = p.querySelector('i'),
 		p_span = p.querySelector('span');
 
@@ -900,7 +906,7 @@ Register.prototype.sealInfo = function(obj){
 	// 账号和密码取md5摘要为其值
 	if(obj.account){ account = md5(obj.account); }
 	if(obj.pass){ pass = md5(obj.pass); }
-
+	
 	// 分号分隔
 	var mass = account+pass+';'+email+';'+username+';'+email_code;
 
@@ -935,14 +941,19 @@ Logged.prototype.build_log_form = function(parent){
 		            <span></span>\
 		        </label>\
 	        </div>\
+	        <p class="lag_form_warning">\
+	        	<i class=""></i>\
+	        	<span></span>\
+	        </p>\
 	        <div class="lag_wrap">\
 		        <input type="button" name="submit" id="submit" class="log_submit" value="登录">\
 	        </div>\
 	    </form>',
-		selector:'lag_form'
+		selector:'lag_form,lag_form_warning'
 	}
 
 	this.log_form_nodes = this.add(log_form_str,parent);
+	this.reg_form_nodes = this.log_form_nodes;
 }
 
 
@@ -956,6 +967,12 @@ Logged.prototype.build_log_form = function(parent){
 Logged.prototype.imgVer = function(config){
 
 	var _this = this;
+
+	this.imgVer_config = {};
+	for(var attr in config){
+		this.imgVer_config[attr] = config[attr];
+	}
+
 	/**
 	 * 从上到下分别是
 	 * 滑块拼图验证器父级容器
@@ -964,11 +981,111 @@ Logged.prototype.imgVer = function(config){
 	 * 图片集合，为一个由图片地址组成的数组
 	 * 拼图验证成功后的回调
 	 */
-	var el = config.el,
-		w = config.width,
-		h = config.height,
-		imgs = config.imgs,	// 数组，为一组图片地址
-		fn = config.fn;
+
+
+	// 计算坐标方法
+	this._imgVer_c_c();
+
+	// 调用绘制方法
+	this._imgVer_draw();
+
+	// 调用拼图事件方法
+	this._imgVer_event();
+
+}
+
+
+
+Logged.prototype._imgVer_event = function(){
+
+	var _this = this;
+	var nodes = this.ver_nodes;
+	var adjuster_region = nodes['class_adjuster_region'],
+		adjuster_btn = nodes['class_adjuster_btn'],
+		ver_bar = nodes['class_ver_bar'],
+		ver_tip = nodes['class_ver_tip'],
+		ver_btns_back = nodes['class_ver_btns_back'],
+		ver_btns_refresh = nodes['class_ver_btns_refresh'];
+
+
+	adjuster_btn.num_of_ver_fail = 0;
+	adjuster_btn.onmousedown = function(e){
+		if(this.toggle === false) return;
+		this.toggle = false;
+		
+		var ver_bar_width = offset(ver_bar).w,
+			ver_bar_left = getStyle(ver_bar,'left'),
+			t_region_width = offset(adjuster_region).w,
+			t_region_X = offset(adjuster_region).left,
+			t_btn_width = offset(adjuster_btn).w;
+
+		var min_X = 0,
+			max_X = t_region_width - t_btn_width;
+
+		this.style['background-position'] = '-10px -98px';
+
+		var e = e || event;
+		var dis = e.clientX - offset(this).left;
+
+		var diff2 = null;
+
+		document.onmousemove = function(e){
+
+			var e = e || event,
+				X = e.clientX,
+				diff = X - dis - t_region_X;
+				(diff <= min_X) && (diff = min_X);
+				(diff >= max_X) && (diff = max_X);
+
+			var p_i = .82;
+			diff2 = ver_bar_width*diff/max_X*p_i + ver_bar_left;
+
+			if(diff2+_this.imgVer_config.X <= 240){
+				adjuster_btn.style.left = diff + 'px';
+				ver_bar.style.left = diff2 + 'px';
+			}
+		}
+		document.onmouseup = function(){
+
+			adjuster_btn.style['background-position'] = '-10px -10px';
+
+			if(diff2 != null && diff2 >= -2 && diff2 <= 2){
+				_this._imgVer_view('ok');
+			}else{
+				_this._imgVer_view('no',ver_bar_left);
+				adjuster_btn.num_of_ver_fail++;
+			}
+			setTimeout(function(){
+				startMove({ obj:ver_tip, json:{ bottom:-18 }, times:200 });
+			},1500)
+			document.onmousemove = document.onmouseup = null;
+		}
+	}
+
+
+	var ver_wrap = this.lag_nodes['class_ver_wrap'],
+		log_form_wrap = this.lag_nodes['class_log_form_wrap'],
+		log = this.lag_nodes['log'];
+
+	ver_btns_back.addEventListener('click',function(){
+
+		startMove({obj:ver_wrap, json:{left:300,opacity:0}, times:200});
+		startMove({obj:log_form_wrap, json:{left:0,opacity:100}, times:200});
+		startMove({obj:log, json:{height:186}, times:200});
+		
+	});
+
+
+	ver_btns_refresh.addEventListener('click',function(){
+		_this._imgVer_draw_canvas();
+	});
+
+}
+
+
+Logged.prototype._imgVer_c_c = function(){
+
+	var imgs = this.imgVer_config.imgs;
 
 	/**
 	 * 从上到下分别是
@@ -988,93 +1105,19 @@ Logged.prototype.imgVer = function(config){
 
 	var X = (x_padding + t_puzzle_size)*x_i,	// 起点x的坐标
 		Y = (y_padding + t_puzzle_size)*y_i,	// 起点y的坐标
-		d = t_puzzle_size/3;					// 控制突起好凹陷的距离，除以3为分成3等分
+		d = t_puzzle_size/3;
 
-	// 调用绘制方法
-	var	ver_nodes = this._imgVer_draw_canvas({
-		el:el,
-		w:w,
-		h:h,
-		t_img:t_img,
-		X:X,
-		Y:Y,
-		d:d
-	});
-
-	// 调用拼图事件方法
-	this._imgVer_event(X,fn);
-
+	this.imgVer_config.X = X;
+	this.imgVer_config.Y = Y;
+	this.imgVer_config.d = d;
+	this.imgVer_config.t_img = t_img;
 }
 
 
 
-Logged.prototype._imgVer_event = function(t_X,callback){
+Logged.prototype._imgVer_view = function(status,ver_bar_left){
 
 	var _this = this;
-	var nodes = this.ver_nodes;
-	var adjuster_region = nodes['class_adjuster_region'],
-		adjuster_btn = nodes['class_adjuster_btn']
-		ver_bar = nodes['class_ver_bar'],
-		ver_tip = nodes['class_ver_tip'];
-
-	var ver_bar_width = offset(ver_bar).w,
-		ver_bar_left = getStyle(ver_bar,'left');
-
-
-	adjuster_btn.onmousedown = function(e){
-		if(this.toggle === false) return;
-		this.toggle = false;
-
-		var t_region_width = offset(adjuster_region).w,
-			t_region_X = offset(adjuster_region).left,
-			t_btn_width = offset(adjuster_btn).w;
-
-		var min_X = 0,
-			max_X = t_region_width - t_btn_width;
-
-		this.style['background-position'] = '-10px -98px';
-
-		var e = e || event;
-		var dis = e.clientX - offset(this).left;
-
-		var diff2 = null;
-		this.on_down_time = microtime();
-		document.onmousemove = function(e){
-
-			var e = e || event,
-				X = e.clientX,
-				diff = X - dis - t_region_X;console.log(t_region_X);
-				(diff <= min_X) && (diff = min_X);
-				(diff >= max_X) && (diff = max_X);
-
-			var p_i = .82;
-			diff2 = ver_bar_width*diff/max_X*p_i + ver_bar_left;
-
-			if(diff2+t_X <= 240){
-				adjuster_btn.style.left = diff + 'px';
-				ver_bar.style.left = diff2 + 'px';
-			}
-		}
-		document.onmouseup = function(){
-
-			adjuster_btn.style['background-position'] = '-10px -10px';
-
-			if(diff2 >= -2 && diff2 <= 2){
-				_this._imgVer_view('ok',callback);
-			}else{
-				_this._imgVer_view('no',callback,ver_bar_left);
-			}
-			setTimeout(function(){
-				startMove({ obj:ver_tip, json:{ bottom:-18 }, times:200 });
-			},1500)
-			document.onmousemove = document.onmouseup = null;
-		}
-	}
-
-}
-
-
-Logged.prototype._imgVer_view = function(ok_or_no,callback,ver_bar_left){
 	var nodes = this.ver_nodes;
 	var tip = nodes['class_ver_tip'],
 		span1 = nodes['class_ver_tip_span1'],
@@ -1084,7 +1127,8 @@ Logged.prototype._imgVer_view = function(ok_or_no,callback,ver_bar_left){
 		ver_bar = nodes['class_ver_bar'],
 		ver_bg_blur = nodes['class_ver_bg_blur'],
 		ver_high_light = nodes['class_ver_high_light'],
-		adjuster_tip = nodes['class_adjuster_tip'];
+		adjuster_tip = nodes['class_adjuster_tip'],
+		adjuster_btn = nodes['class_adjuster_btn'];
 
 	var tip_ok = 'ver_tip_ok',
 		tip_no = 'ver_tip_no',
@@ -1100,7 +1144,7 @@ Logged.prototype._imgVer_view = function(ok_or_no,callback,ver_bar_left){
 		tip_status = '',
 		adjuster_tip_status = '';
 
-	if(ok_or_no == 'ok'){
+	if(status == 'ok'){
 		span1_txt = '验证成功：';
 		var diff_1 = parseFloat(((microtime() - btn.on_down_time)/1000).toFixed(1)),
 			diff_2 = Math.ceil(99-diff_1);
@@ -1110,15 +1154,15 @@ Logged.prototype._imgVer_view = function(ok_or_no,callback,ver_bar_left){
 		adjuster_tip_status = adjuster_tip_ok;
 
 		setTimeout(function(){
-			ver_bg_blur.remove();
+			ver_bg_blur.style.opacity = 0;
 			startMove({obj:ver_bar, json:{ opacity:0 }, fn:function(){
 				startMove({ obj:ver_high_light, json:{left:-610}, times:300, delay:200, fn:function(){
-					callback();
+					_this.imgVer_config.fn && _this.imgVer_config.fn();
 				}});
 			}});
 		},500)
 
-	}else if(ok_or_no == 'no'){
+	}else if(status == 'no'){
 		span1_txt = '验证失败：';
 		span2_txt = '拖动滑块将悬浮图像正确拼合';
 		i_status = i_no;
@@ -1137,6 +1181,8 @@ Logged.prototype._imgVer_view = function(ok_or_no,callback,ver_bar_left){
 
 		startMove({ obj:tip, json:{ bottom:0 }, times:200 });
 
+	}else if(status == 'restore'){
+		
 	}
 
 	delClass(i,i_ok);
@@ -1168,32 +1214,27 @@ Logged.prototype._imgVer_view = function(ok_or_no,callback,ver_bar_left){
  * @param  {[字符串]} t_img [图片]
  * @return {[对象]}       [节点集合]
  */
-Logged.prototype._imgVer_draw_canvas = function(config){
+Logged.prototype._imgVer_draw = function(){
 
-	var el = config.el,
-		w = config.w,
-		h = config.h,
-		t_img = config.t_img,
-		X = config.X,
-		Y = config.Y,
-		d = config.d;
+	if(!this.imgVer_config) return false;
 
-	// el.innerHTML = '';							// 清空原有的节点
+	var el = this.imgVer_config.el;
+
 
 	/**
 	 * [生成节点]
 	 */
 	var ver_str = {
 		html:'\
+				<div class="ver_btns">\
+					<i class="fas fa-arrow-left ver_btns_back"></i>\
+					<i class="fas fa-redo-alt ver_btns_refresh"></i>\
+				</div>\
 				<div class="ver">\
 					<div class="ver_high_light"></div>\
 					<div class="ver_bar">\
-						<canvas class="ver_bar_img" width="'+w+'" height="'+h+'"></canvas>\
-						<canvas class="ver_bar_blur" width="'+w+'" height="'+h+'"></canvas>\
 					</div>\
 					<div class="ver_bg">\
-						<canvas class="ver_bg_blur" width="'+w+'" height="'+h+'"></canvas>\
-						<img class="ver_bg_img" src="'+t_img+'" width="'+w+'" height="'+h+'">\
 					</div>\
 					<p class="ver_tip">\
 						<i class="ver_tip_i"></i>\
@@ -1209,9 +1250,44 @@ Logged.prototype._imgVer_draw_canvas = function(config){
 					<i class="adjuster_tip fas fa-lock"></i>\
 				</div>\
 			',
-		selector:'ver,ver_high_light,ver_bar,ver_bar_img,ver_bar_blur,ver_bg,ver_bg_blur,ver_bg_img,ver_refresh,ver_tip,ver_tip_span1,ver_tip_i,ver_tip_span2,adjuster,adjuster_region,adjuster_btn,adjuster_tip'
+		selector:'ver,ver_btns,ver_btns_back,ver_btns_refresh,ver_high_light,ver_bar,ver_bar_img,ver_bar_blur,ver_bg,ver_bg_blur,ver_bg_img,ver_refresh,ver_tip,ver_tip_span1,ver_tip_i,ver_tip_span2,adjuster,adjuster_region,adjuster_btn,adjuster_tip'
 	};
 	var ver_nodes = this.ver_nodes = this.add(ver_str,el);
+
+	this._imgVer_draw_canvas();
+
+	return ver_nodes;
+}
+
+
+
+Logged.prototype._imgVer_draw_canvas = function(){
+
+	this._imgVer_c_c();
+
+	var w = this.imgVer_config.width,
+		h = this.imgVer_config.height,
+		t_img = this.imgVer_config.t_img,
+		X = this.imgVer_config.X,
+		Y = this.imgVer_config.Y,
+		d = this.imgVer_config.d;
+
+	var ver_bar = this.ver_nodes['class_ver_bar'];
+	var ver_bg = this.ver_nodes['class_ver_bg'];
+
+	ver_bar.style.opacity = 1;
+	ver_bar.innerHTML = 
+	'\
+	<canvas class="ver_bar_img" width="'+w+'" height="'+h+'"></canvas>\
+	<canvas class="ver_bar_blur" width="'+w+'" height="'+h+'"></canvas>\
+	';
+
+	ver_bg.innerHTML = 
+	'\
+	<canvas class="ver_bg_blur" width="'+w+'" height="'+h+'"></canvas>\
+	<img class="ver_bg_img" src="'+t_img+'" width="'+w+'" height="'+h+'">\
+	';
+	
 
 
 	/**
@@ -1220,9 +1296,15 @@ Logged.prototype._imgVer_draw_canvas = function(config){
 	 * 第二个canvas作为第一个canvas的阴影，注：这里的阴影都是用canvas做的
 	 * 第三个canvas作为“嵌入”在全图上的一个凹陷，表明第一和第二个组成的拼图的出处
 	 */
-	var ver_bar_img = ver_nodes['class_ver_bar_img'],
-		ver_bar_blur = ver_nodes['class_ver_bar_blur'],
-		ver_bg_blur = ver_nodes['class_ver_bg_blur'];
+	var ver_bar_img = ver_bar.querySelector('.ver_bar_img'),
+		ver_bar_blur = ver_bar.querySelector('.ver_bar_blur'),
+		ver_bg_blur = ver_bg.querySelector('.ver_bg_blur');
+
+	// 手动添加节点入对象
+	this.ver_nodes['class_ver_bar_img'] = ver_bar_img;
+	this.ver_nodes['class_ver_bar_blur'] = ver_bar_blur;
+	this.ver_nodes['class_ver_bg_blur'] = ver_bg_blur;
+
 
 
 	/**
@@ -1302,13 +1384,11 @@ Logged.prototype._imgVer_draw_canvas = function(config){
 	ctx_bar_blur.shadowBlur=20;										// 投影模糊
 	ctx_bar_blur.fill();											// 填充颜色
 
-	var t_ver_bar = ver_nodes['class_ver_bar'];
+	var t_ver_bar = this.ver_nodes['class_ver_bar'];
+
 	t_ver_bar.style.left = -X + 10 + 'px';							// 设置拼图偏移量
 
-	return ver_nodes;
 }
-
-
 
 
 
@@ -1320,10 +1400,27 @@ Logged.prototype.log_form_event = function(){
 	var nodes = this.log_form_nodes;
 	var submit = nodes['submit'],
 		account = nodes['account'],
-		password = nodes['password'];
+		pass = nodes['pass'];
+
+	var e_form_wrap = this.lag_nodes['class_log_form_wrap'],
+		e_log = this.lag_nodes['log'];
 
 	submit.addEventListener('click',function(){
-		var e_form_wrap = _this.lag_nodes['class_log_form_wrap'];
+		
+		if(!account.value || !pass.value){
+			_this.testWarning('请填写账号和密码');
+			return false;
+		}else{
+			_this.testWarning(null,'可以登录');
+		}
+
+		startMove({
+			obj:e_log,
+			json:{
+				height:210
+			},
+			times:200
+		});
 
 		e_form_wrap.style.position = 'relative';
 		startMove({
@@ -1335,33 +1432,51 @@ Logged.prototype.log_form_event = function(){
 			times:200
 		});
 
+		
+		if(!_this.ver_nodes){
 
-		_this.imgVer({
-			el:_this.lag_nodes['class_ver_wrap'],
-			width:286,
-			height:128,
-			imgs:['http://localhost/blog/src/img/profile_init/20130113165407182.jpg',
-			'http://localhost/blog/src/img/profile_init/20130113165407249.jpg',
-			'http://localhost/blog/src/img/profile_init/20130113165407539.jpg',
-			'http://localhost/blog/src/img/profile_init/20130113165408128.jpg',
-			'http://localhost/blog/src/img/profile_init/20130113165408162.jpg'],
-			fn:function(){
-				console.log(7654);
-				var enc = _this.sealInfo({
-					account:account,
-					pass:password
-				});
+			_this.imgVer({
+				el:_this.lag_nodes['class_ver_wrap'],
+				width:286,
+				height:128,
+				imgs:['http://localhost/blog/src/img/profile_init/20130113165407182.jpg',
+				'http://localhost/blog/src/img/profile_init/20130113165407249.jpg',
+				'http://localhost/blog/src/img/profile_init/20130113165407539.jpg',
+				'http://localhost/blog/src/img/profile_init/20130113165408128.jpg',
+				'http://localhost/blog/src/img/profile_init/20130113165408162.jpg'],
+				fn:function(){
 
-				ajax({
-					method:'post',
-					url:'php/user.php',
-					data:'user_action=askForLog&user_info='+enc,
-					success:function(data){
-						document.body.innerHTML = data;
-					}
-				});
-			}
-		});
+					var enc = _this.sealInfo({
+						account:account.value,
+						pass:pass.value
+					});
+
+					var ver_svg = _this.lag_nodes['class_ver_shade'];
+					ver_svg.style.display = 'block';
+
+					ajax({
+						method:'post',
+						url:'php/user.php',
+						data:'user_action=askForLog&user_info='+enc,
+						success:function(data){
+							// 模拟加载时长
+							setTimeout(function(){
+								ver_svg.style.display = 'none';
+								if(data){//ver_wrap
+									
+								}else{
+	
+								}
+							},500);
+						}
+					});
+				}
+			});
+
+		}else{
+			_this._imgVer_draw_canvas();
+		}
+
 
 		var ver_wrap = _this.lag_nodes['class_ver_wrap'];
 		startMove({obj:ver_wrap, json:{left:0,opacity:100}, times:300});
@@ -1437,10 +1552,12 @@ Lag.prototype.buildLagBtn = function(){
 	        		<i class="fas fa-times log_a_i"></i>\
 	        	</a>\
 			</div>\
-			<div class="ver_wrap"></div>\
+			<div class="ver_wrap">\
+				<div class="ver_shade">'+this.svg_loading('ver_shade_svg',60)+'</div>\
+			</div>\
         </div>\
         ',
-		selector:'log_a,log_form_wrap,ver_wrap'
+		selector:'log_a,log_form_wrap,ver_wrap,ver_shade'
 	};
 
 	if(this.parent){
@@ -1514,7 +1631,7 @@ Lag.prototype.click_reg_or_log_view = function(ele){
 		h = 300;
 	}else if(ele_id == 'log'){
 		w = 306;
-		h = 180;
+		h = 186;
 	}
 
 	startMove({

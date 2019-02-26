@@ -109,7 +109,7 @@ class TheKey extends BuildRSA{
 /*
 	已登录的类
  */
-class Logged{
+class Logged extends TheKey{
 	/**
 	 * 拉取数据
 	 * @return [type] [description]
@@ -123,24 +123,22 @@ class Logged{
 	}
 
 
-	/**
-	 * [askForLog description]
-	 * @return [type] [description]
-	 */
 	function askForLog(){
-		var_dump(1234565432);
 		$pass1 = $this->isAccountExist();
 		$pass2 = $this->isPassExist();
 		if($pass1 == 'exist' && $pass2 == 'exist'){
 			$this->return_value = true;
 		}else{
-			$this->return_value = '账号或密码错误';
+			$this->return_value = false;
 		}
+
 		return $this->return_value;
 	}
 }
 
-class Register extends TheKey{
+
+
+class Register extends Logged{
 
 
 	/**
@@ -155,13 +153,14 @@ class Register extends TheKey{
 	 * @return [无] [无]
 	 */
 	private function decryptAndSplit(){
+		if(isset($this->user_info_decoded)) return true;
 		$this->return_value = false;
 		$info = $_POST['user_info'];	// 接收无间隔的十六进制字符串
 		// 解密得到以分号分隔的字符串，第一段是账号id和密码，前32位是账号id后32位是密码，
 		// 第二段是邮箱，明文
 		// 第三段是用户名
 		// 第四段是邮箱验证码，明文
-		$res_str = $this->decrypt_by_pri($info);
+		$this->user_info_decoded = $res_str = $this->decrypt_by_pri($info);
 		// 将解密后的信息以分号分开
 		$res_arr = explode(';',$res_str);
 		// 分离账号id和密码的md5值，如果只有一个则为账号
@@ -209,10 +208,11 @@ class Register extends TheKey{
 	function isPassExist(){
 		global $db;
 		if($this->decryptAndSplit()){
-			$res = $db->table('user_basic_info')->where(['user_pass'=>$this->user_pass])->item();
+			$res = $db->table('user_basic_info')->where(['password'=>$this->user_pass])->item();
 			return $this->return_value = $res ? 'exist' : 'unexist';
 		}
 	}
+
 
 
 	/**
@@ -338,6 +338,7 @@ class User_api extends Register{
 	}
 	function exCommand(){
 		$res = false;
+
 		if($com=method_exists($this,$_POST['user_action'])){
 			$tmp = $_POST['user_action'];
 			$this->$tmp();
