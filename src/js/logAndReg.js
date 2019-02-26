@@ -138,16 +138,7 @@ Register.prototype.reg_form_event = function(){
 
 	var _this = this;
 
-	// 请求公钥
-	ajax({
-		method:'post',
-		url:'php/user.php',
-		data:'user_action=getPublicKey',
-		success:function(data){
-			// document.body.innerHTML = data;
-			_this.pub_key = data;	// 保存在对象属性中
-		}
-	});
+	this.getRSA();
 
 
 
@@ -215,7 +206,7 @@ Register.prototype.reg_form_event = function(){
 					data:'user_action=isAccountExist&user_info='+enc,
 					success:function(data){
 						// document.body.innerHTML = data;
-						var res = (data =='exist') ? '账号已存在' : null; 
+						var res = (data =='exist') ? '账号已存在' : null;
 						_this.testAdorn(res,_this.input_account.parentNode);	// 附加效果
 						_this.testWarning(res,'账号符合要求');
 					}
@@ -249,7 +240,7 @@ Register.prototype.reg_form_event = function(){
 			if(strength == '低') color = '#9e9e9e';
 			if(strength == '中') color = '#795548';
 			if(strength == '强') color = '#4caf50';
-			
+
 			// 显示标签、修改颜色、修改文字
 			span.style.display = 'block';
 			span.style.color = color;
@@ -478,7 +469,7 @@ Register.prototype.reg_form_event = function(){
 		 */
 		var e_form = nodes['class_reg_form'],
 			i = e_form.querySelectorAll('i'),
-			p = nodes['class_reg_form_warning'],
+			p = nodes['class_lag_form_warning'],
 			p_i = p.querySelector('i'),
 			p_span = p.querySelector('span');
 
@@ -544,8 +535,8 @@ Register.prototype.reg_form_event = function(){
 			 * 提示语下的svg旋转加载icon标签svg
 			 * 表单form下所有的input
 			 */
-			var e_form = nodes['class_reg_form'],
-				p = nodes['class_reg_form_warning'],
+			var e_form = nodes['class_lag_form'],
+				p = nodes['class_lag_form_warning'],
 				p_i = p.querySelector('i'),
 				p_span = p.querySelector('span'),
 				p_svg = nodes['class_svg_loading'],
@@ -559,7 +550,7 @@ Register.prototype.reg_form_event = function(){
 
 				// 隐藏：提示语p下的icon标签
 				// 显示：提示语p下的svg旋转标签
-				p_i.style.display = 'none';	
+				p_i.style.display = 'none';
 				p_svg.style.display = 'block';
 
 				// 更改提示语
@@ -592,7 +583,7 @@ Register.prototype.reg_form_event = function(){
 
 				// 显示：提示语p下的icon标签
 				// 隐藏：提示语p下的svg旋转标签
-				p_i.style.display = 'inline-block';	
+				p_i.style.display = 'inline-block';
 				p_svg.style.display = 'none';
 
 				// 修改提示语p的颜色为黄色
@@ -626,11 +617,11 @@ Register.prototype.reg_form_event = function(){
 
 			}else if(status == 'ok'){
 			// ok状态
-			
+
 				// 隐藏：提示语p下的svg旋转标签
 				// 显示：提示语p下的icon标签
 				p_svg.style.display = 'none';
-				p_i.style.display = 'inline-block';	
+				p_i.style.display = 'inline-block';
 
 				// 修改提示语、修改按钮value
 				_this.testWarning(null,'注册成功');
@@ -728,10 +719,10 @@ Register.prototype.testWarning = function(warningWord,word2){
 	 * 提示语p下的文字span
 	 */
 	var e_form = nodes['class_reg_form'],
-		p = nodes['class_reg_form_warning'],
+		p = nodes['class_lag_form_warning'],
 		p_i = p.querySelector('i'),
 		p_span = p.querySelector('span');
-	
+
 	// 显示提示语p
 	p.style.pacity = 1;
 
@@ -767,7 +758,7 @@ Register.prototype.testAccount = function(account){
 			res = '账号不能为空。';
 		}else{
 			res = '账号长度必须大于7位且小于16位。';
-		}		
+		}
 	}else{
 		if(!re.test(account)){	// 允许字母数字美元符号
 			res = '账号只能包含数字、字母、美元符号，且必须以字母开头。';
@@ -831,7 +822,7 @@ Register.prototype.testPassStrong = function(pass){
 	if( re_num_sym.test(pass) || re_num_alp.test(pass) || re_alp_sym.test(pass) ){
 		// 这种情况下，密码长度大于18位则强度为中
 		lv = (pass.length >= 18) ? 1 : 0;
-	
+
 	// 如果是数字、字母、符号混合的密码，强度为中或强
 	}else if( re_num_alp_sym.test(pass) ){
 
@@ -945,13 +936,440 @@ Logged.prototype.build_log_form = function(parent){
 		        </label>\
 	        </div>\
 	        <div class="lag_wrap">\
-		        <input type="button" name="submit" id="submit" value="登录">\
+		        <input type="button" name="submit" id="submit" class="log_submit" value="登录">\
 	        </div>\
-	    </form>'
+	    </form>',
+		selector:'lag_form'
 	}
 
 	this.log_form_nodes = this.add(log_form_str,parent);
 }
+
+
+
+/**
+ *
+ * 滑块拼图验证器生成
+ * @param  {[对象]} obj [参数]
+ * @return {[无]}     [无]
+ */
+Logged.prototype.imgVer = function(config){
+
+	var _this = this;
+	/**
+	 * 从上到下分别是
+	 * 滑块拼图验证器父级容器
+	 * 期望拼图部分的宽
+	 * 期望拼图部分的高
+	 * 图片集合，为一个由图片地址组成的数组
+	 * 拼图验证成功后的回调
+	 */
+	var el = config.el,
+		w = config.width,
+		h = config.height,
+		imgs = config.imgs,	// 数组，为一组图片地址
+		fn = config.fn;
+
+	/**
+	 * 从上到下分别是
+	 * 拼图的宽度，默认宽高相等
+	 * 左右预留空间
+	 * 上下预留空间
+	 * x方向的系数
+	 * y方向的系数
+	 * 随机选取一张图片
+	 */
+	var	t_puzzle_size = 38,
+	 	x_padding = 50,
+		y_padding = 10,
+		x_i = rand(10,26)/10,
+		y_i = rand(3,16)/10,
+		t_img = imgs[rand(0,imgs.length-1)];
+
+	var X = (x_padding + t_puzzle_size)*x_i,	// 起点x的坐标
+		Y = (y_padding + t_puzzle_size)*y_i,	// 起点y的坐标
+		d = t_puzzle_size/3;					// 控制突起好凹陷的距离，除以3为分成3等分
+
+	// 调用绘制方法
+	var	ver_nodes = this._imgVer_draw_canvas({
+		el:el,
+		w:w,
+		h:h,
+		t_img:t_img,
+		X:X,
+		Y:Y,
+		d:d
+	});
+
+	// 调用拼图事件方法
+	this._imgVer_event(X,fn);
+
+}
+
+
+
+Logged.prototype._imgVer_event = function(t_X,callback){
+
+	var _this = this;
+	var nodes = this.ver_nodes;
+	var adjuster_region = nodes['class_adjuster_region'],
+		adjuster_btn = nodes['class_adjuster_btn']
+		ver_bar = nodes['class_ver_bar'],
+		ver_tip = nodes['class_ver_tip'];
+
+	var ver_bar_width = offset(ver_bar).w,
+		ver_bar_left = getStyle(ver_bar,'left');
+
+
+	adjuster_btn.onmousedown = function(e){
+		if(this.toggle === false) return;
+		this.toggle = false;
+
+		var t_region_width = offset(adjuster_region).w,
+			t_region_X = offset(adjuster_region).left,
+			t_btn_width = offset(adjuster_btn).w;
+
+		var min_X = 0,
+			max_X = t_region_width - t_btn_width;
+
+		this.style['background-position'] = '-10px -98px';
+
+		var e = e || event;
+		var dis = e.clientX - offset(this).left;
+
+		var diff2 = null;
+		this.on_down_time = microtime();
+		document.onmousemove = function(e){
+
+			var e = e || event,
+				X = e.clientX,
+				diff = X - dis - t_region_X;console.log(t_region_X);
+				(diff <= min_X) && (diff = min_X);
+				(diff >= max_X) && (diff = max_X);
+
+			var p_i = .82;
+			diff2 = ver_bar_width*diff/max_X*p_i + ver_bar_left;
+
+			if(diff2+t_X <= 240){
+				adjuster_btn.style.left = diff + 'px';
+				ver_bar.style.left = diff2 + 'px';
+			}
+		}
+		document.onmouseup = function(){
+
+			adjuster_btn.style['background-position'] = '-10px -10px';
+
+			if(diff2 >= -2 && diff2 <= 2){
+				_this._imgVer_view('ok',callback);
+			}else{
+				_this._imgVer_view('no',callback,ver_bar_left);
+			}
+			setTimeout(function(){
+				startMove({ obj:ver_tip, json:{ bottom:-18 }, times:200 });
+			},1500)
+			document.onmousemove = document.onmouseup = null;
+		}
+	}
+
+}
+
+
+Logged.prototype._imgVer_view = function(ok_or_no,callback,ver_bar_left){
+	var nodes = this.ver_nodes;
+	var tip = nodes['class_ver_tip'],
+		span1 = nodes['class_ver_tip_span1'],
+		span2 = nodes['class_ver_tip_span2'],
+		i = nodes['class_ver_tip_i'],
+		btn = nodes['class_adjuster_btn'],
+		ver_bar = nodes['class_ver_bar'],
+		ver_bg_blur = nodes['class_ver_bg_blur'],
+		ver_high_light = nodes['class_ver_high_light'],
+		adjuster_tip = nodes['class_adjuster_tip'];
+
+	var tip_ok = 'ver_tip_ok',
+		tip_no = 'ver_tip_no',
+		i_ok = 'fas fa-check-circle',
+		i_no = 'fas fa-times-circle',
+		adjuster_tip_lock = 'fas fa-lock',
+		adjuster_tip_ok = 'fas fa-check-circle adjuster_tip_ok',
+		adjuster_tip_no = 'fas fa-times-circle adjuster_tip_no';
+
+	var span1_txt = '',
+		span2_txt = '',
+		i_status = '',
+		tip_status = '',
+		adjuster_tip_status = '';
+
+	if(ok_or_no == 'ok'){
+		span1_txt = '验证成功：';
+		var diff_1 = parseFloat(((microtime() - btn.on_down_time)/1000).toFixed(1)),
+			diff_2 = Math.ceil(99-diff_1);
+		span2_txt = diff_1 + 's的速度已经超过'+diff_2+'%的用户';
+		i_status = i_ok;
+		tip_status = tip_ok;
+		adjuster_tip_status = adjuster_tip_ok;
+
+		setTimeout(function(){
+			ver_bg_blur.remove();
+			startMove({obj:ver_bar, json:{ opacity:0 }, fn:function(){
+				startMove({ obj:ver_high_light, json:{left:-610}, times:300, delay:200, fn:function(){
+					callback();
+				}});
+			}});
+		},500)
+
+	}else if(ok_or_no == 'no'){
+		span1_txt = '验证失败：';
+		span2_txt = '拖动滑块将悬浮图像正确拼合';
+		i_status = i_no;
+		tip_status = tip_no;
+		adjuster_tip_status = adjuster_tip_no;
+
+		startMove({ obj:ver_bar, json:{ opacity:20 }, times:100, delay:100 });
+		startMove({ obj:ver_bar, json:{ opacity:100 }, times:100, delay:200 });
+		startMove({ obj:ver_bar, json:{ opacity:0 }, times:100, delay:400 });
+		startMove({ obj:ver_bar, json:{ opacity:100 }, times:100, delay:600, fn:function(){
+			startMove({ obj:btn, json:{ left:0 }, fn:function(){
+				btn.toggle = true;
+			},delay:400});
+			startMove({ obj:ver_bar, json:{ left:ver_bar_left }, delay:400 });
+		} });
+
+		startMove({ obj:tip, json:{ bottom:0 }, times:200 });
+
+	}
+
+	delClass(i,i_ok);
+	delClass(i,i_no);
+	addClass(i,i_status);
+
+	delClass(tip,tip_ok);
+	delClass(tip,tip_no);
+	addClass(tip,tip_status);
+	addClass(i,i_status);
+
+	delClass(adjuster_tip,adjuster_tip_lock);
+	delClass(adjuster_tip,adjuster_tip_ok);
+	delClass(adjuster_tip,adjuster_tip_no);
+	addClass(adjuster_tip,adjuster_tip_status);
+
+	span1.innerHTML = span1_txt;
+	span2.innerHTML = span2_txt;
+
+
+}
+
+
+/**
+ * 滑块拼图验证器生成的子方法拼图绘制
+ * @param  {[元素]} el    [用于包裹的父元素]
+ * @param  {[数值]} w     [图片宽度]
+ * @param  {[数值]} h     [图片高度]
+ * @param  {[字符串]} t_img [图片]
+ * @return {[对象]}       [节点集合]
+ */
+Logged.prototype._imgVer_draw_canvas = function(config){
+
+	var el = config.el,
+		w = config.w,
+		h = config.h,
+		t_img = config.t_img,
+		X = config.X,
+		Y = config.Y,
+		d = config.d;
+
+	// el.innerHTML = '';							// 清空原有的节点
+
+	/**
+	 * [生成节点]
+	 */
+	var ver_str = {
+		html:'\
+				<div class="ver">\
+					<div class="ver_high_light"></div>\
+					<div class="ver_bar">\
+						<canvas class="ver_bar_img" width="'+w+'" height="'+h+'"></canvas>\
+						<canvas class="ver_bar_blur" width="'+w+'" height="'+h+'"></canvas>\
+					</div>\
+					<div class="ver_bg">\
+						<canvas class="ver_bg_blur" width="'+w+'" height="'+h+'"></canvas>\
+						<img class="ver_bg_img" src="'+t_img+'" width="'+w+'" height="'+h+'">\
+					</div>\
+					<p class="ver_tip">\
+						<i class="ver_tip_i"></i>\
+						<span class="ver_tip_span1"></span>\
+						<span class="ver_tip_span2"></span>\
+					</p>\
+				</div>\
+				<div class="adjuster">\
+					<div class="adjuster_region">\
+						<div class="adjuster_btn"></div>\
+						<span>按住左边滑块，拖动完成上方拼图</span>\
+					</div>\
+					<i class="adjuster_tip fas fa-lock"></i>\
+				</div>\
+			',
+		selector:'ver,ver_high_light,ver_bar,ver_bar_img,ver_bar_blur,ver_bg,ver_bg_blur,ver_bg_img,ver_refresh,ver_tip,ver_tip_span1,ver_tip_i,ver_tip_span2,adjuster,adjuster_region,adjuster_btn,adjuster_tip'
+	};
+	var ver_nodes = this.ver_nodes = this.add(ver_str,el);
+
+
+	/**
+	 * 从上到下
+	 * 第一个canvas作为拼图图片
+	 * 第二个canvas作为第一个canvas的阴影，注：这里的阴影都是用canvas做的
+	 * 第三个canvas作为“嵌入”在全图上的一个凹陷，表明第一和第二个组成的拼图的出处
+	 */
+	var ver_bar_img = ver_nodes['class_ver_bar_img'],
+		ver_bar_blur = ver_nodes['class_ver_bar_blur'],
+		ver_bg_blur = ver_nodes['class_ver_bg_blur'];
+
+
+	/**
+	 * [绘制“凹陷”]
+	 */
+	var ctx = ver_bg_blur.getContext("2d");	// 获取2d上下文环境
+	ctx.globalCompositeOperation="xor";		// 设置当前的canvas遮住下面的canvas
+	ctx.shadowBlur=10;						// 模糊
+	ctx.shadowColor="#fff";					// 投影颜色
+	ctx.shadowOffsetX=3;					// 偏移
+	ctx.shadowOffsetY=3;					// 偏移
+	ctx.fillStyle="rgba(0,0,0,0.7)";		// 填充颜色
+	ctx.beginPath();						// 路径开始
+	ctx.lineWidth="1";						// 路径宽度
+	ctx.strokeStyle="rgba(0,0,0,0)";		// 路径描边
+
+	ctx.moveTo(X,Y);										// 起始点
+	ctx.lineTo(X+d,Y);										// 经过
+	ctx.bezierCurveTo(X+d,Y-d,X+2*d,Y-d,X+2*d,Y);			// 曲线
+	ctx.lineTo(X+3*d,Y);									// 经过
+	ctx.lineTo(X+3*d,Y+d);									// 经过
+	ctx.bezierCurveTo(X+2*d,Y+d,X+2*d,Y+2*d,X+3*d,Y+2*d);	// 贝塞尔曲线
+	ctx.lineTo(X+3*d,Y+3*d);								// 经过
+	ctx.lineTo(X,Y+3*d);									// 经过
+	ctx.closePath();										// 结束
+	ctx.stroke();											// 上描边色
+	ctx.fill();												// 上填充色
+
+
+	/**
+	 * [绘制拼图]
+	 */
+	var ctx_bar_img = ver_bar_img.getContext("2d"),					// 获取2d上下文环境
+		img = new Image();											// 新建图片对象
+
+	img.src = t_img;											// 设置将要载入的图片
+	img.onload = function(){									// 载图成功后的回调
+		ctx_bar_img.drawImage(img,0,0,w,h);							// 填充图片在ctx_bar_img画布上
+	}
+
+	ctx_bar_img.beginPath();										// 路径开始
+	ctx_bar_img.strokeStyle="rgba(0,0,0,0)";						// 描边色
+	ctx_bar_img.moveTo(X,Y);										// 起点
+	ctx_bar_img.lineTo(X+d,Y);										// 经过
+	ctx_bar_img.bezierCurveTo(X+d,Y-d,X+2*d,Y-d,X+2*d,Y);			// 贝塞尔曲线
+	ctx_bar_img.lineTo(X+3*d,Y);									// 经过
+	ctx_bar_img.lineTo(X+3*d,Y+d);									// 经过
+	ctx_bar_img.bezierCurveTo(X+2*d,Y+d,X+2*d,Y+2*d,X+3*d,Y+2*d);	// 贝塞尔曲线
+	ctx_bar_img.lineTo(X+3*d,Y+3*d);								// 经过
+	ctx_bar_img.lineTo(X,Y+3*d);									// 经过
+	ctx_bar_img.closePath();										// 结束路径
+	ctx_bar_img.stroke();											// 上描边色
+	ctx_bar_img.shadowColor="black";								// 投影颜色
+	ctx_bar_img.shadowBlur=10;										// 投影模糊
+	ctx_bar_img.clip();		// 按照已绘出来的形状从图片上裁剪下来，类似于ps的ctrl+shift+i在delete
+
+
+	/**
+	 * [绘制“凹陷”的阴影]
+	 */
+	var	ctx_bar_blur = ver_bar_blur.getContext("2d");				// 获取2d上下文环境
+
+	ctx_bar_blur.beginPath();										// 路径开始
+	ctx_bar_blur.lineWidth="1";										// 路径宽度为1
+	ctx_bar_blur.strokeStyle="rgba(0,0,0,0)";						// 路径颜色为透明
+	ctx_bar_blur.moveTo(X,Y);										// 起点
+	ctx_bar_blur.lineTo(X+d,Y);										// 经过
+	ctx_bar_blur.bezierCurveTo(X+d,Y-d,X+2*d,Y-d,X+2*d,Y);			// 曲线
+	ctx_bar_blur.lineTo(X+3*d,Y);									// 经过
+	ctx_bar_blur.lineTo(X+3*d,Y+d);									// 经过
+	ctx_bar_blur.bezierCurveTo(X+2*d,Y+d,X+2*d,Y+2*d,X+3*d,Y+2*d);	// 曲线
+	ctx_bar_blur.lineTo(X+3*d,Y+3*d);								// 经过
+	ctx_bar_blur.lineTo(X,Y+3*d);									// 经过
+	ctx_bar_blur.closePath();										// 结束
+	ctx_bar_blur.stroke();											// 上描边色
+	ctx_bar_blur.shadowColor="black";								// 投影颜色
+	ctx_bar_blur.shadowBlur=20;										// 投影模糊
+	ctx_bar_blur.fill();											// 填充颜色
+
+	var t_ver_bar = ver_nodes['class_ver_bar'];
+	t_ver_bar.style.left = -X + 10 + 'px';							// 设置拼图偏移量
+
+	return ver_nodes;
+}
+
+
+
+
+
+Logged.prototype.log_form_event = function(){
+
+	this.getRSA();
+
+	var _this = this;
+	var nodes = this.log_form_nodes;
+	var submit = nodes['submit'],
+		account = nodes['account'],
+		password = nodes['password'];
+
+	submit.addEventListener('click',function(){
+		var e_form_wrap = _this.lag_nodes['class_log_form_wrap'];
+
+		e_form_wrap.style.position = 'relative';
+		startMove({
+			obj:e_form_wrap,
+			json:{
+				'left':-300,
+				'opacity':0
+			},
+			times:200
+		});
+
+
+		_this.imgVer({
+			el:_this.lag_nodes['class_ver_wrap'],
+			width:286,
+			height:128,
+			imgs:['http://localhost/blog/src/img/profile_init/20130113165407182.jpg',
+			'http://localhost/blog/src/img/profile_init/20130113165407249.jpg',
+			'http://localhost/blog/src/img/profile_init/20130113165407539.jpg',
+			'http://localhost/blog/src/img/profile_init/20130113165408128.jpg',
+			'http://localhost/blog/src/img/profile_init/20130113165408162.jpg'],
+			fn:function(){
+				console.log(7654);
+				var enc = _this.sealInfo({
+					account:account,
+					pass:password
+				});
+
+				ajax({
+					method:'post',
+					url:'php/user.php',
+					data:'user_action=askForLog&user_info='+enc,
+					success:function(data){
+						document.body.innerHTML = data;
+					}
+				});
+			}
+		});
+
+		var ver_wrap = _this.lag_nodes['class_ver_wrap'];
+		startMove({obj:ver_wrap, json:{left:0,opacity:100}, times:300});
+
+	});
+
+}
+
 
 
 
@@ -963,13 +1381,19 @@ extend(Lag,Logged);
 
 /*---------------Lag下的相关方法---------------------*/
 
-/**
- * 判断用户是否登录
- * @return {混合} [如果登录返回用户临时id，如果未登录返回false]
- */
-Lag.prototype.is_logged = function(){
-	var Z = getCookie('Z');
-	this.Z = Z ? Z : false;
+// 请求公钥
+Lag.prototype.getRSA = function(){
+
+	var _this = this;
+	ajax({
+		method:'post',
+		url:'php/user.php',
+		data:'user_action=getPublicKey',
+		success:function(data){
+			// document.body.innerHTML = data;
+			_this.pub_key = data;	// 保存在对象属性中
+		}
+	});
 }
 
 
@@ -979,7 +1403,7 @@ Lag.prototype.is_logged = function(){
  * @return {[无]} [无]
  */
 Lag.prototype.execute = function(){
-	this.is_logged(); // 调用is_logged方法，将判断判断用户是否登录
+
 	if(!this.Z){
 		// 未登录，调用生成注册按钮和登录按钮的方法
 		this.buildLagBtn();
@@ -1007,12 +1431,16 @@ Lag.prototype.buildLagBtn = function(){
         	</a>\
         </div>\
         <div class="clearfix" id="log">\
-        	<a class="log_a">\
-        		<span class="log_a_span">登录</span>\
-        		<i class="fas fa-times log_a_i"></i>\
-        	</a>\
+			<div class="log_form_wrap">\
+	        	<a class="log_a">\
+	        		<span class="log_a_span">登录</span>\
+	        		<i class="fas fa-times log_a_i"></i>\
+	        	</a>\
+			</div>\
+			<div class="ver_wrap"></div>\
         </div>\
-        '
+        ',
+		selector:'log_a,log_form_wrap,ver_wrap'
 	};
 
 	if(this.parent){
@@ -1039,22 +1467,22 @@ Lag.prototype.event = function(){
 			var e = e || event;
 			if(!this.on_off){
 				this.on_off = true;
-				_this.click_reg_or_log(this);
-				_this._click_lag_switch(e,log);
+				_this.click_reg_or_log_view(this);
+				_this._click_lag_switch_view(e,log);
 			}
 		});
 		log.addEventListener('click',function(e){
 			var e = e || event;
 			if(!this.on_off){
 				this.on_off = true;
-				_this.click_reg_or_log(this);
-				_this._click_lag_switch(e,reg);
+				_this.click_reg_or_log_view(this);
+				_this._click_lag_switch_view(e,reg);
 			}
-		});	
+		});
 	}
 }
 
-Lag.prototype.click_reg_or_log = function(ele){
+Lag.prototype.click_reg_or_log_view = function(ele){
 
 	var _this = this;
 	var ele_id = ele.id;
@@ -1102,20 +1530,23 @@ Lag.prototype.click_reg_or_log = function(ele){
 				_this.build_reg_form(ele);
 				_this.reg_form_event();
 			}else if(ele_id == 'log'){
-				_this.build_log_form(ele);
-				// _this.log_form_event();
+				var wrap_node = _this.lag_nodes['class_log_form_wrap'];
+				_this.build_log_form(wrap_node);
+				_this.log_form_event();
 			}
 		}
 	});
 
 
 	ele_a_i.onclick = function(e){
-		_this._click_lag_switch(e,ele);
+		_this._click_lag_switch_view(e,ele);
 	}
 
 }
 
-Lag.prototype._click_lag_switch = function(e,ele){
+Lag.prototype._click_lag_switch_view = function(e,ele){
+
+	var _this = this;
 	var e = e || event;
 	var ele_form = ele.querySelector('form');
 	if(!ele_form) return;
@@ -1125,10 +1556,17 @@ Lag.prototype._click_lag_switch = function(e,ele){
 		ele_a_i = ele.querySelector('i');
 
 	ele_form.remove();
-	ele.style = 
-	ele_a.style = 
+	ele.style =
+	ele_a.style =
 	ele_a_span.style = '';
 	ele_a_i.style.display = 'none';
 	ele.on_off = !ele.on_off;
 	e.stopPropagation();
+
+	if(ele.id == 'log'){
+		_this.lag_nodes['class_ver_wrap'].innerHTML = '';
+		_this.lag_nodes['class_ver_wrap'].style = '';
+		_this.lag_nodes['class_log_form_wrap'].style = '';
+	}
+
 }

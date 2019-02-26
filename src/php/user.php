@@ -121,6 +121,23 @@ class Logged{
 		$tmp = json_encode($tmp);
 		$this->return_value = $tmp;
 	}
+
+
+	/**
+	 * [askForLog description]
+	 * @return [type] [description]
+	 */
+	function askForLog(){
+		var_dump(1234565432);
+		$pass1 = $this->isAccountExist();
+		$pass2 = $this->isPassExist();
+		if($pass1 == 'exist' && $pass2 == 'exist'){
+			$this->return_value = true;
+		}else{
+			$this->return_value = '账号或密码错误';
+		}
+		return $this->return_value;
+	}
 }
 
 class Register extends TheKey{
@@ -179,6 +196,20 @@ class Register extends TheKey{
 		global $db;
 		if($this->decryptAndSplit()){
 			$res = $db->table('user_basic_info')->where(['user_id'=>$this->user_id])->item();
+			return $this->return_value = $res ? 'exist' : 'unexist';
+		}
+	}
+
+
+
+	/**
+	 * 判断密码是否正确
+	 * @return 无 [无]
+	 */
+	function isPassExist(){
+		global $db;
+		if($this->decryptAndSplit()){
+			$res = $db->table('user_basic_info')->where(['user_pass'=>$this->user_pass])->item();
 			return $this->return_value = $res ? 'exist' : 'unexist';
 		}
 	}
@@ -260,19 +291,19 @@ class Register extends TheKey{
 		$mail = new PHPMailer();		// 实例化PHPMailer核心类
 		$mail->SMTPDebug = 0;			// 是否启用smtp的debug进行调试,0为不开启
 		$mail->isSMTP();				// 使用smtp鉴权方式发送邮件
-		$mail->SMTPAuth = true;			// smtp需要鉴权 这个必须是true	
-		$mail->Host = 'smtp.163.com';	// 链接域名邮箱的服务器地址	
-		$mail->SMTPSecure = 'ssl';		// 设置使用ssl加密方式登录鉴权	
-		$mail->Port = 465;				// 设置ssl连接smtp服务器的远程服务器端口号	
-		$mail->CharSet = 'UTF-8';		// 设置发送的邮件的编码	
-		$mail->FromName = '蜜蜂老牛黄瓜';		// 设置发件人昵称	
-		$mail->Username = '15916965182@163.com';	// smtp登录的账号	
-		$mail->Password = 'b23702f1843cb13d';		// smtp登录的授权码	
-		$mail->From = '15916965182@163.com';		// 设置发件人邮箱地址 同登录账号	
-		$mail->isHTML(true);						// 邮件正文是否为html编码 注意此处是一个方法	
-		$mail->addAddress($receiver);		// 设置收件人邮箱地址		
-		$mail->Subject = $subject;					// 添加该邮件的主题	
-		$mail->Body = $body;						// 添加邮件正文	
+		$mail->SMTPAuth = true;			// smtp需要鉴权 这个必须是true
+		$mail->Host = 'smtp.163.com';	// 链接域名邮箱的服务器地址
+		$mail->SMTPSecure = 'ssl';		// 设置使用ssl加密方式登录鉴权
+		$mail->Port = 465;				// 设置ssl连接smtp服务器的远程服务器端口号
+		$mail->CharSet = 'UTF-8';		// 设置发送的邮件的编码
+		$mail->FromName = '蜜蜂老牛黄瓜';		// 设置发件人昵称
+		$mail->Username = '15916965182@163.com';	// smtp登录的账号
+		$mail->Password = 'b23702f1843cb13d';		// smtp登录的授权码
+		$mail->From = '15916965182@163.com';		// 设置发件人邮箱地址 同登录账号
+		$mail->isHTML(true);						// 邮件正文是否为html编码 注意此处是一个方法
+		$mail->addAddress($receiver);		// 设置收件人邮箱地址
+		$mail->Subject = $subject;					// 添加该邮件的主题
+		$mail->Body = $body;						// 添加邮件正文
 		return $mail->send();						// 发送邮件 返回状态，布尔值
 	}
 

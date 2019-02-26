@@ -4,14 +4,17 @@
     <meta charset="utf-8">
     <title>tinymce用于生产</title>
 <style type="text/css">
+    body{
+        background: #333;
+    }
     div{
         width: 100px;
         height: 100px;
-        background: red;
+        background: #fff;
+        filter: blur(9px);
     }
 </style>
 
-</style>
 
 
 
@@ -20,100 +23,10 @@
 
 
 
+<div>
 
-<div id="div1"></div>
+</div>
 
-
-
-<script type="text/javascript">
-
-
-   window.addEventListener('hashchange',function(){
-
-    console.log(876543);
-
-    });
-
-
-// /**
-//  * 初始化编辑器
-//  * @return {[无]} [无]
-//  */
-// function initTinymce(){
-
-//     var obj = z.plugVessel;
-//     var vi = 72 + 38 + 52 + 60;
-//     var height = client(window).h - vi;
-//     z.tinymce = tinymce;
-//     return tinymce.init({
-
-//         target: obj,
-//         language:'zh_CN',
-//         min_height : height,
-//         plugins: [
-//             'advlist autolink lists link image preview autosave textcolor table codesample'
-//         ],
-//         toolbar:
-//             /*工具栏显示*/
-//             // 预览
-//             'preview |' +
-//             // 粗体 斜体 删除线 下划线
-//             ' bold italic strikethrough underline |'+
-//             // 字体颜色  字体背景色
-//             ' forecolor backcolor |'+
-//             // 下标  上标  字体大小  预览
-//             ' subscript | superscript | fontsizeselect |'+
-//             // 链接  代码高亮
-//             ' link | codesample |'+
-//             // 左对齐  居中对齐  右对齐  两端对齐
-//             ' alignleft aligncenter alignright alignjustify |'+
-//             // 有序列表  符号列表
-//             ' numlist bullist |'+
-//             // 减少缩进  增加缩进
-//             ' outdent indent |'+
-//             // 表格
-//             ' table |'+
-//             // 清除格式
-//             ' removeformat',
-//         branding: false,    // 隐藏tinymce商标
-//         elementpath: false, // 隐藏编辑路径
-//         image_advtab: true,
-//         menubar: false,
-
-//         fontsize_formats: '8pt 10pt 12pt 14pt 18pt 24pt 36pt 72pt',  // 设置可选字体大小
-
-
-//         // 定义tinymce渲染完成的回调函数，用于修改部分样式
-//         init_instance_callback: function(){
-//             z.mceu_39 = $('#mceu_39');
-//             document.body.onresize = function(){
-//                 var vi = 72 + 38 + 52 + 60 +　20;
-//                 var height = client(window).h - vi;
-
-//                 if( height > 200 ){
-//                     z.tinymce_ifr.style.height = height + 'px';
-//                 }
-
-//             }
-
-//             // 获取iframe标签
-//             z.tinymce_ifr = $('#tinymce_ifr');
-
-//         },
-
-
-//         init_instance_callback: function (editor) {
-//             editor.on('Dirty', function (e) {
-//                 z.ediIsDirty = true;
-//             });
-//         }
-
-
-//     });
-
-// }
-
-</script>
 
 </body>
 </html>

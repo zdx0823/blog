@@ -1,4 +1,44 @@
 /**
+ * 判断该元素有没有这个class类名
+ * @param  {[元素]}  ele       [节点]
+ * @param  {[字符串]}  classname [class类名]
+ * @return {Boolean}           [布尔值]
+ */
+function hasClass(ele,classname){
+	var ori_class = ele.getAttribute('class');
+	var re = new RegExp(ori_class);
+	return re.test(classname);
+}
+
+
+
+/**
+ * 添加class类名
+ * @param  {[元素]}  ele       [节点]
+ * @param  {[字符串]}  classname [class类名]
+ */
+function addClass(ele,classname){
+	var ori_class = ele.getAttribute('class');
+	ele.setAttribute('class',ori_class + ' ' + classname);
+}
+
+
+
+/**
+ * 删除class类名
+ * @param  {[元素]}  ele       [节点]
+ * @param  {[字符串]}  classname [class类名]
+ */
+function delClass(ele,classname){
+	var ori_class = ele.getAttribute('class'),
+		str = ' '+classname,
+		re = new RegExp(str);
+
+	var now_class = ori_class.replace(re,'');
+	ele.setAttribute('class',now_class);
+}
+
+/**
  * 获得精确到毫秒的时间戳
  * @return {[字符串]} [时间戳字符串]
  */
@@ -1055,69 +1095,73 @@ function drag(ele,parent,slopOver,magnet,zIndex,callback){
  * @return {[无]}      [无]
  */
 function startMove(argu){
-	
+
 	var obj = argu.obj || false,
 		json = argu.json || false,
+		delay = argu.delay || 0,
 		times = argu.times || 400,
 		fx = argu.fx || 'linear',
 		fn = argu.fn || null;
-	
+
 	var iCur = {};
-	
-	for(var attr in json){
-		iCur[attr] = 0;	
-		// 透明度换算成整数
-		if( attr == 'opacity' ){
-			iCur[attr] = Math.round(getStyle(obj,attr)*100);
-		}else{
-			// px值取整
-			iCur[attr] = parseInt(getStyle(obj,attr));
-		}		
-	}
-	
-	var startTime = microtime();
-	clearInterval(obj.timer);
-	
-	obj.timer = setInterval(function(){
-		
-		var changeTime = microtime();
-		
-		// 算出已流逝的时间，用开始时候的时间
-		// startTime - changeTime + times可能算出负数值，Math.max取大的那个
-		// times减去Math.max(0,startTime - changeTime + times)得到已流逝的时间
-		var t = times - Math.max(0,startTime - changeTime + times);  //0到2000
 
-		// 逐个执行
+	setTimeout(function(){
+
 		for(var attr in json){
+			iCur[attr] = 0;
+			// 透明度换算成整数
+			if( attr == 'opacity' ){
+				iCur[attr] = Math.round(getStyle(obj,attr)*100);
+			}else{
+				// px值取整
+				iCur[attr] = parseInt(getStyle(obj,attr));
+			}
+		}
 
-			// 对每个属性都调用Tween下相关方法
-			// t:当前时间
-			// b:初始值
-			// c:变化量
-			// d:持续时间
-			// 当t==times的时候停止执行
-			var value = Tween[fx](t,iCur[attr],json[attr]-iCur[attr],times);
-			
-			// 如果是透明度需要考虑标准浏览器和ie浏览器的赋值方式
-			if(attr == 'opacity'){
-				obj.style.opacity = value/100;
-				obj.style.filter = 'alpha(opacity='+value+')';
+		var startTime = microtime();
+		clearInterval(obj.timer);
+
+		obj.timer = setInterval(function(){
+
+			var changeTime = microtime();
+
+			// 算出已流逝的时间，用开始时候的时间
+			// startTime - changeTime + times可能算出负数值，Math.max取大的那个
+			// times减去Math.max(0,startTime - changeTime + times)得到已流逝的时间
+			var t = times - Math.max(0,startTime - changeTime + times);  //0到2000
+
+			// 逐个执行
+			for(var attr in json){
+
+				// 对每个属性都调用Tween下相关方法
+				// t:当前时间
+				// b:初始值
+				// c:变化量
+				// d:持续时间
+				// 当t==times的时候停止执行
+				var value = Tween[fx](t,iCur[attr],json[attr]-iCur[attr],times);
+
+				// 如果是透明度需要考虑标准浏览器和ie浏览器的赋值方式
+				if(attr == 'opacity'){
+					obj.style.opacity = value/100;
+					obj.style.filter = 'alpha(opacity='+value+')';
+				}
+				else{
+					// 如果是普通的px则直接赋值
+					obj.style[attr] = value + 'px';
+				}
+
 			}
-			else{
-				// 如果是普通的px则直接赋值
-				obj.style[attr] = value + 'px';
+
+			// 动画停止后执行回调
+			if(t == times){
+				clearInterval(obj.timer);
+				fn && fn.call(obj);
 			}
-			
-		}
-		
-		// 动画停止后执行回调
-		if(t == times){
-			clearInterval(obj.timer);
-			fn && fn.call(obj);
-		}
-		
-	},13);
-	
+
+		},13);
+
+	},delay);
 }
 
 
@@ -1154,17 +1198,17 @@ var Tween = {
 		return -c/2 * ((t-=2)*t*t*t - 2) + b;
 	},
 	elasticIn: function(t, b, c, d, a, p){  //正弦衰减曲线（弹动渐入）
-		if (t === 0) { 
-			return b; 
+		if (t === 0) {
+			return b;
 		}
 		if ( (t /= d) == 1 ) {
-			return b+c; 
+			return b+c;
 		}
 		if (!p) {
-			p=d*0.3; 
+			p=d*0.3;
 		}
 		if (!a || a < Math.abs(c)) {
-			a = c; 
+			a = c;
 			var s = p/4;
 		} else {
 			var s = p/(2*Math.PI) * Math.asin (c/a);
@@ -1188,7 +1232,7 @@ var Tween = {
 			var s = p/(2*Math.PI) * Math.asin (c/a);
 		}
 		return a*Math.pow(2,-10*t) * Math.sin( (t*d-s)*(2*Math.PI)/p ) + c + b;
-	},    
+	},
 	elasticBoth: function(t, b, c, d, a, p){
 		if (t === 0) {
 			return b;
@@ -1200,17 +1244,17 @@ var Tween = {
 			p = d*(0.3*1.5);
 		}
 		if ( !a || a < Math.abs(c) ) {
-			a = c; 
+			a = c;
 			var s = p/4;
 		}
 		else {
 			var s = p/(2*Math.PI) * Math.asin (c/a);
 		}
 		if (t < 1) {
-			return - 0.5*(a*Math.pow(2,10*(t-=1)) * 
+			return - 0.5*(a*Math.pow(2,10*(t-=1)) *
 					Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;
 		}
-		return a*Math.pow(2,-10*(t-=1)) * 
+		return a*Math.pow(2,-10*(t-=1)) *
 				Math.sin( (t*d-s)*(2*Math.PI)/p )*0.5 + c + b;
 	},
 	backIn: function(t, b, c, d, s){     //回退加速（回退渐入）
@@ -1224,10 +1268,10 @@ var Tween = {
 			s = 3.70158;  //回缩的距离
 		}
 		return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b;
-	}, 
+	},
 	backBoth: function(t, b, c, d, s){
 		if (typeof s == 'undefined') {
-			s = 1.70158; 
+			s = 1.70158;
 		}
 		if ((t /= d/2 ) < 1) {
 			return c/2*(t*t*(((s*=(1.525))+1)*t - s)) + b;
@@ -1236,7 +1280,7 @@ var Tween = {
 	},
 	bounceIn: function(t, b, c, d){    //弹球减振（弹球渐出）
 		return c - Tween['bounceOut'](d-t, 0, c, d) + b;
-	},       
+	},
 	bounceOut: function(t, b, c, d){
 		if ((t/=d) < (1/2.75)) {
 			return c*(7.5625*t*t) + b;
@@ -1246,7 +1290,7 @@ var Tween = {
 			return c*(7.5625*(t-=(2.25/2.75))*t + 0.9375) + b;
 		}
 		return c*(7.5625*(t-=(2.625/2.75))*t + 0.984375) + b;
-	},      
+	},
 	bounceBoth: function(t, b, c, d){
 		if (t < d/2) {
 			return Tween['bounceIn'](t*2, 0, c, d) * 0.5 + b;
@@ -1254,4 +1298,3 @@ var Tween = {
 		return Tween['bounceOut'](t*2-d, 0, c, d) * 0.5 + c*0.5 + b;
 	}
 }
-
