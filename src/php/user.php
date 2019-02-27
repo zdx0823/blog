@@ -123,6 +123,7 @@ class Logged extends TheKey{
 	}
 
 
+	
 	function askForLog(){
 		$pass1 = $this->isAccountExist();
 		$pass2 = $this->isPassExist();

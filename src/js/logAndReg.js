@@ -16,8 +16,10 @@ function Register(){}
 
 
 /**
- * svg旋转加载图标，返回字符串，宽高固定
- * @type {String}
+ * svg_loading加载图标，返回svg旋转图标的字符串形式html，默认大小是20px，默认css名为svg_loading
+ * 参数一：svg图标的css名
+ * 参数二：svg图标的尺寸
+ * 返回：字符串
  */
 Register.prototype.svg_loading = function(className,size){
 
@@ -919,11 +921,19 @@ Register.prototype.sealInfo = function(obj){
 
 
 
+
+
 /**
  * 已登录的构造器
  */
 function Logged(){}
+
+
+/**
+ * 生成登录表单
+ */
 Logged.prototype.build_log_form = function(parent){
+
 	var parent = parent || this.parent;
 	if(!parent) return false;
 
@@ -952,6 +962,7 @@ Logged.prototype.build_log_form = function(parent){
 		selector:'lag_form,lag_form_warning'
 	}
 
+	// 存两份，方便使用
 	this.log_form_nodes = this.add(log_form_str,parent);
 	this.reg_form_nodes = this.log_form_nodes;
 }
@@ -960,46 +971,49 @@ Logged.prototype.build_log_form = function(parent){
 
 /**
  *
- * 滑块拼图验证器生成
+ * 生成滑块拼图验证器
  * @param  {[对象]} obj [参数]
  * @return {[无]}     [无]
  */
 Logged.prototype.imgVer = function(config){
 
-	var _this = this;
-
+	// 将参数存进对象属性里，方便调用
 	this.imgVer_config = {};
 	for(var attr in config){
 		this.imgVer_config[attr] = config[attr];
 	}
 
-	/**
-	 * 从上到下分别是
-	 * 滑块拼图验证器父级容器
-	 * 期望拼图部分的宽
-	 * 期望拼图部分的高
-	 * 图片集合，为一个由图片地址组成的数组
-	 * 拼图验证成功后的回调
-	 */
-
-
 	// 计算坐标方法
-	this._imgVer_c_c();
+	this._imgVerCC();
 
 	// 调用绘制方法
 	this._imgVer_draw();
 
 	// 调用拼图事件方法
-	this._imgVer_event();
+	this._imgVerEvent();
 
 }
 
 
 
-Logged.prototype._imgVer_event = function(){
+/** 
+ * 滑块拼图器的事件
+ * 无需传入参数，所需参数在内部通过对象属性调用
+*/
+Logged.prototype._imgVerEvent = function(){
 
 	var _this = this;
 	var nodes = this.ver_nodes;
+
+	/**
+	 * 从上到下分别是：
+	 * adjuster_region：滑动条
+	 * adjuster_btn：滑动按钮
+	 * ver_bar：浮动拼图
+	 * ver_tip：拼图提示
+	 * ver_btns_back：返回按钮
+	 * ver_btns_refresh：刷新拼图
+	 */
 	var adjuster_region = nodes['class_adjuster_region'],
 		adjuster_btn = nodes['class_adjuster_btn'],
 		ver_bar = nodes['class_ver_bar'],
@@ -1007,54 +1021,84 @@ Logged.prototype._imgVer_event = function(){
 		ver_btns_back = nodes['class_ver_btns_back'],
 		ver_btns_refresh = nodes['class_ver_btns_refresh'];
 
-
-	adjuster_btn.num_of_ver_fail = 0;
+	
+	// 滑动按钮时间
 	adjuster_btn.onmousedown = function(e){
+
+		// this.toggle为该按钮的开关，如果为false表示按钮正在使用中或还未回到原位，此时禁止操作
 		if(this.toggle === false) return;
+
+		// 开关设为false表示按钮使用中
 		this.toggle = false;
+		// 按下的时候改变背景
+		this.style['background-position'] = '-10px -98px';
 		
+		// 事件源
+		var e = e || event;
+		
+		/**
+		 * 从上到下分别是
+		 * ver_bar_width：滑块的宽度
+		 * ver_bar_left：滑块按钮按下时候滑块的left值
+		 * t_region_width：滑动条的总长度
+		 * t_region_X：滑动条距离页面左侧的距离
+		 * t_btn_width：滑块按钮的宽度
+		 */
 		var ver_bar_width = offset(ver_bar).w,
 			ver_bar_left = getStyle(ver_bar,'left'),
 			t_region_width = offset(adjuster_region).w,
 			t_region_X = offset(adjuster_region).left,
 			t_btn_width = offset(adjuster_btn).w;
 
+		// 设定最小值和最大值，可滑动的最大值是滑动条的总长度减去滑块按钮的宽度
 		var min_X = 0,
 			max_X = t_region_width - t_btn_width;
 
-		this.style['background-position'] = '-10px -98px';
-
-		var e = e || event;
+		// 鼠标按下时候距离按钮最左侧的距离
 		var dis = e.clientX - offset(this).left;
 
+		// diff2用于设置滑块的left值
 		var diff2 = null;
+		// p_i 为一个微调系数，是滑动条和滑块在滑动的时候看起来更和谐
+		var p_i = .82;
 
+		// 鼠标移动滑块和滑块按钮跟这一起移动
 		document.onmousemove = function(e){
 
+			/**
+			 * 从上到下分别是
+			 * 事件源
+			 * 滑块的left坐标（参数里用X表示）
+			 * 限制滑块按钮的左范围
+			 * 限制滑块按钮的右范围
+			 */
 			var e = e || event,
 				X = e.clientX,
 				diff = X - dis - t_region_X;
 				(diff <= min_X) && (diff = min_X);
 				(diff >= max_X) && (diff = max_X);
 
-			var p_i = .82;
+			// 计算滑块对应的left值
 			diff2 = ver_bar_width*diff/max_X*p_i + ver_bar_left;
 
+			// _this.imgVer_config.X为滑块生成时候的自动偏移量，与diff2相加的值小于240时滑块在全图的范围内
 			if(diff2+_this.imgVer_config.X <= 240){
 				adjuster_btn.style.left = diff + 'px';
 				ver_bar.style.left = diff2 + 'px';
 			}
 		}
 		document.onmouseup = function(){
-
+			
+			// 鼠标抬起恢复滑块按钮的背景图
 			adjuster_btn.style['background-position'] = '-10px -10px';
 
+			// 滑块嵌合的标准是正负2像素，根据情况调用view子方法
 			if(diff2 != null && diff2 >= -2 && diff2 <= 2){
-				_this._imgVer_view('ok');
+				_this._imgVerView('ok');
 			}else{
-				_this._imgVer_view('no',ver_bar_left);
-				adjuster_btn.num_of_ver_fail++;
+				_this._imgVerView('no',ver_bar_left);	// 传入滑块初始位置
 			}
+			// 隐藏提示语
 			setTimeout(function(){
 				startMove({ obj:ver_tip, json:{ bottom:-18 }, times:200 });
 			},1500)
@@ -1063,10 +1107,17 @@ Logged.prototype._imgVer_event = function(){
 	}
 
 
+	/**
+	 * 从上到下分别是：
+	 * ver_wrap：滑块器的包裹节点
+	 * log_form_wrap：登录表单的包裹节点
+	 * log：登录按钮本身
+	 */
 	var ver_wrap = this.lag_nodes['class_ver_wrap'],
 		log_form_wrap = this.lag_nodes['class_log_form_wrap'],
 		log = this.lag_nodes['log'];
 
+	// 返回按钮事件
 	ver_btns_back.addEventListener('click',function(){
 
 		startMove({obj:ver_wrap, json:{left:300,opacity:0}, times:200});
@@ -1075,7 +1126,7 @@ Logged.prototype._imgVer_event = function(){
 		
 	});
 
-
+	// 刷新按钮事件，点击刷新整张拼图
 	ver_btns_refresh.addEventListener('click',function(){
 		_this._imgVer_draw_canvas();
 	});
@@ -1083,7 +1134,11 @@ Logged.prototype._imgVer_event = function(){
 }
 
 
-Logged.prototype._imgVer_c_c = function(){
+
+/**
+ * 
+ */
+Logged.prototype._imgVerCC = function(){
 
 	var imgs = this.imgVer_config.imgs;
 
@@ -1115,10 +1170,28 @@ Logged.prototype._imgVer_c_c = function(){
 
 
 
-Logged.prototype._imgVer_view = function(status,ver_bar_left){
+/**
+ * 滑块拼图器的表现
+ * 参数一：状态
+ * 参数二：当参数一为no的时候需要传入滑块的初始位置
+ */
+Logged.prototype._imgVerView = function(status,ver_bar_left){
 
 	var _this = this;
 	var nodes = this.ver_nodes;
+
+	/**
+	 * 从上到下分别是：
+	 * tip：滑块提示语
+	 * span1：“验证正确”或“验证错误”字样
+	 * span2：提示语正文
+	 * i：提示语的icon图标
+	 * btn：滑块按钮
+	 * ver_bar：滑块
+	 * ver_bg_blur：滑块阴影
+	 * ver_high_light：滑块高光
+	 * adjuster_tip：滑块按钮提示的icon
+	 */
 	var tip = nodes['class_ver_tip'],
 		span1 = nodes['class_ver_tip_span1'],
 		span2 = nodes['class_ver_tip_span2'],
@@ -1127,17 +1200,27 @@ Logged.prototype._imgVer_view = function(status,ver_bar_left){
 		ver_bar = nodes['class_ver_bar'],
 		ver_bg_blur = nodes['class_ver_bg_blur'],
 		ver_high_light = nodes['class_ver_high_light'],
-		adjuster_tip = nodes['class_adjuster_tip'],
-		adjuster_btn = nodes['class_adjuster_btn'];
+		adjuster_tip = nodes['class_adjuster_tip'];
 
+
+	/**
+	 * 从上到下分别是：
+	 * 提示语之正确时候的css名和错误时候的css名
+	 * 提示语下的icon两种情况的css名
+	 * 滑块按钮提示的默认提示以及正确和错误的提示
+	 */
 	var tip_ok = 'ver_tip_ok',
 		tip_no = 'ver_tip_no',
+
 		i_ok = 'fas fa-check-circle',
 		i_no = 'fas fa-times-circle',
+		
 		adjuster_tip_lock = 'fas fa-lock',
+
 		adjuster_tip_ok = 'fas fa-check-circle adjuster_tip_ok',
 		adjuster_tip_no = 'fas fa-times-circle adjuster_tip_no';
 
+	// 用于保存上门css名称的变量，声明在外部省得重复声明
 	var span1_txt = '',
 		span2_txt = '',
 		i_status = '',
@@ -1146,15 +1229,18 @@ Logged.prototype._imgVer_view = function(status,ver_bar_left){
 
 	if(status == 'ok'){
 		span1_txt = '验证成功：';
+		// 简单地算出百分比
 		var diff_1 = parseFloat(((microtime() - btn.on_down_time)/1000).toFixed(1)),
 			diff_2 = Math.ceil(99-diff_1);
+
 		span2_txt = diff_1 + 's的速度已经超过'+diff_2+'%的用户';
 		i_status = i_ok;
 		tip_status = tip_ok;
 		adjuster_tip_status = adjuster_tip_ok;
 
 		setTimeout(function(){
-			ver_bg_blur.style.opacity = 0;
+			ver_bg_blur.style.opacity = 0;	// 隐藏凹陷
+			// 隐藏滑块，快速移动高光，高光结束后执行拼图验证成功的回调
 			startMove({obj:ver_bar, json:{ opacity:0 }, fn:function(){
 				startMove({ obj:ver_high_light, json:{left:-610}, times:300, delay:200, fn:function(){
 					_this.imgVer_config.fn && _this.imgVer_config.fn();
@@ -1169,6 +1255,7 @@ Logged.prototype._imgVer_view = function(status,ver_bar_left){
 		tip_status = tip_no;
 		adjuster_tip_status = adjuster_tip_no;
 
+		// 滑块闪烁效果，闪烁停止后，滑块按钮归位，滑块归位
 		startMove({ obj:ver_bar, json:{ opacity:20 }, times:100, delay:100 });
 		startMove({ obj:ver_bar, json:{ opacity:100 }, times:100, delay:200 });
 		startMove({ obj:ver_bar, json:{ opacity:0 }, times:100, delay:400 });
@@ -1178,13 +1265,15 @@ Logged.prototype._imgVer_view = function(status,ver_bar_left){
 			},delay:400});
 			startMove({ obj:ver_bar, json:{ left:ver_bar_left }, delay:400 });
 		} });
-
+		
+		// 显示提示语
 		startMove({ obj:tip, json:{ bottom:0 }, times:200 });
 
-	}else if(status == 'restore'){
-		
 	}
 
+	/**
+	 * 以下的操作都是删掉原来的css名，使用新的css名
+	 */
 	delClass(i,i_ok);
 	delClass(i,i_no);
 	addClass(i,i_status);
@@ -1199,11 +1288,12 @@ Logged.prototype._imgVer_view = function(status,ver_bar_left){
 	delClass(adjuster_tip,adjuster_tip_no);
 	addClass(adjuster_tip,adjuster_tip_status);
 
+	// 改变span值
 	span1.innerHTML = span1_txt;
 	span2.innerHTML = span2_txt;
 
-
 }
+
 
 
 /**
@@ -1216,9 +1306,8 @@ Logged.prototype._imgVer_view = function(status,ver_bar_left){
  */
 Logged.prototype._imgVer_draw = function(){
 
-	if(!this.imgVer_config) return false;
-
-	var el = this.imgVer_config.el;
+	if(!this.imgVer_config) return false;	// 如果滑块生成器没有传入参数即代表这没有初始化，则此方法不可用
+	var el = this.imgVer_config.el;	// 获取外容器
 
 
 	/**
@@ -1252,8 +1341,10 @@ Logged.prototype._imgVer_draw = function(){
 			',
 		selector:'ver,ver_btns,ver_btns_back,ver_btns_refresh,ver_high_light,ver_bar,ver_bar_img,ver_bar_blur,ver_bg,ver_bg_blur,ver_bg_img,ver_refresh,ver_tip,ver_tip_span1,ver_tip_i,ver_tip_span2,adjuster,adjuster_region,adjuster_btn,adjuster_tip'
 	};
+
 	var ver_nodes = this.ver_nodes = this.add(ver_str,el);
 
+	// 绘制拼图
 	this._imgVer_draw_canvas();
 
 	return ver_nodes;
@@ -1261,10 +1352,25 @@ Logged.prototype._imgVer_draw = function(){
 
 
 
+/**
+ * 绘制拼图
+ * 无参数
+ */
 Logged.prototype._imgVer_draw_canvas = function(){
 
-	this._imgVer_c_c();
+	// 重新计算坐标，每次绘制拼图都要重新计算一个随机的左边
+	this._imgVerCC();
 
+	/**
+	 * 以下变量从上到下分别是
+	 * 拼图的
+	 * 		宽
+	 * 		高
+	 * 		原图片
+	 * 		X轴，即拼图的left值
+	 * 		Y轴，即拼图的top值
+	 * 		拼图的大小
+	 */
 	var w = this.imgVer_config.width,
 		h = this.imgVer_config.height,
 		t_img = this.imgVer_config.t_img,
@@ -1272,10 +1378,13 @@ Logged.prototype._imgVer_draw_canvas = function(){
 		Y = this.imgVer_config.Y,
 		d = this.imgVer_config.d;
 
-	var ver_bar = this.ver_nodes['class_ver_bar'];
-	var ver_bg = this.ver_nodes['class_ver_bg'];
+	// 获取两个包裹节点
+	var ver_bar = this.ver_nodes['class_ver_bar'],
+		ver_bg = this.ver_nodes['class_ver_bg'];
 
 	ver_bar.style.opacity = 1;
+
+	// 覆盖原有内容
 	ver_bar.innerHTML = 
 	'\
 	<canvas class="ver_bar_img" width="'+w+'" height="'+h+'"></canvas>\
@@ -1384,16 +1493,20 @@ Logged.prototype._imgVer_draw_canvas = function(){
 	ctx_bar_blur.shadowBlur=20;										// 投影模糊
 	ctx_bar_blur.fill();											// 填充颜色
 
-	var t_ver_bar = this.ver_nodes['class_ver_bar'];
-
-	t_ver_bar.style.left = -X + 10 + 'px';							// 设置拼图偏移量
+	// 设置滑块偏移量
+	this.ver_nodes['class_ver_bar'].style.left = -X + 10 + 'px';							// 设置拼图偏移量
 
 }
 
 
 
+/**
+ * 登录表单的事件
+ * 无参数
+ */
 Logged.prototype.log_form_event = function(){
 
+	// 请求RSA
 	this.getRSA();
 
 	var _this = this;
@@ -1451,9 +1564,20 @@ Logged.prototype.log_form_event = function(){
 						pass:pass.value
 					});
 
-					var ver_svg = _this.lag_nodes['class_ver_shade'];
-					ver_svg.style.display = 'block';
+					var ver_svg = _this.lag_nodes['class_ver_shade'],
+						ver_shade_tip = _this.lag_nodes['class_ver_shade_tip'];
 
+					ver_svg.style.display = 'block';
+					ver_shade_tip.style.display = 'block';
+
+					ver_shade_tip.innerHTML = '正在登录'
+
+					var ver_wrap = _this.lag_nodes['class_ver_wrap'];
+					var log_form_wrap = _this.lag_nodes['class_log_form_wrap'];
+					var log = _this.lag_nodes['log'];
+					var adjuster_btn = _this.ver_nodes['class_adjuster_btn'];
+					var ver_high_light = _this.ver_nodes['class_ver_high_light'];
+					
 					ajax({
 						method:'post',
 						url:'php/user.php',
@@ -1461,12 +1585,20 @@ Logged.prototype.log_form_event = function(){
 						success:function(data){
 							// 模拟加载时长
 							setTimeout(function(){
-								ver_svg.style.display = 'none';
 								if(data){//ver_wrap
-									
+									ver_shade_tip.innerHTML = '登录成功，正在跳转';
 								}else{
-	
+									ver_shade_tip.innerHTML = '登录失败';
+									_this.testWarning('用户名或密码错误');
+									startMove({obj:ver_wrap, json:{left:300,opacity:0}, times:200});
+									startMove({obj:log_form_wrap, json:{left:0,opacity:100}, times:200});
+									startMove({obj:log, json:{height:186}, times:200});
+									startMove({ obj:adjuster_btn, json:{ left:0 }, fn:function(){
+										adjuster_btn.toggle = true;
+									},delay:400});
+									ver_high_light.style.left = '100px';
 								}
+								ver_svg.style.display = 'none';
 							},500);
 						}
 					});
@@ -1553,11 +1685,14 @@ Lag.prototype.buildLagBtn = function(){
 	        	</a>\
 			</div>\
 			<div class="ver_wrap">\
-				<div class="ver_shade">'+this.svg_loading('ver_shade_svg',60)+'</div>\
+				<div class="ver_shade">'
+					+this.svg_loading('ver_shade_svg',60)+
+					'<p class="ver_shade_tip"></p>'+
+				'</div>\
 			</div>\
         </div>\
         ',
-		selector:'log_a,log_form_wrap,ver_wrap,ver_shade'
+		selector:'log_a,log_form_wrap,ver_wrap,ver_shade,ver_shade_tip'
 	};
 
 	if(this.parent){
